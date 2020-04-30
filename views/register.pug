@@ -1,0 +1,42 @@
+doctype html
+html(lang="de")
+    head
+        meta(charset="UTF-8")
+        title SleepLocker
+        link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
+        script(src="https://code.jquery.com/jquery-3.3.1.min.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js")
+        script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js")
+    body
+        h1.display-3.text-center.mt-5 Willkommen bei SleepLocker!
+        p.blockquote.text-center.mt-5= `${raidName} (${date})`
+        div.row.padding.d-flex.justify-content-center.mt-5
+            div.col-md-8.col-lg-8.col-xl-6
+                div.card
+                    div.card-body
+                        h4.card-title.text-center.padding Softlocks registrieren
+                        hr
+                        -if(messages.errorMsg)
+                            div.alert.alert-danger.alert-dismissible.fade.show(role="alert")= messages.errorMsg
+                                button.close(type="button" data-dismiss="alert" aria-label="Close")
+                                    span(aria-hidden="true") &times;
+                        -if(messages.successMsg)
+                            div.alert.alert-success.alert-dismissible.fade.show(role="alert")= messages.successMsg
+                                button.close(type="button" data-dismiss="alert" aria-label="Close")
+                                    span(aria-hidden="true") &times;
+                        div.padding
+                        form.needs-validation(action="register_lock" novalidate method="post")
+                            div.form-group
+                                label(for="name") Charaktername
+                                input#username.form-control.form-control-lg(type="text" value=name name="name" required disabled = !allowChanges)
+                                div.invalid-feedback Bitte deinen Charakternamen eingeben
+                            div.form-group
+                                label(for="prio1") Prio 1
+                                input#password.form-control.form-control-lg(type="text" name="prio1" value=prio1 required disabled = !allowChanges)
+                                div.invalid-feedback Bitte deine erste Prio eingeben
+                            div.form-group
+                                label(for="prio2") Prio 2
+                                input#password.form-control.form-control-lg(type="text" name="prio2" value=prio2 required disabled = !allowChanges)
+                                div.invalid-feedback Bitte deine zweite Prio eingeben
+                            button.mr-1.btn.btn-primary(type="submit" name="register" disabled = !allowChanges) Abschicken
+                            button.mr-1.btn.btn-primary(type="submit" name="delete" disabled = allowChanges) Stornieren

@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "target": "esnext",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "lib": ["dom", "es2018"],
+      "allowSyntheticDefaultImports": true,
+      "noUnusedLocals":true,
+      "removeComments": true,    
+      "resolveJsonModule": true,
+      "strict": true,
+      "typeRoots": ["node_modules/@types"]
+    },
+    "include": ["src/**/*.ts"]
+  }
