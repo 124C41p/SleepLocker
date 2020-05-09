@@ -1,0 +1,24 @@
+[
+    {
+        "name": "Schurke",
+        "specializations": [
+            "Dolche",
+            "Schwerter"
+        ]
+    },
+    {
+        "name": "Krieger",
+        "specializations": [
+            "Tank",
+            "DD Einhändig",
+            "DD Beidhändig"
+        ]
+    },
+    {
+        "name": "Priester",
+        "specializations": [
+            "Heal",
+            "DD"
+        ]
+    }
+]

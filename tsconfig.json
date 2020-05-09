@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-      "target": "esnext",
-      "module": "esnext",
+      "target": "ES2019",
+      "module": "ESNext",
       "moduleResolution": "node",
       "lib": ["dom", "es2018"],
       "allowSyntheticDefaultImports": true,
@@ -9,7 +9,8 @@
       "removeComments": true,    
       "resolveJsonModule": true,
       "strict": true,
-      "typeRoots": ["node_modules/@types"]
+      "typeRoots": ["node_modules/@types"],
+      "experimentalDecorators": true
     },
     "include": ["src/**/*.ts"]
   }

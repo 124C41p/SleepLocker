@@ -3,6 +3,7 @@ import { RaidDatabase, SoftlockCapacityReachedError, SoftlockRegistrationError, 
 import http from 'http';
 import session from 'express-session';
 import flash from 'express-flash';
+import fs from 'fs';
 
 const app = express();
 app.set('views', 'views');
@@ -11,12 +12,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000 }}))
 app.use(flash());
 
+let classes = JSON.parse(fs.readFileSync('config/classes.json').toString());
+
+app.get('/test', (req, res) => {
+    res.render('test', {
+        flags: JSON.stringify({
+            classes: classes
+        })
+    });
+});
+
 function createHttpServer(app: Express, port: number = 8080) {
     http.createServer(app).listen(port, () => console.log(`http server is running on port ${port}`));
 }
 
 let db = new RaidDatabase();
 db.initialize();
+
+app.use('/public/javascripts/', express.static('dist/frontend/'));
 
 app.get('/', async (req, res) => {
     let raidID = await db.current_raid_id();

@@ -1,4 +1,5 @@
 node_modules/
+elm-stuff/
 *.sqlite
 dist/
 __pycache__
