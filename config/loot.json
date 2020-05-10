@@ -1,0 +1,28 @@
+[
+    {
+        "instance": "mc",
+        "locations": [
+            {
+                "location": "Trash",
+                "loot": [
+                    "Ein Item",
+                    "Ein anderes Item"
+                ]
+            },
+            {
+                "location": "Ein Boss",
+                "loot": [
+                    "Noch ein Item",
+                    "Etwas ganz anderes"
+                ]
+            },
+            {
+                "location": "Ein anderer Boss",
+                "loot": [
+                    "Noch ein Item",
+                    "Etwas völlig anderes"
+                ]
+            }
+        ]
+    }
+]
