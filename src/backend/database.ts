@@ -10,7 +10,7 @@ Modes
 */
 
 export interface UserData {
-    name: string;
+    userName: string;
     class: string;
     specialization: string;
     prio1: string|null;
@@ -68,12 +68,12 @@ export class RaidDatabase {
             this._db.get('SELECT class, specialization, prio1, prio2, editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
                 if(err) return reject(err);
                 if(!row || !row.editable) return resolve(null);
-                resolve({ name: userName, class: row.class, specialization: row.specialization, prio1: row.prio1, prio2: row.prio2 });
+                resolve({ userName: userName, class: row.class, specialization: row.specialization, prio1: row.prio1, prio2: row.prio2 });
             });
         });
     }
 
-    async setUserLocks(raidID: number, userName: string, userClass: string, specialization: string, prio1: string, prio2: string) {
+    async setUserLocks(raidID: number, userName: string, userClass: string, specialization: string, prio1?: string, prio2?: string) {
         return new Promise((resolve, reject) => {
             this._db.get('SELECT COUNT(*) as no FROM locks WHERE raid_id = ?', [raidID], (err, row) => {
                 if(err) return reject(err);

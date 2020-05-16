@@ -14,8 +14,8 @@ option = Option
 optionGroup : String -> List String -> SelectItem
 optionGroup label options = OptGroup { label = label, options = options }
 
-selectedValue : String -> Attribute msg
-selectedValue = attribute "value"
+selectedValue : Maybe String -> Attribute msg
+selectedValue = attribute "value" << Maybe.withDefault ""
 
 searchable : Attribute msg
 searchable = attribute "searchable" ""

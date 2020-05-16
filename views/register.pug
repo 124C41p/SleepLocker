@@ -4,5 +4,28 @@ block content
     script.
         Elm.Register.init({
             node: document.getElementById('elm'),
-            flags: JSON.parse('!{flags}')
+            flags: 
+                {
+                    classDescriptions : [
+                        {
+                            className: 'Schurke',
+                            specializations: [ 'Schwerter', 'Dolche' ]
+                        },
+                        {
+                            className: 'Priester',
+                            specializations: [ 'Heal', 'DD' ]
+                        }
+                    ],
+                    lootTable : [
+                        {
+                            locationName : 'Boss 1',
+                            items: ['Item 1', 'Item 2']
+                        },
+                        {
+                            locationName : 'Boss 2',
+                            items: ['Item 3', 'Item 4']
+                        }
+                    ]
+                }
+            //- flags: JSON.parse('!{flags}')
         })

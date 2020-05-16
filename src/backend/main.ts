@@ -1,25 +1,22 @@
 import express, { Express } from 'express';
-import { RaidDatabase, UserData } from './database';
 import { characterClasses, uniqueLoot } from './configurations';
+// import { allLoot } from './configurations';
+import apiRouter from './api';
 import http from 'http';
-import session from 'express-session';
-import flash from 'express-flash';
+import { RaidDatabase } from './database';
 
 const app = express();
 app.set('views', 'views');
 app.set('view engine', 'pug');
-app.use(express.json());
-app.use(session({secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000 }}))
 app.use('/public/javascripts/', express.static('dist/frontend/'));
-app.use(flash());
-
-function createHttpServer(app: Express, port: number = 8080) {
-    http.createServer(app).listen(port, () => console.log(`http server is running on port ${port}`));
-}
+app.use('/api', apiRouter);
 
 let db = new RaidDatabase();
-db.initialize();
 
+async function createHttpServer(app: Express, port: number = 8080) {
+    await db.initialize()
+    http.createServer(app).listen(port, () => console.log(`http server is running on port ${port}`));
+}
 
 app.get('/', async (req, res) => {
     let raidID = await db.currentRaidId();
@@ -40,13 +37,6 @@ app.get('/', async (req, res) => {
             let flags = {
                 classes: characterClasses,
                 loot: uniqueLoot.filter(instance => instance.name == raid.instance)[0],
-                userData: null as UserData|null
-            }
-            let name = (req.session as Express.Session).name as string|null;
-            if(name) {
-                let data = await db.getUserData(raidID, name);
-                if(data)
-                    flags.userData = data;
             }
             return res.render('register', { ...renderData, flags: JSON.stringify(flags) });
         case 2:
