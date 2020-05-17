@@ -20,7 +20,7 @@ export interface UserData {
 export interface Raid {
     id: number;
     name: string;
-    instance: string;
+    dungeon: string;
     mode: number;
     date: string;
 }
@@ -43,7 +43,7 @@ export class RaidDatabase {
     async initialize() {
         return new Promise((resolve, reject) => {
             this._db.serialize(() => {
-                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING NOT NULL, instance STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
+                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING NOT NULL, dungeon STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
                     if(err) return reject(err);
                 });
                 this._db.exec('CREATE TABLE IF NOT EXISTS locks(raid_id INTEGER, user_name STRING NOT NULL, class STRING NOT NULL, specialization STRING NOT NULL, prio1 STRING, prio2 STRING, editable INTEGER DEFAULT 1, PRIMARY KEY(raid_id, user_name))', err => {
@@ -89,7 +89,7 @@ export class RaidDatabase {
     
     async getRaid(raidID: number): Promise<Raid> {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT raid_id as id, name, instance, mode, date FROM raids WHERE raid_id = ?', [raidID], (err, row) => {
+            this._db.get('SELECT raid_id as id, name, dungeon, mode, date FROM raids WHERE raid_id = ?', [raidID], (err, row) => {
                 if(err) return reject(err);
                 resolve(row as Raid);
             });

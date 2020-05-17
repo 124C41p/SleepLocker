@@ -11,9 +11,9 @@ def active_raid_no():
     finally:
         cur.close()
 
-def add_raid(name, instance):
+def add_raid(name, dungeon):
     cur = conn.cursor()
-    cur.execute('INSERT INTO raids(name, instance, date) VALUES(?,?,?)', [name, instance, str(datetime.now().date())])
+    cur.execute('INSERT INTO raids(name, dungeon, date) VALUES(?,?,?)', [name, dungeon, str(datetime.now().date())])
     cur.close()
     conn.commit()
 

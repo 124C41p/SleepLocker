@@ -1,9 +1,23 @@
 [
     {
-        "name": "Schurke",
+        "name": "Druide",
         "specializations": [
-            "Dolche",
-            "Schwerter"
+            "DD Eule",
+            "DD Feral",
+            "Heal",
+            "Tank"
+        ]
+    },
+    {
+        "name": "Hexenmeister",
+        "specializations": [
+            "DD"
+        ]
+    },
+    {
+        "name": "Jäger",
+        "specializations": [
+            "DD"
         ]
     },
     {
@@ -15,10 +29,31 @@
         ]
     },
     {
+        "name": "Magier",
+        "specializations": [
+            "DD"
+        ]
+    },
+    {
+        "name": "Paladin",
+        "specializations": [
+            "DD",
+            "Heal",
+            "Tank"
+        ]
+    },
+    {
         "name": "Priester",
         "specializations": [
             "Heal",
             "DD"
+        ]
+    },
+    {
+        "name": "Schurke",
+        "specializations": [
+            "Dolche",
+            "Schwerter"
         ]
     }
 ]

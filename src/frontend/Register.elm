@@ -93,17 +93,18 @@ userDataDecoder =
 responseDecoder : Decoder a -> Decoder (Result String a)
 responseDecoder decoder =
     Decode.field "success" Decode.bool
-        |> Decode.andThen
-            ( \success ->  if success then
+    |> Decode.andThen
+        ( \success -> 
+            if success then
                 Decode.field "result" decoder
-                    |> Decode.map Ok
-             else
+                |> Decode.map Ok
+            else
                 Decode.field "errorMsg" Decode.string
-                    |> Decode.map Err
-            )
+                |> Decode.map Err
+        )
             
-expectResponse : Maybe msg -> (Result String a -> msg) -> Decoder a -> Http.Expect msg
-expectResponse defaultMsg converter decoder =
+expectResponse : (Result String a -> msg) -> Maybe msg -> Decoder a -> Http.Expect msg
+expectResponse converter defaultMsg decoder =
     Http.expectJson
         ( Result.map converter >> Result.withDefault (Maybe.withDefault (converter <| Err "Interner Serverfehler.") defaultMsg) )
         ( responseDecoder decoder )
@@ -155,8 +156,9 @@ loadUserData : InfoMessage -> Cmd Msg
 loadUserData infoMsg =
     Http.get
         { url = "/api/myData"
-        , expect = expectResponse (Just <| WaitAndReload infoMsg )
-            ( Result.withDefault DisplayEmptyData << Result.map (DisplayLockedData infoMsg) )
+        , expect = expectResponse
+            ( Result.map (DisplayLockedData infoMsg) >> Result.withDefault DisplayEmptyData )
+            (Just <| WaitAndReload infoMsg )
             userDataDecoder
         }
 
@@ -166,11 +168,12 @@ storeUserData data =
         { url = "/api/register"
         , body = Http.jsonBody (userDataEncoder data)
         , expect =
-            expectResponse Nothing
+            expectResponse
             ( \res -> case res of
                 Err message -> DisplayEditableData (ErrorMsg message) data
                 Ok () -> Reload (SuccessMsg "Du bist jetzt angemeldet.")
             )
+            Nothing
             ( Decode.null () )
         }
 
@@ -179,12 +182,13 @@ clearUserData data =
     Http.get
         { url = "/api/clearMyData"
         , expect =
-            expectResponse Nothing
+            expectResponse
                 ( \result ->
                     case result of
                         Err errorMsg -> Reload (ErrorMsg errorMsg)
                         Ok () -> DisplayEditableData (SuccessMsg "Deine Anmeldung wurde storniert.") data
                 )
+                Nothing
                 ( Decode.null () )
         }
 

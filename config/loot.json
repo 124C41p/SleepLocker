@@ -1,27 +1,620 @@
 [
     {
-        "instance": "mc",
-        "locations": [
+        "dungeonKey": "mc",
+        "loot": [
             {
-                "location": "Trash",
-                "loot": [
-                    "Ein Item",
-                    "Ein anderes Item"
+                "itemName": "Foliant des einlullenden Schusses",
+                "locations": [
+                    "Lucifron"
                 ]
             },
             {
-                "location": "Ein Boss",
-                "loot": [
-                    "Noch ein Item",
-                    "Etwas ganz anderes"
+                "itemName": "Krone des Arkanisten",
+                "locations": [
+                    "Garr"
                 ]
             },
             {
-                "location": "Ein anderer Boss",
-                "loot": [
-                    "Noch ein Item",
-                    "Etwas völlig anderes"
+                "itemName": "Gamaschen des Arkanisten",
+                "locations": [
+                    "Magmadar"
                 ]
+            },
+            {
+                "itemName": "Mantel des Arkanisten",
+                "locations": [
+                    "Baron Geddon"
+                ]
+            },
+            {
+                "itemName": "Roben des Arkanisten",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Arkanisten",
+                "locations": [
+                    "Lucifron"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Arkanisten",
+                "locations": [
+                    "Shazzrah"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzschuhe",
+                "locations": [
+                    "Shazzrah"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzhandschuhe",
+                "locations": [
+                    "Lucifron"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzschulterpolster",
+                "locations": [
+                    "Baron Geddon"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzhörner",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzroben",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzhose",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Stiefel der Prophezeiung",
+                "locations": [
+                    "Shazzrah"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der Prophezeiung",
+                "locations": [
+                    "Gehennas"
+                ]
+            },
+            {
+                "itemName": "Reif der Prophezeiung",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Hose der Prophezeiung",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Roben der Prophezeiung",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Mantel der Prophezeiung",
+                "locations": [
+                    "Sulfuronherold"
+                ]
+            },
+            {
+                "itemName": "Brustharnisch des Nachtmeuchlers",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Kopfschutz des Nachtmeuchlers",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Hose des Nachtmeuchlers",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Schulterklappen des Nachtmeuchlers",
+                "locations": [
+                    "Sulfuronherold"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Nachtmeuchlers",
+                "locations": [
+                    "Shazzrah"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Nachtmeuchlers",
+                "locations": [
+                    "Gehennas"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Cenarius",
+                "locations": [
+                    "Lucifron"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Cenarius",
+                "locations": [
+                    "Shazzrah"
+                ]
+            },
+            {
+                "itemName": "Gewand des Cenarius",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Helm des Cenarius",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Gamaschen des Cenarius",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Schiftung des Cenarius",
+                "locations": [
+                    "Baron Geddon"
+                ]
+            },
+            {
+                "itemName": "Brustplatte des Riesenjägers",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Helm des Riesenjägers",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Gamaschen des Riesenjägers",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Schulterklappen des Riesenjägers",
+                "locations": [
+                    "Sulfuronherold"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Riesenjägers",
+                "locations": [
+                    "Gehennas"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Riesenjägers",
+                "locations": [
+                    "Shazzrah"
+                ]
+            },
+            {
+                "itemName": "Brustschutz der Gerechtigkeit",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Helm der Gerechtigkeit",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Beinplatten der Gerechtigkeit",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Schiftung der Gerechtigkeit",
+                "locations": [
+                    "Baron Geddon"
+                ]
+            },
+            {
+                "itemName": "Stiefel der Gerechtigkeit",
+                "locations": [
+                    "Lucifron"
+                ]
+            },
+            {
+                "itemName": "Stulpen der Gerechtigkeit",
+                "locations": [
+                    "Gehennas"
+                ]
+            },
+            {
+                "itemName": "Sabatons der Macht",
+                "locations": [
+                    "Gehennas"
+                ]
+            },
+            {
+                "itemName": "Stulpen der Macht",
+                "locations": [
+                    "Lucifron"
+                ]
+            },
+            {
+                "itemName": "Brustplatte der Macht",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Helm der Macht",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Beinplatten der Macht",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Schulterstücke der Macht",
+                "locations": [
+                    "Sulfuronherold"
+                ]
+            },
+            {
+                "itemName": "Beinschützer des Stormrage",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Blutfanghose",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Hose des Netherwinds",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Gamaschen der Erhabenheit",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Gamaschen der Nemesis",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Beinschützer des Drachenjägers",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Beinplatten des Richturteils",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Beinplatten des Zorns",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Band von Accuria",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Medaillon der beständigen Macht",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Drillbohrer-Scheibe",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Schläger-Mal",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Räuderipper",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Blasterwerfer",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Erderschütterer",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Schattenschlag",
+                "locations": [
+                    "Sulfuronherold"
+                ]
+            },
+            {
+                "itemName": "Knochenhäschers Schneide",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Purpurroter Schocker",
+                "locations": []
+            },
+            {
+                "itemName": "Splitter der Flamme",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Umhang der verhüllten Nebel",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Magierklinge des Azurlieds",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Rückgratschnitter",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Aurastein-Hammer",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Malistar-Verteidiger",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Drachenblut-Cape",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Halsschmuck der Erleuchtung",
+                "locations": [
+                    "Lucifron"
+                ]
+            },
+            {
+                "itemName": "Siegel des Erzmagiers",
+                "locations": [
+                    "Baron Geddon"
+                ]
+            },
+            {
+                "itemName": "Auge von Sulfuras",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Eskhandars rechte Klaue",
+                "locations": [
+                    "Magmadar"
+                ]
+            },
+            {
+                "itemName": "Muster: Kernrüstungsset",
+                "locations": []
+            },
+            {
+                "itemName": "Formel: Waffe - Heilkraft",
+                "locations": []
+            },
+            {
+                "itemName": "Pläne: Elementarwetzstein",
+                "locations": []
+            },
+            {
+                "itemName": "Bauplan: Machtreaktive Scheibe",
+                "locations": []
+            },
+            {
+                "itemName": "Fesseln des Windsuchers",
+                "locations": [
+                    "Baron Geddon"
+                ]
+            },
+            {
+                "itemName": "Fesseln des Windsuchers",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Halsschmuck des Feuerlords",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Essenz der reinen Flamme",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Klinge des Verderbens",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Krone der Zerstörung",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Talisman der ephemeren Macht",
+                "locations": []
+            },
+            {
+                "itemName": "Ring des rasanten Schlags",
+                "locations": []
+            },
+            {
+                "itemName": "Scharfkantige Obsidianklinge",
+                "locations": []
+            },
+            {
+                "itemName": "Alte Kernlederhandschuhe",
+                "locations": []
+            },
+            {
+                "itemName": "Magmagehärtete Stiefel",
+                "locations": []
+            },
+            {
+                "itemName": "Tiefenerde - Schiftung",
+                "locations": []
+            },
+            {
+                "itemName": "Unbarmherzige Klinge",
+                "locations": [
+                    "Garr"
+                ]
+            },
+            {
+                "itemName": "Stab der Dominanz",
+                "locations": [
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Feuerschuppenbeinplatten",
+                "locations": []
+            },
+            {
+                "itemName": "Gamaschen des Manasturms",
+                "locations": []
+            },
+            {
+                "itemName": "Salamanderschuppengamaschen",
+                "locations": []
+            },
+            {
+                "itemName": "Zauberdolch",
+                "locations": []
+            },
+            {
+                "itemName": "Schwerer Dunkeleisenring",
+                "locations": []
+            },
+            {
+                "itemName": "Mana entfachende Kordel",
+                "locations": []
+            },
+            {
+                "itemName": "Gurt des Ansturms",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Band von Sulfuras",
+                "locations": [
+                    "Ragnaros"
+                ]
+            },
+            {
+                "itemName": "Feuerrunenverzierter Zauberfoliant",
+                "locations": []
+            },
+            {
+                "itemName": "Flammenwächterstulpen",
+                "locations": []
+            },
+            {
+                "itemName": "Sabatons des Flammenwandlers",
+                "locations": []
+            },
+            {
+                "itemName": "Robe der flüchtigen Macht",
+                "locations": []
+            },
+            {
+                "itemName": "Handgelenksschutz der Stabilität",
+                "locations": []
+            },
+            {
+                "itemName": "Ring der Zauberkraft",
+                "locations": []
             }
         ]
     }
