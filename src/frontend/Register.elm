@@ -1,5 +1,5 @@
 module Register exposing (main)
-import Html exposing (Html, div, h4, text, label, input, button, span )
+import Html exposing (Html, div, h4, text, label, input, button, span)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
@@ -25,11 +25,7 @@ type alias Model =
     }
 type State
     = Loading
-    | Registering
-    | Showing
-        { userData : UserData
-        , successMsg : Maybe String
-        }
+    | Showing UserData
     | EditingPartialData PartialUserData
     | EditingCompleteData
         { userData : UserData
@@ -86,17 +82,15 @@ userDataDecoder =
 
 requestDecoder : Decoder a -> Decoder (Result String a)
 requestDecoder decoder =
-    let
-        toResult success errMsg res =
-            if success then
-                Result.fromMaybe "Interner Serverfehler" res
-            else
-                Err (Maybe.withDefault "" errMsg)
-    in
-        Decode.map3 toResult
-            (Decode.field "success" Decode.bool)
-            (Decode.field "errorMsg" (Decode.nullable Decode.string))
-            (Decode.field "result" (Decode.nullable decoder))
+    Decode.field "success" Decode.bool
+        |> Decode.andThen
+            ( \success ->  if success then
+                Decode.field "result" decoder
+                    |> Decode.map Ok
+             else
+                Decode.field "errorMsg" Decode.string
+                    |> Decode.map Err
+            )
 
 type alias PartialUserData =
     { userName : String
@@ -158,8 +152,8 @@ storeUserData data =
         { url = "/api/register"
         , body = Http.jsonBody (userDataEncoder data)
         , expect = Http.expectJson
-            ( Result.withDefault (DataStored <| Err "Interner Serverfehler")
-                << Result.map DataStored
+            ( Result.withDefault (DataStored data <| Err "Interner Serverfehler")
+                << Result.map (DataStored data)
             )
             ( requestDecoder (Decode.null ()) )
         }
@@ -178,7 +172,7 @@ type Msg
     | UnknownUser
     | DataLoaded UserData
     | DataUpdated PartialUserData
-    | DataStored (Result String ())
+    | DataStored UserData (Result String ())
     | RegisterUserData UserData
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -193,19 +187,25 @@ update msg model =
             , Cmd.none
             )
         DataLoaded userData ->
-            ( { model | state = Showing { userData = userData, successMsg = Nothing } }
+            ( { model | state = Showing userData }
             , Cmd.none
             )
         DataUpdated newData ->
             ( { model | state = buildState newData }
             , Cmd.none
             )
-        DataStored _ ->
-            ( model
-            , loadUserData
-            )
+        DataStored data result ->
+            case result of
+                Ok () ->
+                    ( { model | state = Loading }
+                    , loadUserData
+                    )
+                Err errMsg ->
+                    ( { model | state = EditingCompleteData { userData = data, errorMsg = Just errMsg } }
+                    , Cmd.none
+                    )
         RegisterUserData data ->
-            ( model
+            ( { model | state = Loading }
             , storeUserData data
             )
 
@@ -217,10 +217,9 @@ view : Model -> Html Msg
 view model = viewFormBorder <|
     case model.state of
         Loading -> viewLoading
-        Registering -> viewLoading
         EditingPartialData data -> viewFormPartial model.env data
-        Showing { userData } -> viewFormLocked model.env userData
-        EditingCompleteData { userData } -> viewFormComplete model.env userData
+        Showing userData -> viewFormLocked model.env userData
+        EditingCompleteData { userData, errorMsg } -> viewFormComplete model.env userData errorMsg
 
 viewLoading : Html Msg
 viewLoading =
@@ -255,20 +254,43 @@ viewFormPartial env data =
             ]
         ]
         
-viewFormComplete : Environment -> UserData -> Html Msg
-viewFormComplete env data =
-    div []
-        [ viewInputForm env (invalidateUserData data) False
-        , div [ class "btn-group" ]
-            [ button [ class "btn", class "btn-primary", onClick (RegisterUserData data) ] [ text "Abschicken" ]
-            , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
+viewFormComplete : Environment -> UserData -> Maybe String -> Html Msg
+viewFormComplete env data error =
+    div [] <|
+        List.concat
+            [ Maybe.withDefault [] (Maybe.map (\errMsg -> [ viewAlert errMsg ]) error)
+            ,
+                [ viewInputForm env (invalidateUserData data) False
+                , div [ class "btn-group" ]
+                    [ button [ class "btn", class "btn-primary", onClick (RegisterUserData data) ] [ text "Abschicken" ]
+                    , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
+                    ]
+                ]
+            ]
+
+viewAlert : String -> Html Msg
+viewAlert message =
+    div [ class "alert", class "alert-danger", class "alert-dismissible", class "fade", class "show", attribute "role" "alert" ]
+        [ span [] [ text message ]
+        , button [ class "close", attribute "data-dismiss" "alert", attribute "aria-label" "Close" ]
+            [ span [ attribute "aria-hidden" "true" ] [ text "×" ]
+            ]
+        ]
+
+viewSuccess : String -> Html Msg
+viewSuccess message =
+    div [ class "alert", class "alert-success", class "alert-dismissible", class "fade", class "show", attribute "role" "alert" ]
+        [ span [] [ text message ]
+        , button [ class "close", attribute "data-dismiss" "alert", attribute "aria-label" "Close" ]
+            [ span [ attribute "aria-hidden" "true" ] [ text "×" ]
             ]
         ]
 
 viewFormLocked : Environment -> UserData -> Html Msg
 viewFormLocked env data =
     div []
-        [ viewInputForm env (invalidateUserData data) True
+        [ viewSuccess "Deine Anmeldung wurde gespeichert."
+        , viewInputForm env (invalidateUserData data) True
         , div [ class "btn-group" ]
             [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
             , button [ class "btn", class "btn-primary" ] [ text "Stornieren" ]

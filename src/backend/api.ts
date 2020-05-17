@@ -6,7 +6,7 @@ import { Field, parse, MaxLength, MinLength, JsonParseError } from 'sparkson';
 let db = new RaidDatabase();
 let app = express.Router();
 app.use(express.json());
-app.use(session({secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000 }}))
+app.use(session({secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000, sameSite: true }}))
 db.initialize().then(() => {
     app.get('/myData', getMyData);
     app.post('/register', registerData);
@@ -40,6 +40,7 @@ let registerData: RequestHandler = async (req, res) => {
         if(raid.mode != 1)
             return res.json(fail('Not allowed in this state.'))
         await db.setUserLocks(raidID, data.userName, data.characterClass, data.specialization, data.prio1, data.prio2);
+        (req.session as Express.Session).name = data.userName;
         return res.json(succeed());        
     } catch(err) {
         if(err instanceof JsonParseError)
@@ -57,28 +58,30 @@ class RegisterData {
         @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
         @Field("class") @MinLength(1) @MaxLength(50) public characterClass: string,
         @Field("specialization") @MinLength(1) @MaxLength(50) public specialization: string,
-        @Field("prio1") @MinLength(1) @MaxLength(50) public prio1?: string,
-        @Field("prio2") @MinLength(1) @MaxLength(50) public prio2?: string,
+        @Field("prio1", true) @MinLength(1) @MaxLength(50) public prio1?: string,
+        @Field("prio2", true) @MinLength(1) @MaxLength(50) public prio2?: string,
     ) {}
 }
 
 interface ApiResponse<T> {
     success: Boolean;
-    errorMsg?: String;
-    result?: T;
+    errorMsg: String|null;
+    result: T|null;
 }
 
 function succeed<T>(result?: T): ApiResponse<T> {
     return {
         success: true,
-        result: result
+        errorMsg: null,
+        result: result ?? null
     }
 }
 
 function fail<T>(errorMsg: String): ApiResponse<T> {
     return {
         success: false,
-        errorMsg: errorMsg
+        errorMsg: errorMsg,
+        result: null
     }
 }
 
