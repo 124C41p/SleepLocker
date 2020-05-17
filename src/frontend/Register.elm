@@ -3,6 +3,8 @@ import Html exposing (Html, div, h4, text, label, input, button, span)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
+import Process
+import Task
 import Browser
 import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, searchable, nullable, onUpdate)
 import Json.Decode as Decode exposing (Decoder)
@@ -25,7 +27,7 @@ type alias Model =
     }
 type State
     = Loading
-    | Showing UserData
+    | DisplayingStoredData UserData
     | EditingPartialData PartialUserData
     | EditingCompleteData
         { userData : UserData
@@ -80,8 +82,8 @@ userDataDecoder =
         (Decode.field "prio1" (Decode.nullable Decode.string))
         (Decode.field "prio2" (Decode.nullable Decode.string))
 
-requestDecoder : Decoder a -> Decoder (Result String a)
-requestDecoder decoder =
+responseDecoder : Decoder a -> Decoder (Result String a)
+responseDecoder decoder =
     Decode.field "success" Decode.bool
         |> Decode.andThen
             ( \success ->  if success then
@@ -91,6 +93,12 @@ requestDecoder decoder =
                 Decode.field "errorMsg" Decode.string
                     |> Decode.map Err
             )
+            
+expectResponse : Maybe msg -> (Result String a -> msg) -> Decoder a -> Http.Expect msg
+expectResponse defaultMsg converter decoder =
+    Http.expectJson
+        ( Result.map converter >> Result.withDefault (Maybe.withDefault (converter <| Err "Interner Serverfehler.") defaultMsg) )
+        ( responseDecoder decoder )
 
 type alias PartialUserData =
     { userName : String
@@ -139,11 +147,9 @@ loadUserData : Cmd Msg
 loadUserData =
     Http.get
         { url = "/api/myData"
-        , expect = Http.expectJson
-            ( Result.withDefault Reload << Result.map
-                ( Result.withDefault UnknownUser << Result.map DataLoaded )
-            )
-            (requestDecoder userDataDecoder)
+        , expect = expectResponse (Just WaitAndReload)
+            ( Result.withDefault UnknownUser << Result.map DataLoaded )
+            userDataDecoder
         }
 
 storeUserData : UserData -> Cmd Msg
@@ -151,11 +157,24 @@ storeUserData data =
     Http.post
         { url = "/api/register"
         , body = Http.jsonBody (userDataEncoder data)
-        , expect = Http.expectJson
-            ( Result.withDefault (DataStored data <| Err "Interner Serverfehler")
-                << Result.map (DataStored data)
-            )
-            ( requestDecoder (Decode.null ()) )
+        , expect =
+            expectResponse Nothing
+            ( DataStored data )
+            ( Decode.null () )
+        }
+
+clearUserData : UserData -> Cmd Msg
+clearUserData data =
+    Http.get
+        { url = "/api/clearMyData"
+        , expect =
+            expectResponse Nothing
+                ( \result ->
+                    case result of
+                        Err _ -> DataStored data result
+                        Ok () -> DataUpdated (invalidateUserData data)
+                )
+                ( Decode.null () )
         }
 
 init : Flags -> (Model, Cmd Msg)
@@ -169,25 +188,36 @@ init env =
 
 type Msg
     = Reload
+    | WaitAndReload
     | UnknownUser
     | DataLoaded UserData
     | DataUpdated PartialUserData
     | DataStored UserData (Result String ())
     | RegisterUserData UserData
+    | ClearUserData UserData
+
+delay : Float -> msg -> Cmd msg
+delay time msg =
+    Process.sleep time
+    |> Task.perform (\() -> msg)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Reload ->
-            ( model
+            ( { model | state = Loading }
             , loadUserData
+            )
+        WaitAndReload ->
+            ( { model | state = Loading }
+            , delay 1000 Reload
             )
         UnknownUser ->
             ( { model | state = EditingPartialData emptyUserData }
             , Cmd.none
             )
         DataLoaded userData ->
-            ( { model | state = Showing userData }
+            ( { model | state = DisplayingStoredData userData }
             , Cmd.none
             )
         DataUpdated newData ->
@@ -208,6 +238,10 @@ update msg model =
             ( { model | state = Loading }
             , storeUserData data
             )
+        ClearUserData data ->
+            ( { model | state = Loading }
+            , clearUserData data
+            )
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -218,7 +252,7 @@ view model = viewFormBorder <|
     case model.state of
         Loading -> viewLoading
         EditingPartialData data -> viewFormPartial model.env data
-        Showing userData -> viewFormLocked model.env userData
+        DisplayingStoredData userData -> viewFormLocked model.env userData
         EditingCompleteData { userData, errorMsg } -> viewFormComplete model.env userData errorMsg
 
 viewLoading : Html Msg
@@ -270,20 +304,14 @@ viewFormComplete env data error =
 
 viewAlert : String -> Html Msg
 viewAlert message =
-    div [ class "alert", class "alert-danger", class "alert-dismissible", class "fade", class "show", attribute "role" "alert" ]
+    div [ class "alert", class "alert-danger" ]
         [ span [] [ text message ]
-        , button [ class "close", attribute "data-dismiss" "alert", attribute "aria-label" "Close" ]
-            [ span [ attribute "aria-hidden" "true" ] [ text "×" ]
-            ]
         ]
 
 viewSuccess : String -> Html Msg
 viewSuccess message =
-    div [ class "alert", class "alert-success", class "alert-dismissible", class "fade", class "show", attribute "role" "alert" ]
+    div [ class "alert", class "alert-success" ]
         [ span [] [ text message ]
-        , button [ class "close", attribute "data-dismiss" "alert", attribute "aria-label" "Close" ]
-            [ span [ attribute "aria-hidden" "true" ] [ text "×" ]
-            ]
         ]
 
 viewFormLocked : Environment -> UserData -> Html Msg
@@ -293,7 +321,7 @@ viewFormLocked env data =
         , viewInputForm env (invalidateUserData data) True
         , div [ class "btn-group" ]
             [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
-            , button [ class "btn", class "btn-primary" ] [ text "Stornieren" ]
+            , button [ class "btn", class "btn-primary", onClick (ClearUserData data) ] [ text "Stornieren" ]
             ]
         ]
 

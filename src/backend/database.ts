@@ -105,7 +105,7 @@ export class RaidDatabase {
         });
     }
     
-    async remove_lock(raidID: number, userName: string) {
+    async removeLock(raidID: number, userName: string) {
         return new Promise((resolve, reject) => {
             this._db.get('SELECT editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
                 if(!row || !row.editable)
