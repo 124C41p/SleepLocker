@@ -27,12 +27,20 @@ type alias Model =
     }
 type State
     = Loading
-    | DisplayingStoredData UserData
+    | DisplayingStoredData
+        { userData : UserData
+        , infoMessage : InfoMessage
+        }
     | EditingPartialData PartialUserData
     | EditingCompleteData
         { userData : UserData
-        , errorMsg : Maybe String
+        , infoMessage : InfoMessage
         }
+
+type InfoMessage
+    = NoMsg
+    | SuccessMsg String
+    | ErrorMsg String
 
 type alias Environment = 
     { lootTable : Maybe (List ItemLocation)
@@ -141,14 +149,14 @@ buildState : PartialUserData -> State
 buildState data =
     case validateUserData data of
         Nothing -> EditingPartialData data
-        Just completeData -> EditingCompleteData { userData = completeData, errorMsg = Nothing }
+        Just completeData -> EditingCompleteData { userData = completeData, infoMessage = NoMsg }
 
-loadUserData : Cmd Msg
-loadUserData =
+loadUserData : InfoMessage -> Cmd Msg
+loadUserData infoMsg =
     Http.get
         { url = "/api/myData"
-        , expect = expectResponse (Just WaitAndReload)
-            ( Result.withDefault UnknownUser << Result.map DataLoaded )
+        , expect = expectResponse (Just <| WaitAndReload infoMsg )
+            ( Result.withDefault DisplayEmptyData << Result.map (DisplayLockedData infoMsg) )
             userDataDecoder
         }
 
@@ -159,7 +167,10 @@ storeUserData data =
         , body = Http.jsonBody (userDataEncoder data)
         , expect =
             expectResponse Nothing
-            ( DataStored data )
+            ( \res -> case res of
+                Err message -> DisplayEditableData (ErrorMsg message) data
+                Ok () -> Reload (SuccessMsg "Du bist jetzt angemeldet.")
+            )
             ( Decode.null () )
         }
 
@@ -171,8 +182,8 @@ clearUserData data =
             expectResponse Nothing
                 ( \result ->
                     case result of
-                        Err _ -> DataStored data result
-                        Ok () -> DataUpdated (invalidateUserData data)
+                        Err errorMsg -> Reload (ErrorMsg errorMsg)
+                        Ok () -> DisplayEditableData (SuccessMsg "Deine Anmeldung wurde storniert.") data
                 )
                 ( Decode.null () )
         }
@@ -183,18 +194,18 @@ init env =
         { state = Loading
         , env = env
         }
-    , loadUserData
+    , loadUserData NoMsg
     )
 
 type Msg
-    = Reload
-    | WaitAndReload
-    | UnknownUser
-    | DataLoaded UserData
-    | DataUpdated PartialUserData
-    | DataStored UserData (Result String ())
+    = Reload InfoMessage
+    | WaitAndReload InfoMessage
+    | DisplayEmptyData
+    | DisplayEditableData InfoMessage UserData
+    | DisplayLockedData InfoMessage UserData
+    | DisplayPartialData PartialUserData
     | RegisterUserData UserData
-    | ClearUserData UserData
+    | CancelUserData UserData
 
 delay : Float -> msg -> Cmd msg
 delay time msg =
@@ -204,43 +215,37 @@ delay time msg =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Reload ->
+        Reload infoMsg ->
             ( { model | state = Loading }
-            , loadUserData
+            , loadUserData infoMsg
             )
-        WaitAndReload ->
+        WaitAndReload infoMsg ->
             ( { model | state = Loading }
-            , delay 1000 Reload
+            , delay 1000 (Reload infoMsg)
             )
-        UnknownUser ->
+        DisplayEmptyData ->
             ( { model | state = EditingPartialData emptyUserData }
             , Cmd.none
             )
-        DataLoaded userData ->
-            ( { model | state = DisplayingStoredData userData }
+        DisplayLockedData infoMsg userData ->
+            ( { model | state = DisplayingStoredData { userData = userData, infoMessage = infoMsg } }
             , Cmd.none
             )
-        DataUpdated newData ->
+        DisplayPartialData newData ->
             ( { model | state = buildState newData }
             , Cmd.none
             )
-        DataStored data result ->
-            case result of
-                Ok () ->
-                    ( { model | state = Loading }
-                    , loadUserData
-                    )
-                Err errMsg ->
-                    ( { model | state = EditingCompleteData { userData = data, errorMsg = Just errMsg } }
-                    , Cmd.none
-                    )
         RegisterUserData data ->
             ( { model | state = Loading }
             , storeUserData data
             )
-        ClearUserData data ->
+        CancelUserData data ->
             ( { model | state = Loading }
             , clearUserData data
+            )
+        DisplayEditableData infoMsg userData ->
+            ( { model | state = EditingCompleteData { userData = userData, infoMessage = infoMsg } }
+            , Cmd.none
             )
 
 subscriptions : Model -> Sub Msg
@@ -252,8 +257,8 @@ view model = viewFormBorder <|
     case model.state of
         Loading -> viewLoading
         EditingPartialData data -> viewFormPartial model.env data
-        DisplayingStoredData userData -> viewFormLocked model.env userData
-        EditingCompleteData { userData, errorMsg } -> viewFormComplete model.env userData errorMsg
+        DisplayingStoredData { userData, infoMessage } -> viewFormLocked model.env userData infoMessage
+        EditingCompleteData { userData, infoMessage } -> viewFormComplete model.env userData infoMessage
 
 viewLoading : Html Msg
 viewLoading =
@@ -288,11 +293,11 @@ viewFormPartial env data =
             ]
         ]
         
-viewFormComplete : Environment -> UserData -> Maybe String -> Html Msg
-viewFormComplete env data error =
+viewFormComplete : Environment -> UserData -> InfoMessage -> Html Msg
+viewFormComplete env data infoMsg =
     div [] <|
         List.concat
-            [ Maybe.withDefault [] (Maybe.map (\errMsg -> [ viewAlert errMsg ]) error)
+            [ Maybe.withDefault [] (Maybe.map List.singleton <| viewInfoMsg infoMsg)
             ,
                 [ viewInputForm env (invalidateUserData data) False
                 , div [ class "btn-group" ]
@@ -302,28 +307,32 @@ viewFormComplete env data error =
                 ]
             ]
 
-viewAlert : String -> Html Msg
-viewAlert message =
-    div [ class "alert", class "alert-danger" ]
-        [ span [] [ text message ]
-        ]
+viewInfoMsg : InfoMessage -> Maybe (Html Msg)
+viewInfoMsg infoMsg =
+    case infoMsg of
+        NoMsg -> Nothing
+        ErrorMsg message -> Just <|
+            div [ class "alert", class "alert-danger" ]
+                [ span [] [ text message ]
+                ]
+        SuccessMsg message -> Just <|
+            div [ class "alert", class "alert-success" ]
+                [ span [] [ text message ]
+                ]
 
-viewSuccess : String -> Html Msg
-viewSuccess message =
-    div [ class "alert", class "alert-success" ]
-        [ span [] [ text message ]
-        ]
-
-viewFormLocked : Environment -> UserData -> Html Msg
-viewFormLocked env data =
-    div []
-        [ viewSuccess "Deine Anmeldung wurde gespeichert."
-        , viewInputForm env (invalidateUserData data) True
-        , div [ class "btn-group" ]
-            [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
-            , button [ class "btn", class "btn-primary", onClick (ClearUserData data) ] [ text "Stornieren" ]
+viewFormLocked : Environment -> UserData -> InfoMessage -> Html Msg
+viewFormLocked env data infoMsg =
+    div [] <|
+        List.concat
+            [ Maybe.withDefault [] (Maybe.map List.singleton <| viewInfoMsg infoMsg)
+            ,
+                [ viewInputForm env (invalidateUserData data) True
+                , div [ class "btn-group" ]
+                    [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
+                    , button [ class "btn", class "btn-primary", onClick (CancelUserData data) ] [ text "Stornieren" ]
+                    ]
+                ]
             ]
-        ]
 
 viewInputForm : Environment -> PartialUserData -> Bool -> Html Msg
 viewInputForm env data isDisabled =
@@ -332,7 +341,7 @@ viewInputForm env data isDisabled =
         [ label [ for "userName" ] [ text "Charaktername" ]
         , input 
             [ class "form-control", id "userName", value data.userName, disabled isDisabled
-            , onInput ( \newName -> DataUpdated { data | userName = newName } )
+            , onInput ( \newName -> DisplayPartialData { data | userName = newName } )
             ]
             [ ]
         ]
@@ -344,7 +353,7 @@ viewInputForm env data isDisabled =
                 , disabled isDisabled
                 , onUpdate 
                     ( \newClass -> 
-                        DataUpdated { data | class = Maybe.map (\newName -> PartialClass newName Nothing) newClass }
+                        DisplayPartialData { data | class = Maybe.map (\newName -> PartialClass newName Nothing) newClass }
                     )
                 ]
                 <| List.map (\d -> option d.className) env.classDescriptions
@@ -354,7 +363,7 @@ viewInputForm env data isDisabled =
             , niceSelect 
                 [ selectedValue ( Maybe.andThen (\cls -> cls.specialization) data.class )
                 , disabled (isDisabled || data.class == Nothing)
-                , onUpdate (\newSpec -> DataUpdated <| updateClass (\cls -> Just { cls | specialization = newSpec }) data )
+                , onUpdate (\newSpec -> DisplayPartialData <| updateClass (\cls -> Just { cls | specialization = newSpec }) data )
                 ]
                 ( Maybe.andThen ( \cls -> getSpecializations cls.className env.classDescriptions ) data.class
                     |> Maybe.withDefault []
@@ -374,13 +383,13 @@ viewInputFormSoftlock loot labelStr itemName updateFun isDisabled =
                 Nothing ->
                     input 
                         [ class "form-control", id "userName", value (Maybe.withDefault "" itemName), disabled isDisabled
-                        , onInput (Just >> updateFun >> DataUpdated)
+                        , onInput (Just >> updateFun >> DisplayPartialData)
                         ]
                         [ ]
                 Just lootLocations ->
                     niceSelect
                         [ selectedValue itemName, searchable, nullable, disabled isDisabled
-                        , onUpdate (updateFun >> DataUpdated)
+                        , onUpdate (updateFun >> DisplayPartialData)
                         ]
                         <| List.map (\l -> optionGroup l.locationName l.items ) lootLocations
             ]
