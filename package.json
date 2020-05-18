@@ -5,7 +5,8 @@
   "main": "SleepLockerServer.js",
   "scripts": {
     "build": "webpack --progress --env.development",
-    "build:prod": "webpack --progress"
+    "build:prod": "webpack --progress",
+    "start": "nodemon dist/backend/SleepLockerServer.js"
   },
   "keywords": [],
   "author": "",
