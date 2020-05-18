@@ -1,6 +1,7 @@
 [
     {
         "dungeonKey": "mc",
+        "dungeonName": "Geschmolzener Kern",
         "loot": [
             {
                 "itemName": "Foliant des einlullenden Schusses",
@@ -400,7 +401,12 @@
             },
             {
                 "itemName": "Purpurroter Schocker",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Splitter der Flamme",
@@ -469,29 +475,13 @@
                 ]
             },
             {
-                "itemName": "Muster: Kernrüstungsset",
-                "locations": []
-            },
-            {
-                "itemName": "Formel: Waffe - Heilkraft",
-                "locations": []
-            },
-            {
-                "itemName": "Pläne: Elementarwetzstein",
-                "locations": []
-            },
-            {
-                "itemName": "Bauplan: Machtreaktive Scheibe",
-                "locations": []
-            },
-            {
-                "itemName": "Fesseln des Windsuchers",
+                "itemName": "Fesseln des Windsuchers (links)",
                 "locations": [
                     "Baron Geddon"
                 ]
             },
             {
-                "itemName": "Fesseln des Windsuchers",
+                "itemName": "Fesseln des Windsuchers (rechts)",
                 "locations": [
                     "Garr"
                 ]
@@ -522,27 +512,48 @@
             },
             {
                 "itemName": "Talisman der ephemeren Macht",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Ring des rasanten Schlags",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Scharfkantige Obsidianklinge",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Alte Kernlederhandschuhe",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Magmagehärtete Stiefel",
-                "locations": []
-            },
-            {
-                "itemName": "Tiefenerde - Schiftung",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Unbarmherzige Klinge",
@@ -558,27 +569,57 @@
             },
             {
                 "itemName": "Feuerschuppenbeinplatten",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Gamaschen des Manasturms",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Salamanderschuppengamaschen",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Zauberdolch",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Schwerer Dunkeleisenring",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Mana entfachende Kordel",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Gurt des Ansturms",
@@ -594,27 +635,283 @@
             },
             {
                 "itemName": "Feuerrunenverzierter Zauberfoliant",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Flammenwächterstulpen",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Sabatons des Flammenwandlers",
-                "locations": []
+                "locations": [
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
             },
             {
                 "itemName": "Robe der flüchtigen Macht",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Handgelenksschutz der Stabilität",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
             },
             {
                 "itemName": "Ring der Zauberkraft",
-                "locations": []
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold"
+                ]
+            },
+            {
+                "itemName": "Muster: Kernrüstungsset",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Formel: Waffe - Heilkraft",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Formel: Waffe - Zauberkraft",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Pläne: Elementarwetzstein",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Bauplan: Machtreaktive Scheibe",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Bauplan: Kernscharfschützengewehr",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Muster: Flimmerkernwickeltücher",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Muster: Kernteufelsstofftasche",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Bauplan: Biznicks 247x128 treffsicheres Zielfernrohr",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Rezept: Erheblicher Verjüngungstrank",
+                "locations": [
+                    "Lucifron",
+                    "Gehennas",
+                    "Shazzrah",
+                    "Sulfuronherold",
+                    "Magmadar",
+                    "Garr",
+                    "Baron Geddon",
+                    "Golemagg der Verbrenner"
+                ]
+            },
+            {
+                "itemName": "Gurt der Prophezeiung",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Unterarmschienen der Prophezeiung",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Arkanisten",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Bindungen des Arkanisten",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzgürtel",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Teufelsherzarmschienen",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Nachtmeuchlers",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Armreifen des Nachtmeuchlers",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Cenarius",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Armschienen des Cenarius",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Riesenjägers",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Armschienen des Riesenjägers",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel der Gerechtigkeit",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Armschienen der Gerechtigkeit",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel der Macht",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Armschienen der Macht",
+                "locations": [
+                    "Trash"
+                ]
             }
         ]
     }

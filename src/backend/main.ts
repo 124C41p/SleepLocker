@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
-import { characterClasses, uniqueLoot } from './configurations';
-// import { allLoot } from './configurations';
+import { characterClasses, getLootLocations } from './configurations';
 import apiRouter from './api';
 import http from 'http';
 import { RaidDatabase } from './database';
@@ -30,15 +29,15 @@ app.get('/', async (req, res) => {
                 date: raid.date
             });
         case 1:
-            let renderData = {
-                raidName: raid.name,
-                date: raid.date
-            };
             let flags = {
-                classes: characterClasses,
-                loot: uniqueLoot.filter(dungeon => dungeon.name == raid.dungeon)[0],
+                classDescriptions: characterClasses,
+                lootTable: getLootLocations(raid.dungeon),
             }
-            return res.render('register', { ...renderData, flags: JSON.stringify(flags) });
+            return res.render('register', {
+                raidName: raid.name,
+                date: raid.date,
+                flags: JSON.stringify(flags)
+            });
         case 2:
             return res.render('table', {
                 locks: await db.listRaidLocks(raidID),

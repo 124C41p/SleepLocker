@@ -2,34 +2,56 @@ import fs from 'fs';
 import _ from 'lodash';
 
 export const characterClasses: CharacterClass[] = JSON.parse(fs.readFileSync('config/classes.json').toString());
-export const allLoot: Dungeon[] = JSON.parse(fs.readFileSync('config/loot.json').toString());
-export const uniqueLoot: Dungeon[] = allLoot.map(ins => getUniqueLoot(ins));
+const allLoot: DungeonLoot[] = JSON.parse(fs.readFileSync('config/loot.json').toString());
+for(let dungeon of allLoot) {
+    dungeon.loot = _.sortBy(dungeon.loot, item => item.itemName);
+}
+const uniqueLoot: DungeonUniqueLoot[] = allLoot.map(getUniqueLoot);
 
 export interface CharacterClass {
-    name: string;
-    specializations: string[];
+    className: string;
+    roles: string[];
 }
 
-export interface Dungeon {
-    name: string;
-    locations: LootLocation[];
+interface DungeonLoot {
+    dungeonKey: string;
+    loot: Item[];
+}
+
+interface DungeonUniqueLoot {
+    dungeonKey: string;
+    loot: LootLocation[];
 }
 
 export interface LootLocation {
-    location: string;
+    locationName: string;
     loot: string[];
 }
 
-interface Item {
-    name: string;
-    location: string;
+export interface Item {
+    itemName: string;
+    locations: string[];
 }
 
-function getUniqueLoot(dungeon: Dungeon): Dungeon {
-    let allItems: Item[] = _.flatten(dungeon.locations.map(loc => loc.loot.map(itemName => ({ location: loc.location, name: itemName }))));
-    let locationGroups = _.mapValues(_.groupBy(allItems, 'name'), itemList => itemList.map(item => item.location));
-    let uniqueItems: Item[] = _.map(locationGroups, (group, itemName) => ({ name: itemName, location: group.length == 1 ? group[0] : 'Geteilter Loot' }))
-    let itemGroups = _.groupBy(uniqueItems, 'location');
-    let lootLocations = _.map(itemGroups, (items, location) => ({ location: location, loot: items.map(item => item.name) }))
-    return { name: dungeon.name, locations: lootLocations };
+function getUniqueLoot(dungeon: DungeonLoot): DungeonUniqueLoot {
+    let items = dungeon.loot.map(item => ({ name: item.itemName, location: item.locations.length != 1 ? "Geteilter Loot" : item.locations[0] }));
+    let groups = _.mapValues(_.groupBy(items, 'location'), itemList => _.sortBy(itemList.map(item => item.name)))
+    let locations: LootLocation[] = _.map(groups, (items, location) => ({ locationName: location, loot: items }))
+    return {
+        dungeonKey: dungeon.dungeonKey,
+        loot: _.sortBy(locations, location => location.locationName) };
+}
+
+export function getLootTable(dungeonKey: string): Item[]|null {
+    let dungeon = allLoot.filter(d => d.dungeonKey == dungeonKey)[0];
+    if(dungeon == undefined)
+        return null;
+    return dungeon.loot;
+}
+
+export function getLootLocations(dungeonKey: string): LootLocation[]|null {
+    let dungeon = uniqueLoot.filter(d => d.dungeonKey == dungeonKey)[0];
+    if(dungeon == undefined)
+        return null;
+    return dungeon.loot;
 }

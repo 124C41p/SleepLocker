@@ -94,14 +94,14 @@ export class NiceSelect extends LitElement {
     private renderOptGroup(name: string, options: string[]) {
         return html`
             <optgroup label = ${name}>
-                ${options.map(opt => this.renderOption(opt))}
+                ${options.map(opt => this.renderOption(opt, name))}
             </optgroup>
         `;
     }
 
-    private renderOption(opt: string) {
+    private renderOption(opt: string, keyword?: string) {
         return html`
-            <option>
+            <option data-tokens = ${keyword} >
                 ${opt}
             </option>
         `;

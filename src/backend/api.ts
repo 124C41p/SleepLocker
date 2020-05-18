@@ -58,7 +58,7 @@ let registerData: RequestHandler = async (req, res) => {
         let raid = await db.getRaid(raidID);
         if(raid.mode != 1)
             return res.json(fail('Operation ist in diesem Zustand nicht erlaubt.'))
-        await db.setUserLocks(raidID, data.userName, data.characterClass, data.specialization, data.prio1, data.prio2);
+        await db.setUserLocks(raidID, data.userName, data.characterClass, data.role, data.prio1, data.prio2);
         (req.session as Express.Session).name = data.userName;
         return res.json(succeed());        
     } catch(err) {
@@ -76,7 +76,7 @@ class RegisterData {
     constructor(
         @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
         @Field("class") @MinLength(1) @MaxLength(50) public characterClass: string,
-        @Field("specialization") @MinLength(1) @MaxLength(50) public specialization: string,
+        @Field("role") @MinLength(1) @MaxLength(50) public role: string,
         @Field("prio1", true) @MinLength(1) @MaxLength(50) public prio1?: string,
         @Field("prio2", true) @MinLength(1) @MaxLength(50) public prio2?: string,
     ) {}

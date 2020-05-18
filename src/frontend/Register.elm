@@ -49,24 +49,24 @@ type alias Environment =
 
 type alias ClassDescription =
     { className : String
-    , specializations : List String
+    , roles : List String
     }
     
-getSpecializations : String -> List ClassDescription -> Maybe (List String)
-getSpecializations className =
+getRoles : String -> List ClassDescription -> Maybe (List String)
+getRoles className =
     List.filter (\d -> d.className == className)
         >> List.head
-        >> Maybe.map (\d -> d.specializations)
+        >> Maybe.map (\d -> d.roles)
 
 type alias ItemLocation =
     { locationName : String
-    , items : List String        
+    , loot : List String        
     }
 
 type alias UserData =
     { userName : String
     , class : String
-    , specialization : String
+    , role : String
     , prio1 : Maybe String
     , prio2 : Maybe String
     }
@@ -76,7 +76,7 @@ userDataEncoder data =
     Encode.object
         [ ( "userName", Encode.string data.userName )
         , ( "class", Encode.string data.class )
-        , ( "specialization", Encode.string data.specialization )
+        , ( "role", Encode.string data.role )
         , ( "prio1", Maybe.withDefault Encode.null <| Maybe.map Encode.string data.prio1 )
         , ( "prio2", Maybe.withDefault Encode.null <| Maybe.map Encode.string data.prio2 )
         ]
@@ -86,7 +86,7 @@ userDataDecoder =
     Decode.map5 UserData
         (Decode.field "userName" Decode.string)
         (Decode.field "class" Decode.string)
-        (Decode.field "specialization" Decode.string)
+        (Decode.field "role" Decode.string)
         (Decode.field "prio1" (Decode.nullable Decode.string))
         (Decode.field "prio2" (Decode.nullable Decode.string))
 
@@ -118,7 +118,7 @@ type alias PartialUserData =
 
 type alias PartialClass =
     { className : String
-    , specialization : Maybe String
+    , role : Maybe String
     }
 
 emptyUserData : PartialUserData
@@ -135,14 +135,14 @@ validateUserData data =
         in
             if len == 0 || len > 50 then Nothing else Just data.userName)
         (Maybe.map (\class -> class.className) data.class)
-        (Maybe.andThen (\class -> class.specialization) data.class)
+        (Maybe.andThen (\class -> class.role) data.class)
     |> Maybe.map (\partialData -> partialData data.prio1 data.prio2)
 
 invalidateUserData : UserData -> PartialUserData
 invalidateUserData data =
     PartialUserData
         data.userName
-        (Just <| PartialClass data.class (Just data.specialization))
+        (Just <| PartialClass data.class (Just data.role))
         data.prio1
         data.prio2
 
@@ -363,13 +363,13 @@ viewInputForm env data isDisabled =
                 <| List.map (\d -> option d.className) env.classDescriptions
             ]
         , div [ class "form-group", class "col-md-6" ]
-            [ label [ ] [ text "Spezialisierung" ]
+            [ label [ ] [ text "Rolle" ]
             , niceSelect 
-                [ selectedValue ( Maybe.andThen (\cls -> cls.specialization) data.class )
+                [ selectedValue ( Maybe.andThen (\cls -> cls.role) data.class )
                 , disabled (isDisabled || data.class == Nothing)
-                , onUpdate (\newSpec -> DisplayPartialData <| updateClass (\cls -> Just { cls | specialization = newSpec }) data )
+                , onUpdate (\newSpec -> DisplayPartialData <| updateClass (\cls -> Just { cls | role = newSpec }) data )
                 ]
-                ( Maybe.andThen ( \cls -> getSpecializations cls.className env.classDescriptions ) data.class
+                ( Maybe.andThen ( \cls -> getRoles cls.className env.classDescriptions ) data.class
                     |> Maybe.withDefault []
                     |> List.map option
                 )
@@ -395,5 +395,5 @@ viewInputFormSoftlock loot labelStr itemName updateFun isDisabled =
                         [ selectedValue itemName, searchable, nullable, disabled isDisabled
                         , onUpdate (updateFun >> DisplayPartialData)
                         ]
-                        <| List.map (\l -> optionGroup l.locationName l.items ) lootLocations
+                        <| List.map (\l -> optionGroup l.locationName l.loot ) lootLocations
             ]

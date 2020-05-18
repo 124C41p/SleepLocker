@@ -1,7 +1,7 @@
 [
     {
-        "name": "Druide",
-        "specializations": [
+        "className": "Druide",
+        "roles": [
             "DD Eule",
             "DD Feral",
             "Heal",
@@ -9,49 +9,49 @@
         ]
     },
     {
-        "name": "Hexenmeister",
-        "specializations": [
+        "className": "Hexenmeister",
+        "roles": [
             "DD"
         ]
     },
     {
-        "name": "Jäger",
-        "specializations": [
+        "className": "Jäger",
+        "roles": [
             "DD"
         ]
     },
     {
-        "name": "Krieger",
-        "specializations": [
+        "className": "Krieger",
+        "roles": [
             "Tank",
             "DD Einhändig",
             "DD Beidhändig"
         ]
     },
     {
-        "name": "Magier",
-        "specializations": [
+        "className": "Magier",
+        "roles": [
             "DD"
         ]
     },
     {
-        "name": "Paladin",
-        "specializations": [
+        "className": "Paladin",
+        "roles": [
             "DD",
             "Heal",
             "Tank"
         ]
     },
     {
-        "name": "Priester",
-        "specializations": [
+        "className": "Priester",
+        "roles": [
             "Heal",
             "DD"
         ]
     },
     {
-        "name": "Schurke",
-        "specializations": [
+        "className": "Schurke",
+        "roles": [
             "Dolche",
             "Schwerter"
         ]
