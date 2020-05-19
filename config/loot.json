@@ -967,6 +967,36 @@
                 "locations": [
                     "Majordomus Executus"
                 ]
+            },
+            {
+                "itemName": "Band der Ausbrennung",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der hypnotischen Flamme",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Brandwachenschultern",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Im Kern geschmiedete Schienbeinschützer",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Finkles Lavagreifer",
+                "locations": [
+                    "Majordomus Executus"
+                ]
             }
         ]
     }
