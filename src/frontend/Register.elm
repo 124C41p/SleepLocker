@@ -127,6 +127,20 @@ emptyUserData = PartialUserData "" Nothing Nothing Nothing
 updateClass : (PartialClass -> Maybe PartialClass) -> PartialUserData -> PartialUserData
 updateClass fun data = { data | class = Maybe.andThen fun data.class }
 
+partialClass : List ClassDescription -> String -> PartialClass
+partialClass classes newName =
+    let
+        newRole = 
+            List.filter (\c -> c.className == newName) classes
+            |> List.head
+            |> Maybe.andThen
+                ( \c ->  if List.length c.roles == 1 then
+                    List.head c.roles
+                else
+                    Nothing
+                )
+    in PartialClass newName newRole   
+
 validateUserData : PartialUserData -> Maybe UserData
 validateUserData data =
     Maybe.map3 UserData
@@ -357,7 +371,7 @@ viewInputForm env data isDisabled =
                 , disabled isDisabled
                 , onUpdate 
                     ( \newClass -> 
-                        DisplayPartialData { data | class = Maybe.map (\newName -> PartialClass newName Nothing) newClass }
+                        DisplayPartialData { data | class = Maybe.map (\newName -> partialClass env.classDescriptions newName) newClass }
                     )
                 ]
                 <| List.map (\d -> option d.className) env.classDescriptions

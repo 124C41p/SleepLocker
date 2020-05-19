@@ -15,6 +15,7 @@ export interface CharacterClass {
 
 interface DungeonLoot {
     dungeonKey: string;
+    locations: string[];
     loot: Item[];
 }
 
@@ -39,7 +40,7 @@ function getUniqueLoot(dungeon: DungeonLoot): DungeonUniqueLoot {
     let locations: LootLocation[] = _.map(groups, (items, location) => ({ locationName: location, loot: items }))
     return {
         dungeonKey: dungeon.dungeonKey,
-        loot: _.sortBy(locations, location => location.locationName) };
+        loot: _.sortBy(locations, location => dungeon.locations.indexOf(location.locationName)) };
 }
 
 export function getLootTable(dungeonKey: string): Item[]|null {

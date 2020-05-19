@@ -2,6 +2,19 @@
     {
         "dungeonKey": "mc",
         "dungeonName": "Geschmolzener Kern",
+        "locations": [
+            "Lucifron",
+            "Magmadar",
+            "Gehennas",
+            "Garr",
+            "Baron Geddon",
+            "Shazzrah",
+            "Sulfuronherold",
+            "Golemagg der Verbrenner",
+            "Majordomus Executus",
+            "Ragnaros",
+            "Trash"
+        ],
         "loot": [
             {
                 "itemName": "Foliant des einlullenden Schusses",
@@ -911,6 +924,48 @@
                 "itemName": "Armschienen der Macht",
                 "locations": [
                     "Trash"
+                ]
+            },
+            {
+                "itemName": "Kernhundzahn",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Uraltes versteinertes Blatt",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Das Auge der Offenbarung",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Feuerfester Umhang",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Handgelenksschutz des wahren Flugs",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Schärpe der geflüsterten Geheimnisse",
+                "locations": [
+                    "Majordomus Executus"
+                ]
+            },
+            {
+                "itemName": "Wilde Wachstums-Schiftung",
+                "locations": [
+                    "Majordomus Executus"
                 ]
             }
         ]
