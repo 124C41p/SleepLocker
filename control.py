@@ -40,12 +40,12 @@ def get_locks(raid_id = None):
     cur.close()
     return { name: (prio1, prio2) for name, prio1, prio2 in locks}
 
-def set_lock(name, prio1, prio2, raid_id = None):
+def set_lock(name, cs, role, prio1, prio2, raid_id = None):
     if raid_id is None:
         raid_id = active_raid_no()
     cur = conn.cursor()
     try:
-        cur.execute('INSERT INTO locks(raid_id, user_name, prio1, prio2, editable) VALUES (?, ?, ?, ?, 0)', [raid_id, name, prio1, prio2])
+        cur.execute('INSERT INTO locks(raid_id, user_name, class, role, prio1, prio2, editable) VALUES (?, ?, ?, ?, ?, ?, 0)', [raid_id, name, cs, role, prio1, prio2])
     except sqlite3.IntegrityError:
         cur.execute('UPDATE locks SET prio1=?, prio2=?, editable=0 WHERE raid_id=? AND user_name=?', [prio1, prio2, raid_id, name])
     cur.close()

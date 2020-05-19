@@ -43,11 +43,11 @@ function getUniqueLoot(dungeon: DungeonLoot): DungeonUniqueLoot {
         loot: _.sortBy(locations, location => dungeon.locations.indexOf(location.locationName)) };
 }
 
-export function getLootTable(dungeonKey: string): Item[]|null {
+export function getLootTable(dungeonKey: string): DungeonLoot|null {
     let dungeon = allLoot.filter(d => d.dungeonKey == dungeonKey)[0];
     if(dungeon == undefined)
         return null;
-    return dungeon.loot;
+    return dungeon;
 }
 
 export function getLootLocations(dungeonKey: string): LootLocation[]|null {

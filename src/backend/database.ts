@@ -98,7 +98,7 @@ export class RaidDatabase {
 
     async listRaidLocks(raidID: number): Promise<UserData[]> {
         return new Promise((resolve, reject) => {
-            this._db.all('SELECT user_name as name, class, role, prio1, prio2 FROM locks WHERE raid_id = ?', [raidID], (err, rows) => {
+            this._db.all('SELECT user_name as userName, class, role, prio1, prio2 FROM locks WHERE raid_id = ?', [raidID], (err, rows) => {
                 if(err) return reject(err);
                 resolve(rows);
             });

@@ -1,4 +1,8 @@
 import './nice-select';
-import { Elm } from './Register.elm';
+import ElmRegister from './Register.elm';
+import ElmTables from './Tables.elm';
 
-window.Elm = Elm;
+window.Elm = {
+    Register: ElmRegister.Elm.Register,
+    Tables: ElmTables.Elm.Tables
+};

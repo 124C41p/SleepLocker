@@ -62,8 +62,6 @@ const frontConfig = (env = {}) => ({
         ]
     },
     externals: {
-        jquery: 'jQuery',
-        bootstrap: { root: undefined }
     }
 });
 

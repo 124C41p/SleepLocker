@@ -8,7 +8,7 @@ import Task
 import Browser
 import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, searchable, nullable, onUpdate)
 import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import UserData exposing (UserData, userDataDecoder, userDataEncoder)
 
 main : Program Flags Model Msg
 main =
@@ -62,33 +62,6 @@ type alias ItemLocation =
     { locationName : String
     , loot : List String        
     }
-
-type alias UserData =
-    { userName : String
-    , class : String
-    , role : String
-    , prio1 : Maybe String
-    , prio2 : Maybe String
-    }
-
-userDataEncoder : UserData -> Encode.Value
-userDataEncoder data =
-    Encode.object
-        [ ( "userName", Encode.string data.userName )
-        , ( "class", Encode.string data.class )
-        , ( "role", Encode.string data.role )
-        , ( "prio1", Maybe.withDefault Encode.null <| Maybe.map Encode.string data.prio1 )
-        , ( "prio2", Maybe.withDefault Encode.null <| Maybe.map Encode.string data.prio2 )
-        ]
-
-userDataDecoder : Decoder UserData
-userDataDecoder =
-    Decode.map5 UserData
-        (Decode.field "userName" Decode.string)
-        (Decode.field "class" Decode.string)
-        (Decode.field "role" Decode.string)
-        (Decode.field "prio1" (Decode.nullable Decode.string))
-        (Decode.field "prio2" (Decode.nullable Decode.string))
 
 responseDecoder : Decoder a -> Decoder (Result String a)
 responseDecoder decoder =

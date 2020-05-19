@@ -3,7 +3,7 @@ block content
     p.blockquote.text-center.mt-5= `${raidName} (${date})`
     #elm
     script.
-        Elm.Register.init({
+        Elm.Tables.init({
             node: document.getElementById('elm'),
             flags: JSON.parse('!{flags}')
         })
