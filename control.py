@@ -40,7 +40,7 @@ def get_locks(raid_id = None):
     cur.close()
     return { name: (prio1, prio2) for name, prio1, prio2 in locks}
 
-def set_lock(name, cs, role, prio1, prio2, raid_id = None):
+def set_lock(name, prio1, prio2, cs = "", role = "", raid_id = None):
     if raid_id is None:
         raid_id = active_raid_no()
     cur = conn.cursor()
