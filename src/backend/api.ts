@@ -1,7 +1,7 @@
 import express, { RequestHandler } from 'express';
 import session from 'express-session';
 import { RaidDatabase, SoftlockCapacityReachedError, SoftlockRegistrationError, SoftlockCancellationError } from './database';
-import { Field, parse, MaxLength, MinLength, JsonParseError } from 'sparkson';
+import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max } from 'sparkson';
 
 let db = new RaidDatabase();
 let app = express.Router();
@@ -11,6 +11,8 @@ db.initialize().then(() => {
     app.get('/myData', getMyData);
     app.get('/clearMyData', clearMyData);
     app.post('/register', registerData);
+    app.post('/setMode', setRaidMode);
+    app.post('/getRegistrations', getRegistrations);
 });
 
 let getMyData: RequestHandler = async (req, res) => {
@@ -70,6 +72,51 @@ let registerData: RequestHandler = async (req, res) => {
             return res.json(fail('Softlocks konnten nicht angenommen werden. Bitte wende dich an die Raidleitung.'));
         return res.json(fail('Interner Serverfehler.'));
     }
+}
+
+let setRaidMode: RequestHandler = async (req, res) => {
+    try {
+        let data = parse(RaidModeData, req.body);
+        await db.setRaidMode(data.adminKey, data.mode);
+        return res.json(succeed());
+    } catch(err) {
+        if(err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        return res.json(fail('Interner Serverfehler.'));
+    }
+};
+
+let getRegistrations: RequestHandler = async (req, res) => {
+    try {
+        let data = parse(RegistrationsQueryData, req.body);
+        let raid = await db.getRaidByAdminKey(data.adminKey);
+        if(raid == null)
+            return res.json(fail("Ungültige Eingabe."));
+        let userList = await db.listRaidLocks(raid?.id);
+        let projectedList = userList.map(data => ({
+            userName: data.userName,
+            class: data.class,
+            role: data.role
+        }));
+        return res.json(succeed(projectedList));
+    } catch(err) {
+        if(err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        return res.json(fail('Interner Serverfehler.'));
+    }
+};
+
+class RaidModeData {
+    constructor(
+        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string,
+        @Field("mode") @Min(0) @Max(3) public mode: number
+    ) {}
+}
+
+class RegistrationsQueryData {
+    constructor(
+        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string
+    ) {}
 }
 
 class RegisterData {

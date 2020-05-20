@@ -57,4 +57,27 @@ app.get('/', async (req, res) => {
     }
 });
 
+app.get('/provisional_create_raid/:key/:name', async (req, res) => {
+    let name = req.params.name as string;
+    let key = req.params.key as string;
+    console.log(name, key);
+    let adminKey = await db.createRaid(name, key);
+    res.redirect('/' + adminKey)
+});
+
+app.get('/:key', async (req, res, next) => {
+    let key = req.params.key as string;
+    if(key.length != 20)
+        return next();
+    let raid = await db.getRaidByAdminKey(key);
+    if(raid == null)
+        return next();
+
+    res.render('admin', {
+        raidName: raid.name,
+        date: raid.date,
+        flags: JSON.stringify(key)
+    });
+});
+
 createHttpServer(app, 12345);

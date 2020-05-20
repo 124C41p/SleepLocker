@@ -3,12 +3,11 @@ import Html exposing (Html, div, h4, text, label, input, button, span)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
-import Process
-import Task
 import Browser
 import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, searchable, nullable, onUpdate)
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode
 import UserData exposing (UserData, userDataDecoder, userDataEncoder)
+import Helpers exposing (expectResponse, delay)
 
 main : Program Flags Model Msg
 main =
@@ -62,25 +61,6 @@ type alias ItemLocation =
     { locationName : String
     , loot : List String        
     }
-
-responseDecoder : Decoder a -> Decoder (Result String a)
-responseDecoder decoder =
-    Decode.field "success" Decode.bool
-    |> Decode.andThen
-        ( \success -> 
-            if success then
-                Decode.field "result" decoder
-                |> Decode.map Ok
-            else
-                Decode.field "errorMsg" Decode.string
-                |> Decode.map Err
-        )
-            
-expectResponse : (Result String a -> msg) -> Maybe msg -> Decoder a -> Http.Expect msg
-expectResponse converter defaultMsg decoder =
-    Http.expectJson
-        ( Result.map converter >> Result.withDefault (Maybe.withDefault (converter <| Err "Interner Serverfehler.") defaultMsg) )
-        ( responseDecoder decoder )
 
 type alias PartialUserData =
     { userName : String
@@ -197,11 +177,6 @@ type Msg
     | DisplayPartialData PartialUserData
     | RegisterUserData UserData
     | CancelUserData UserData
-
-delay : Float -> msg -> Cmd msg
-delay time msg =
-    Process.sleep time
-    |> Task.perform (\() -> msg)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =

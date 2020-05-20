@@ -37,13 +37,17 @@ export class SoftlockCancellationError extends Error {
 
 }
 
+export class InternalError extends Error {
+
+}
+
 export class RaidDatabase {
     private _db = new Database('database.sqlite');
 
     async initialize() {
         return new Promise((resolve, reject) => {
             this._db.serialize(() => {
-                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING NOT NULL, dungeon STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
+                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, admin_key STRING NOT NULL UNIQUE, name STRING NOT NULL, dungeon STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
                     if(err) return reject(err);
                 });
                 this._db.exec('CREATE TABLE IF NOT EXISTS locks(raid_id INTEGER, user_name STRING NOT NULL, class STRING NOT NULL, role STRING NOT NULL, prio1 STRING, prio2 STRING, editable INTEGER DEFAULT 1, PRIMARY KEY(raid_id, user_name))', err => {
@@ -96,6 +100,15 @@ export class RaidDatabase {
         });
     }
 
+    async getRaidByAdminKey(adminKey: string): Promise<Raid|null> {
+        return new Promise((resolve, reject) => {
+            this._db.get('SELECT raid_id as id, name, dungeon, mode, date FROM raids WHERE admin_key = ?', [adminKey], (err, row) => {
+                if(err) return resolve(null);
+                resolve(row as Raid);
+            });
+        });
+    }
+
     async listRaidLocks(raidID: number): Promise<UserData[]> {
         return new Promise((resolve, reject) => {
             this._db.all('SELECT user_name as userName, class, role, prio1, prio2 FROM locks WHERE raid_id = ?', [raidID], (err, rows) => {
@@ -128,6 +141,45 @@ export class RaidDatabase {
         });
     }
 
+    private async _createRaid(name: string, adminKey: string, date: string, dungeonKey?: string) {
+        return new Promise((resolve, reject) => {
+            this._db.run('INSERT INTO raids(name, admin_key, dungeon, date) VALUES(?,?,?,?)', [name, adminKey, dungeonKey, date], err => {
+                if(err) return reject(new InternalError());
+                resolve();
+            });
+        });        
+    }
+
+    public async createRaid(name: string, dungeonKey?: string) {
+        while(true) {
+            try {
+                let adminKey = randomString(20);
+                let currentDate = (new Date()).toISOString().slice(0,10);
+                await this._createRaid(name, adminKey, currentDate, dungeonKey);
+                return adminKey;
+            } catch(err) {
+                if(!(err instanceof InternalError))
+                    throw err;
+            }
+        }
+    }
+
+    public async setRaidMode(adminKey: string, mode: number) {
+        return new Promise((resolve, reject) => {
+            this._db.run('UPDATE raids SET mode=? WHERE admin_key = ?', [mode, adminKey], err => {
+                if(err) return reject(new InternalError());
+                resolve();
+            });
+        });
+    }
+
 }
 
-
+function randomString(length: number) {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
