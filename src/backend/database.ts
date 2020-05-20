@@ -9,15 +9,18 @@ Modes
 3 - done
 */
 
-export interface Softlock {
-    name: string;
-    prio1: string;
-    prio2: string;
+export interface UserData {
+    userName: string;
+    class: string;
+    role: string;
+    prio1: string|null;
+    prio2: string|null;
 }
 
 export interface Raid {
     id: number;
     name: string;
+    dungeon: string;
     mode: number;
     date: string;
 }
@@ -40,10 +43,10 @@ export class RaidDatabase {
     async initialize() {
         return new Promise((resolve, reject) => {
             this._db.serialize(() => {
-                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
+                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, name STRING NOT NULL, dungeon STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
                     if(err) return reject(err);
                 });
-                this._db.exec('CREATE TABLE IF NOT EXISTS locks(raid_id INTEGER, user_name STRING NOT NULL, prio1 STRING NOT NULL, prio2 STRING NOT NULL, editable INTEGER DEFAULT 1, PRIMARY KEY(raid_id, user_name))', err => {
+                this._db.exec('CREATE TABLE IF NOT EXISTS locks(raid_id INTEGER, user_name STRING NOT NULL, class STRING NOT NULL, role STRING NOT NULL, prio1 STRING, prio2 STRING, editable INTEGER DEFAULT 1, PRIMARY KEY(raid_id, user_name))', err => {
                     if(err) return reject(err);
                 });
                 resolve();
@@ -51,7 +54,7 @@ export class RaidDatabase {
         });
     }
 
-    async current_raid_id(): Promise<number|null> {
+    async currentRaidId(): Promise<number|null> {
         return new Promise((resolve, reject) => {
             this._db.get('SELECT MAX(raid_id) as no FROM raids WHERE mode < 3', (err, row) => {
                 if(err) return reject(err);
@@ -60,23 +63,23 @@ export class RaidDatabase {
         });
     }
 
-    async get_user_locks(raidID: number, userName: string): Promise<Softlock|null> {
+    async getUserData(raidID: number, userName: string): Promise<UserData|null> {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT prio1, prio2, editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
+            this._db.get('SELECT class, role, prio1, prio2, editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
                 if(err) return reject(err);
                 if(!row || !row.editable) return resolve(null);
-                resolve({ name: userName, prio1: row.prio1, prio2: row.prio2 });
+                resolve({ userName: userName, class: row.class, role: row.role, prio1: row.prio1, prio2: row.prio2 });
             });
         });
     }
 
-    async set_user_locks(raidID: number, userName: string, prio1: string, prio2: string) {
+    async setUserLocks(raidID: number, userName: string, userClass: string, role: string, prio1?: string, prio2?: string) {
         return new Promise((resolve, reject) => {
             this._db.get('SELECT COUNT(*) as no FROM locks WHERE raid_id = ?', [raidID], (err, row) => {
                 if(err) return reject(err);
                 if(row.no > 80) return reject(new SoftlockCapacityReachedError());
     
-                this._db.run('INSERT INTO locks(raid_id, user_name, prio1, prio2) VALUES(?,?,?,?)', [raidID, userName, prio1, prio2], err => {
+                this._db.run('INSERT INTO locks(raid_id, user_name, class, role, prio1, prio2) VALUES(?,?,?,?,?,?)', [raidID, userName, userClass, role, prio1, prio2], err => {
                     if(err) return reject(new SoftlockRegistrationError());
                     resolve();
                 });
@@ -84,25 +87,25 @@ export class RaidDatabase {
         });
     }
     
-    async get_raid(raidID: number): Promise<Raid> {
+    async getRaid(raidID: number): Promise<Raid> {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT raid_id as id, name, mode, date FROM raids WHERE raid_id = ?', [raidID], (err, row) => {
+            this._db.get('SELECT raid_id as id, name, dungeon, mode, date FROM raids WHERE raid_id = ?', [raidID], (err, row) => {
                 if(err) return reject(err);
                 resolve(row as Raid);
             });
         });
     }
 
-    async list_raid_locks(raidID: number): Promise<Softlock[]> {
+    async listRaidLocks(raidID: number): Promise<UserData[]> {
         return new Promise((resolve, reject) => {
-            this._db.all('SELECT user_name as name, prio1, prio2 FROM locks WHERE raid_id = ?', [raidID], (err, rows) => {
+            this._db.all('SELECT user_name as userName, class, role, prio1, prio2 FROM locks WHERE raid_id = ?', [raidID], (err, rows) => {
                 if(err) return reject(err);
                 resolve(rows);
             });
         });
     }
     
-    async remove_lock(raidID: number, userName: string) {
+    async removeLock(raidID: number, userName: string) {
         return new Promise((resolve, reject) => {
             this._db.get('SELECT editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
                 if(!row || !row.editable)

@@ -1,0 +1,59 @@
+[
+    {
+        "className": "Druide",
+        "roles": [
+            "DD Eule",
+            "DD Feral",
+            "Heal",
+            "Tank"
+        ]
+    },
+    {
+        "className": "Hexenmeister",
+        "roles": [
+            "DD"
+        ]
+    },
+    {
+        "className": "Jäger",
+        "roles": [
+            "DD"
+        ]
+    },
+    {
+        "className": "Krieger",
+        "roles": [
+            "Tank",
+            "DD Einhändig",
+            "DD Beidhändig"
+        ]
+    },
+    {
+        "className": "Magier",
+        "roles": [
+            "DD"
+        ]
+    },
+    {
+        "className": "Paladin",
+        "roles": [
+            "DD",
+            "Heal",
+            "Tank"
+        ]
+    },
+    {
+        "className": "Priester",
+        "roles": [
+            "Heal",
+            "DD"
+        ]
+    },
+    {
+        "className": "Schurke",
+        "roles": [
+            "DD Dolche",
+            "DD Schwerter"
+        ]
+    }
+]
