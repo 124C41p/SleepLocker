@@ -134,11 +134,11 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view { userList, currentMessage } =
-    div [ class "row", class "padding", class "d-flex", class "justify-content-center", class "mt-11" ]
+    div [ class "row", class "d-flex", class "justify-content-center", class "mt-11" ]
         [ div [ class "col-md-2" ]
             [ div [ class "card" ]
                 [ div [ class "card-body" ] <| List.concat
-                    [ [ h4 [ class "card-title", class "text-center", class "padding" ] [ text "Modi" ] ]
+                    [ [ h4 [ class "card-title", class "text-center" ] [ text "Modi" ] ]
                     , viewInfoMsg currentMessage |> Maybe.map List.singleton |> Maybe.withDefault []
                     , 
                         [ button [ class "btn", class "btn-primary", class "mb-1", class "mr-1", onClick (DoSetMode Ready) ] [ text "On Hold" ]
@@ -154,7 +154,7 @@ view { userList, currentMessage } =
 
 viewUserList : List UserData -> Html Msg
 viewUserList userList =
-    div [ class "row", class "padding", class "d-flex", class "justify-content-center", class "mt-5" ]
+    div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
     [ div [ class "col-md-11" ]
         [ table [ class "table", class "table-striped", class "table-bordered" ]
             [ thead []

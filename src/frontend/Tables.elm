@@ -138,7 +138,7 @@ viewTabBar state =
 
 viewUserList : List UserData -> Html Msg
 viewUserList userList =
-    div [ class "row", class "padding", class "d-flex", class "justify-content-center", class "mt-5" ]
+    div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
     [ div [ class "col-md-11" ]
         [ table [ class "table", class "table-striped", class "table-bordered" ]
             [ thead []

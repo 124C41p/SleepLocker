@@ -237,12 +237,11 @@ viewLoading =
 
 viewFormBorder : Html Msg -> Html Msg
 viewFormBorder innerHtml =
-    div [ class "row", class "padding", class "d-flex", class "justify-content-center", class "mt-5" ]
+    div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
     [ div [ class "col-md-5" ]
         [ div [ class "card" ]
             [ div [ class "card-body" ]
-                [ h4 [ class "card-title", class "text-center", class "padding" ] [ text "Softlocks registrieren" ]
-                , div [ class "padding" ] []
+                [ h4 [ class "card-title", class "text-center" ] [ text "Softlocks registrieren" ]
                 , innerHtml
                 ]
             ]
@@ -304,13 +303,13 @@ viewInputForm : Environment -> PartialUserData -> Bool -> Html Msg
 viewInputForm env data isDisabled =
     div []
         [ div [ class "form-group" ]
-        [ label [ for "userName" ] [ text "Charaktername" ]
-        , input 
-            [ class "form-control", id "userName", value data.userName, disabled isDisabled
-            , onInput ( \newName -> DisplayPartialData { data | userName = newName } )
+            [ label [ for "userName" ] [ text "Charaktername" ]
+            , input 
+                [ class "form-control", id "userName", value data.userName, disabled isDisabled
+                , onInput ( \newName -> DisplayPartialData { data | userName = newName } )
+                ]
+                [ ]
             ]
-            [ ]
-        ]
     , div [ class "form-row" ]
         [ div [ class "form-group", class "col-md-6" ]
             [ label [ ] [ text "Klasse" ]
