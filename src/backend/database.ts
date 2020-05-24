@@ -3,10 +3,8 @@ import { Database } from 'sqlite3';
 
 /*
 Modes
-0 - not started yet
-1 - receiving softlocks
-2 - listing softlocks
-3 - done
+0 - receiving softlocks
+1 - listing softlocks
 */
 
 export interface UserData {
@@ -15,25 +13,28 @@ export interface UserData {
     role: string;
     prio1: string|null;
     prio2: string|null;
+    registeredOn: Date;
 }
 
 export interface Raid {
     id: number;
-    name: string;
-    dungeon: string;
+    title: string;
+    userKey: string;
+    dungeonKey: string|null;
     mode: number;
-    date: string;
+    createdOn: Date;
+    comments?: string;
 }
 
-export class SoftlockRegistrationError extends Error {
-
-}
-
-export class SoftlockCapacityReachedError extends Error {
+export class RegistrationError extends Error {
 
 }
 
-export class SoftlockCancellationError extends Error {
+export class CapacityReachedError extends Error {
+
+}
+
+export class CancellationError extends Error {
 
 }
 
@@ -41,138 +42,207 @@ export class InternalError extends Error {
 
 }
 
-export class RaidDatabase {
-    private _db = new Database('database.sqlite');
+const db = new Database('database.sqlite');
 
-    async initialize() {
-        return new Promise((resolve, reject) => {
-            this._db.serialize(() => {
-                this._db.exec('CREATE TABLE IF NOT EXISTS raids(raid_id INTEGER PRIMARY KEY AUTOINCREMENT, admin_key STRING NOT NULL UNIQUE, name STRING NOT NULL, dungeon STRING NOT NULL, mode INTEGER DEFAULT 0, date STRING)', err => {
+export async function initialize() {
+    return new Promise((resolve, reject) => {
+        db.parallelize(() => {
+            db.exec(`
+                CREATE TABLE IF NOT EXISTS raids(
+                    raid_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_key STRING NOT NULL UNIQUE,
+                    admin_key STRING NOT NULL UNIQUE,
+                    name STRING NOT NULL,
+                    dungeon_key STRING,
+                    mode INTEGER NOT NULL DEFAULT 0,
+                    created_on DATETIME NOT NULL DEFAULT NOW(),
+                    comments STRING
+                )
+            `, err => {
+                if(err) return reject(err);
+            });
+            db.exec(`
+                CREATE TABLE IF NOT EXISTS users(
+                    raid_id INTEGER NOT NULL,
+                    user_name STRING NOT NULL,
+                    class STRING NOT NULL,
+                    role STRING NOT NULL,
+                    prio1 STRING,
+                    prio2 STRING,
+                    registered_on DATETIME NOT NULL DEFAULT NOW(),
+                    PRIMARY KEY(raid_id, user_name)
+                )
+            `, err => {
+                if(err) return reject(err);
+            });
+            resolve();
+        });
+    });
+}
+
+export async function getUserData(userKey: string, userName: string): Promise<UserData|null> {
+    return new Promise((resolve, reject) => {
+        db.get(`
+            SELECT class, role, prio1, prio2, registered_on
+            FROM users
+                INNER JOIN raids on users.raid_id = raids.raid_id
+            WHERE raids.user_key = ? AND users.user_name = ?
+        `, [userKey, userName], (err, row) => {
+            if(err) return reject(err);
+            if(!row) return resolve(null);
+            resolve({
+                userName: userName,
+                class: row.class,
+                role: row.role,
+                prio1: row.prio1,
+                prio2: row.prio2,
+                registeredOn: new Date(row.registered_on)
+            });
+        });
+    });
+}
+
+export function registerUser(userKey: string, userName: string, userClass: string, role: string, prio1?: string, prio2?: string) {
+    return new Promise((resolve, reject) => {
+        db.get(`
+            SELECT
+                raids.raid_id as id
+            FROM users
+                INNER JOIN raids on users.raid_id = raids.raid_id
+            WHERE raids.user_key = ?
+        `, [userKey], (err, row) => {
+            if(err) return reject(err);
+            let raidId = row.id;
+
+            db.serialize(() => {
+                db.get(`
+                    SELECT
+                        COUNT(*) as no
+                    FROM users
+                    WHERE raid_id = ?
+                `, [raidId], (err, row) => {
                     if(err) return reject(err);
-                });
-                this._db.exec('CREATE TABLE IF NOT EXISTS locks(raid_id INTEGER, user_name STRING NOT NULL, class STRING NOT NULL, role STRING NOT NULL, prio1 STRING, prio2 STRING, editable INTEGER DEFAULT 1, PRIMARY KEY(raid_id, user_name))', err => {
-                    if(err) return reject(err);
-                });
-                resolve();
-            });
-        });
-    }
+                    if(row.no > 80) return reject(new CapacityReachedError());
+                })
 
-    async currentRaidId(): Promise<number|null> {
-        return new Promise((resolve, reject) => {
-            this._db.get('SELECT MAX(raid_id) as no FROM raids WHERE mode < 3', (err, row) => {
-                if(err) return reject(err);
-                resolve(row.no);
-            });
-        });
-    }
-
-    async getUserData(raidID: number, userName: string): Promise<UserData|null> {
-        return new Promise((resolve, reject) => {
-            this._db.get('SELECT class, role, prio1, prio2, editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
-                if(err) return reject(err);
-                if(!row || !row.editable) return resolve(null);
-                resolve({ userName: userName, class: row.class, role: row.role, prio1: row.prio1, prio2: row.prio2 });
-            });
-        });
-    }
-
-    async setUserLocks(raidID: number, userName: string, userClass: string, role: string, prio1?: string, prio2?: string) {
-        return new Promise((resolve, reject) => {
-            this._db.get('SELECT COUNT(*) as no FROM locks WHERE raid_id = ?', [raidID], (err, row) => {
-                if(err) return reject(err);
-                if(row.no > 80) return reject(new SoftlockCapacityReachedError());
-    
-                this._db.run('INSERT INTO locks(raid_id, user_name, class, role, prio1, prio2) VALUES(?,?,?,?,?,?)', [raidID, userName, userClass, role, prio1, prio2], err => {
-                    if(err) return reject(new SoftlockRegistrationError());
+                db.run(`
+                    INSERT INTO users(raid_id, user_name, class, role, prio1, prio2)
+                    VALUES(?,?,?,?,?,?)`, [raidId, userName, userClass, role, prio1, prio2], err => {
+                    if(err) return reject(new RegistrationError());
                     resolve();
                 });
             });
         });
-    }
+    });
+}
+
+export async function getRaid(key: string): Promise<Raid|null> {
+    return new Promise((resolve, reject) => {
+        db.get(`
+            SELECT raid_id, user_key, title, dungeon_key, mode, created_on, comments
+            FROM raids WHERE admin_key = ? OR user_key = ?
+        `, [key, key], (err, row) => {
+            if(err) return resolve(null);
+            resolve({
+                id: row.raid_id,
+                title: row.title,
+                userKey: row.user_key,
+                dungeonKey: row.dungeon_key,
+                mode: row.mode,
+                createdOn: new Date(row.created_on),
+                comments: row.comments
+            });
+        });
+    });
+}
+
+export async function getUserList(userKey: string): Promise<UserData[]> {
+    return new Promise((resolve, reject) => {
+        db.all(`
+            SELECT user_name as userName, class, role, prio1, prio2
+            FROM users
+                INNER JOIN raids on users.raid_id = raids.raid_id
+            WHERE raids.user_key = ?
+        `, [userKey], (err, rows) => {
+            if(err) return reject(err);
+            resolve(rows);
+        });
+    });
+}
+
+export async function getRestrictedUserList(adminKey: string): Promise<UserData[]> {
+    return new Promise((resolve, reject) => {
+        db.all(`
+            SELECT user_name as userName, class, role
+            FROM users
+                INNER JOIN raids on users.raid_id = raids.raid_id
+            WHERE raids.admin_key = ?
+        `, [adminKey], (err, rows) => {
+            if(err) return reject(err);
+            resolve(rows);
+        });
+    });
+}
     
-    async getRaid(raidID: number): Promise<Raid> {
-        return new Promise((resolve, reject) => {
-            this._db.get('SELECT raid_id as id, name, dungeon, mode, date FROM raids WHERE raid_id = ?', [raidID], (err, row) => {
-                if(err) return reject(err);
-                resolve(row as Raid);
-            });
+export async function removeUser(userKey: string, userName: string) {
+    return new Promise((resolve, reject) => {
+        db.run(`
+            DELETE FROM users
+            WHERE user_name = ? AND raid_id IN (
+                SELECT raid_id
+                FROM raids
+                WHERE user_key = ?
+            )
+        `, [userName, userKey], err => {
+            if(err) return reject(new CancellationError());
+            resolve();
         });
-    }
+    });
+}
 
-    async getRaidByAdminKey(adminKey: string): Promise<Raid|null> {
-        return new Promise((resolve, reject) => {
-            this._db.get('SELECT raid_id as id, name, dungeon, mode, date FROM raids WHERE admin_key = ?', [adminKey], (err, row) => {
-                if(err) return resolve(null);
-                resolve(row as Raid);
-            });
+export async function close() {
+    return new Promise((resolve, reject) => {
+        db.close(err => {
+            if(err)
+                return reject(err);
+            resolve();
         });
-    }
+    });
+}
 
-    async listRaidLocks(raidID: number): Promise<UserData[]> {
-        return new Promise((resolve, reject) => {
-            this._db.all('SELECT user_name as userName, class, role, prio1, prio2 FROM locks WHERE raid_id = ?', [raidID], (err, rows) => {
-                if(err) return reject(err);
-                resolve(rows);
-            });
+async function _createRaid(title: string, userKey: string, adminKey: string, dungeonKey?: string, comments?: string) {
+    return new Promise((resolve, reject) => {
+        db.run(`
+            INSERT INTO raids(title, user_key, admin_key, dungeon_key, comments)
+            VALUES(?,?,?,?,?)
+        `, [title, userKey, adminKey, dungeonKey, comments], err => {
+            if(err) return reject(new InternalError());
+            resolve();
         });
-    }
-    
-    async removeLock(raidID: number, userName: string) {
-        return new Promise((resolve, reject) => {
-            this._db.get('SELECT editable FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], (err, row) => {
-                if(!row || !row.editable)
-                    return reject(new SoftlockCancellationError());
-                this._db.run('DELETE FROM locks WHERE raid_id = ? AND user_name = ?', [raidID, userName], err => {
-                    if(err) return reject(new SoftlockCancellationError());
-                    resolve();
-                });
-            });
-        });
-    }
+    });        
+}
 
-    async close() {
-        return new Promise((resolve, reject) => {
-            this._db.close(err => {
-                if(err)
-                    return reject(err);
-                resolve();
-            });
-        });
-    }
-
-    private async _createRaid(name: string, adminKey: string, date: string, dungeonKey?: string) {
-        return new Promise((resolve, reject) => {
-            this._db.run('INSERT INTO raids(name, admin_key, dungeon, date) VALUES(?,?,?,?)', [name, adminKey, dungeonKey, date], err => {
-                if(err) return reject(new InternalError());
-                resolve();
-            });
-        });        
-    }
-
-    public async createRaid(name: string, dungeonKey?: string) {
-        while(true) {
-            try {
-                let adminKey = randomString(20);
-                let currentDate = (new Date()).toISOString().slice(0,10);
-                await this._createRaid(name, adminKey, currentDate, dungeonKey);
-                return adminKey;
-            } catch(err) {
-                if(!(err instanceof InternalError))
-                    throw err;
-            }
+export async function createRaid(title: string, dungeonKey?: string, comments?: string) {
+    while(true) {
+        try {
+            let adminKey = randomString(20);
+            let userKey = randomString(6);
+            await _createRaid(title, userKey, adminKey, dungeonKey, comments);
+            return adminKey;
+        } catch(err) {
+            if(!(err instanceof InternalError))
+                throw err;
         }
     }
+}
 
-    public async setRaidMode(adminKey: string, mode: number) {
-        return new Promise((resolve, reject) => {
-            this._db.run('UPDATE raids SET mode=? WHERE admin_key = ?', [mode, adminKey], err => {
-                if(err) return reject(new InternalError());
-                resolve();
-            });
+export async function setRaidMode(adminKey: string, mode: number) {
+    return new Promise((resolve, reject) => {
+        db.run('UPDATE raids SET mode=? WHERE admin_key = ?', [mode, adminKey], err => {
+            if(err) return reject(new InternalError());
+            resolve();
         });
-    }
-
+    });
 }
 
 function randomString(length: number) {

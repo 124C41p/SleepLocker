@@ -1,138 +1,164 @@
-import express, { RequestHandler } from 'express';
+import express from 'express';
 import session from 'express-session';
-import { RaidDatabase, SoftlockCapacityReachedError, SoftlockRegistrationError, SoftlockCancellationError } from './database';
+import { CapacityReachedError, RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid } from './database';
 import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max } from 'sparkson';
 
-let db = new RaidDatabase();
 let app = express.Router();
 app.use(express.json());
-app.use(session({secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000, sameSite: true }}))
-db.initialize().then(() => {
-    app.get('/myData', getMyData);
-    app.get('/clearMyData', clearMyData);
-    app.post('/register', registerData);
-    app.post('/setMode', setRaidMode);
-    app.post('/getRegistrations', getRegistrations);
-});
+app.use(session({ secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000, sameSite: true } }))
 
-let getMyData: RequestHandler = async (req, res) => {
-    try {
-        let raidID = await db.currentRaidId();
-        let name: string|undefined = (req.session as Express.Session).name;
-        if(name == undefined || raidID == null)
-            return res.json(fail('Nichts gefunden.'));
-        let raid = await db.getRaid(raidID);
-        if(raid.mode != 1)
-            return res.json(fail('Operation ist in diesem Zustand nicht erlaubt.'))
-        let data = await db.getUserData(raidID, name);
-        if(data == null)
-            return res.json(fail('Nichts gefunden.'));
-        return res.json(succeed(data));
-    } catch {
-        return res.json(fail('Interner Serverfehler.'))
-    }
+class UserKeyQueryData {
+    constructor(
+        @Field("userKey") @MinLength(6) @MaxLength(6) public userKey: string,
+    ) { }
 }
 
-let clearMyData: RequestHandler = async (req, res) => {
+app.post('/myData', async (req, res) => {
     try {
-        let raidID = await db.currentRaidId();
-        let name: string|undefined = (req.session as Express.Session).name;
-        if(name == undefined || raidID == null)
+        let userKey = parse(UserKeyQueryData, req.body).userKey;
+        let session = req.session as Express.Session;
+        let userName = session[userKey] as string | undefined;
+        let raid = await getRaid(userKey);
+        if (userName == undefined || raid == undefined)
             return res.json(fail('Nichts gefunden.'));
-        let raid = await db.getRaid(raidID);
-        if(raid.mode != 1)
-            return res.json(fail('Operation ist in diesem Zustand nicht erlaubt..'))
-        await db.removeLock(raidID, name);
+        if (raid.mode != 0)
+            return res.json(fail('Anmeldung ist nicht mehr möglich.'))
+        let userData = getUserData(userKey, userName);
+        if (userData == null)
+            return res.json(fail('Nichts gefunden.'));
+        return res.json(succeed(userData));
+    } catch (err) {
+        if (err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        return res.json(fail('Interner Serverfehler.'))
+    }
+});
+
+app.post('/clearMyData', async (req, res) => {
+    try {
+        let userKey = parse(UserKeyQueryData, req.body).userKey;
+        let session = req.session as Express.Session;
+        let userName = session[userKey] as string | undefined;
+        let raid = await getRaid(userKey);
+        if (userName == undefined || raid == undefined)
+            return res.json(fail('Nichts gefunden.'));
+        if (raid.mode != 0)
+            return res.json(fail('Stornieren ist nicht mehr möglich.'))
+        await removeUser(userKey, name);
+        session[userKey] = undefined;
         return res.json(succeed());
-    } catch(err) {
-        if(err instanceof SoftlockCancellationError)
+    } catch (err) {
+        if (err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        if (err instanceof CancellationError)
             return res.json(fail('Stornieren fehlgeschlagen.'));
         return res.json(fail('Interner Serverfehler.'))
     }
-};
+});
 
-let registerData: RequestHandler = async (req, res) => {
+
+class RegisterData {
+    constructor(
+        @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
+        @Field("userKey") @MinLength(6) @MaxLength(6) public userKey: string,
+        @Field("class") @MinLength(1) @MaxLength(50) public characterClass: string,
+        @Field("role") @MinLength(1) @MaxLength(50) public role: string,
+        @Field("prio1", true) @MinLength(1) @MaxLength(50) public prio1?: string,
+        @Field("prio2", true) @MinLength(1) @MaxLength(50) public prio2?: string,
+    ) { }
+}
+
+app.post('/register', async (req, res) => {
     try {
         let data = parse(RegisterData, req.body);
-        let raidID = await db.currentRaidId();
-        if(raidID == null)
-            return res.json(fail('Kein aktiver Raid.'));
-        let raid = await db.getRaid(raidID);
-        if(raid.mode != 1)
-            return res.json(fail('Operation ist in diesem Zustand nicht erlaubt.'))
-        await db.setUserLocks(raidID, data.userName, data.characterClass, data.role, data.prio1, data.prio2);
-        (req.session as Express.Session).name = data.userName;
-        return res.json(succeed());        
-    } catch(err) {
-        if(err instanceof JsonParseError)
+        let raid = await getRaid(data.userKey);
+        if (raid == null)
+            return res.json(fail('Raid nicht gedunden.'));
+        if (raid.mode != 0)
+            return res.json(fail('Anmeldung ist nicht mehr möglich.'))
+        await registerUser(data.userKey, data.userName, data.characterClass, data.role, data.prio1, data.prio2);
+        (req.session as Express.Session)[data.userKey] = data.userName;
+        return res.json(succeed());
+    } catch (err) {
+        if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
-        if(err instanceof SoftlockCapacityReachedError)
+        if (err instanceof CapacityReachedError)
             return res.json(fail('Die maximale Anzahl an Softlocks wurde erreicht.'));
-        else if(err instanceof SoftlockRegistrationError)
+        else if (err instanceof RegistrationError)
             return res.json(fail('Softlocks konnten nicht angenommen werden. Bitte wende dich an die Raidleitung.'));
         return res.json(fail('Interner Serverfehler.'));
     }
+});
+
+
+class RaidModeData {
+    constructor(
+        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string,
+        @Field("mode") @Min(0) @Max(1) public mode: number
+    ) { }
 }
 
-let setRaidMode: RequestHandler = async (req, res) => {
+app.post('/setMode', async (req, res) => {
     try {
         let data = parse(RaidModeData, req.body);
-        await db.setRaidMode(data.adminKey, data.mode);
+        await setRaidMode(data.adminKey, data.mode);
         return res.json(succeed());
-    } catch(err) {
-        if(err instanceof JsonParseError)
+    } catch (err) {
+        if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
         return res.json(fail('Interner Serverfehler.'));
     }
-};
+});
 
-let getRegistrations: RequestHandler = async (req, res) => {
+
+class RegistrationsQueryData {
+    constructor(
+        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string
+    ) { }
+}
+
+app.post('/getRegistrations', async (req, res) => {
     try {
-        let data = parse(RegistrationsQueryData, req.body);
-        let raid = await db.getRaidByAdminKey(data.adminKey);
-        if(raid == null)
-            return res.json(fail("Ungültige Eingabe."));
-        let userList = await db.listRaidLocks(raid?.id);
+        let adminKey = parse(RegistrationsQueryData, req.body).adminKey;
+        let userList = await getRestrictedUserList(adminKey);
         let projectedList = userList.map(data => ({
             userName: data.userName,
             class: data.class,
             role: data.role
         }));
         return res.json(succeed(projectedList));
-    } catch(err) {
-        if(err instanceof JsonParseError)
+    } catch (err) {
+        if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
         return res.json(fail('Interner Serverfehler.'));
     }
-};
+});
 
-class RaidModeData {
+
+class NewRaidData {
     constructor(
-        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string,
-        @Field("mode") @Min(0) @Max(3) public mode: number
-    ) {}
+        @Field("title") @MinLength(1) @MaxLength(50) public title: string,
+        @Field("dungeonKey", true) @MinLength(1) @MaxLength(50) public dungeonKey?: string,
+        @Field("comments", true) @MinLength(1) @MaxLength(1000) public comments?: string
+    ) { }
 }
 
-class RegistrationsQueryData {
-    constructor(
-        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string
-    ) {}
-}
-
-class RegisterData {
-    constructor(
-        @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
-        @Field("class") @MinLength(1) @MaxLength(50) public characterClass: string,
-        @Field("role") @MinLength(1) @MaxLength(50) public role: string,
-        @Field("prio1", true) @MinLength(1) @MaxLength(50) public prio1?: string,
-        @Field("prio2", true) @MinLength(1) @MaxLength(50) public prio2?: string,
-    ) {}
-}
+app.post('/createRaid', async (req, res) => {
+    try {
+        let data = parse(NewRaidData, req.body);
+        let adminKey = await createRaid(data.title, data.dungeonKey, data.comments);
+        return res.json(succeed(adminKey));
+    } catch(err) {
+        if (err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        return res.json(fail('Interner Serverfehler.'));
+    }
+});
 
 interface ApiResponse<T> {
     success: Boolean;
-    errorMsg: String|null;
-    result: T|null;
+    errorMsg: String | null;
+    result: T | null;
 }
 
 function succeed<T>(result?: T): ApiResponse<T> {
