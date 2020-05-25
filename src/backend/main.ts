@@ -38,7 +38,7 @@ app.get('/:key', async (req, res, next) => {
     if(key.length == 20) {
         return res.render('admin', {
             raidName: raid.title,
-            date: raid.createdOn,
+            date: raid.createdOn.toLocaleDateString(),
             flags: createFlags({
                 adminKey: key,
                 userKey: raid.userKey
@@ -55,7 +55,7 @@ app.get('/:key', async (req, res, next) => {
                 }
                 return res.render('register', {
                     raidName: raid.title,
-                    date: raid.createdOn,
+                    date: raid.createdOn.toLocaleDateString(),
                     flags: createFlags(registerFlags)
                 });
             case 1:
@@ -69,7 +69,7 @@ app.get('/:key', async (req, res, next) => {
                 }
                 return res.render('tables', {
                     raidName: raid.title,
-                    date: raid.createdOn,
+                    date: raid.createdOn.toLocaleDateString(),
                     flags: createFlags(tableFlags)
                 });
         }

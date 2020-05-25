@@ -261,17 +261,19 @@ viewLoading =
 
 viewFormBorder : Environment -> Html Msg -> Html Msg
 viewFormBorder env innerHtml =
-    div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
-    [ div [ class "col-md-5" ]
-        [ div [ class "card" ]
-            [ div [ class "card-body" ]
-                [ h4 [ class "card-title", class "text-center" ] [ text "Anmeldung" ]
-                , MaybeX.unwrap (div [] []) viewComments env.comments
-                , innerHtml
+    div [ class "container" ]
+        [ div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
+            [ div [ class "col-md-8" ]
+                [ div [ class "card" ]
+                    [ div [ class "card-body" ]
+                        [ h4 [ class "card-title", class "text-center" ] [ text "Anmeldung" ]
+                        , MaybeX.unwrap (div [] []) viewComments env.comments
+                        , innerHtml
+                        ]
+                    ]
                 ]
             ]
         ]
-    ]
 
 viewComments : Html msg -> Html msg
 viewComments comments =

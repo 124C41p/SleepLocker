@@ -171,7 +171,7 @@ export async function getUserList(userKey: string): Promise<UserData[]> {
 export async function getRestrictedUserList(adminKey: string): Promise<UserData[]> {
     return new Promise((resolve, reject) => {
         db.all(`
-            SELECT user_name as userName, class, role
+            SELECT user_name as userName, class, role, registered_on as registeredOn
             FROM users
                 INNER JOIN raids on users.raid_id = raids.raid_id
             WHERE raids.admin_key = ?

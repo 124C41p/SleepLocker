@@ -2,6 +2,7 @@ import express from 'express';
 import session from 'express-session';
 import { CapacityReachedError, RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid } from './database';
 import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max } from 'sparkson';
+import _ from 'lodash';
 
 let app = express.Router();
 app.use(express.json());
@@ -70,7 +71,6 @@ app.post('/clearMyData', async (req, res) => {
     }
 });
 
-
 class RegisterData {
     constructor(
         @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
@@ -135,10 +135,12 @@ app.post('/getRegistrations', async (req, res) => {
     try {
         let adminKey = parse(RegistrationsQueryData, req.body).adminKey;
         let userList = await getRestrictedUserList(adminKey);
+        userList = _.sortBy(userList, user => user.registeredOn);
         let projectedList = userList.map(data => ({
             userName: data.userName,
             class: data.class,
-            role: data.role
+            role: data.role,
+            registeredOn: data.registeredOn.toLocaleString()
         }));
         return res.json(succeed(projectedList));
     } catch (err) {
@@ -147,7 +149,6 @@ app.post('/getRegistrations', async (req, res) => {
         return res.json(fail('Interner Serverfehler.'));
     }
 });
-
 
 class NewRaidData {
     constructor(
