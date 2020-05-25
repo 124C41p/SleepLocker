@@ -155,16 +155,18 @@ viewControls userKey message isLoading =
 
 viewButtons : Html Msg
 viewButtons = 
-    div [ class "btn-group" ]
+    div [ class "btn-group", class "d-flex" ]
         [ button
             [ class "btn"
             , class "btn-outline-primary"
+            , class "w-50"
             , onClick (DoSetMode Register)
             ] 
             [ text "Registrieren" ]
         , button
             [ class "btn"
             , class "btn-outline-primary"
+            , class "w-50"
             , onClick (DoSetMode ShowTables)
             ]
             [ text "Veröffentlichen" ]
