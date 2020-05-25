@@ -1,5 +1,5 @@
 import express, { Express } from 'express';
-import { characterClasses, getLootLocations, getLootTable } from './configurations';
+import { characterClasses, getLootLocations, getLootTable, getDungeons } from './configurations';
 import apiRouter from './api';
 import http from 'http';
 import { initialize, getRaid, getUserList } from './database';
@@ -11,12 +11,22 @@ app.use('/public/javascripts/', express.static('dist/frontend/'));
 app.use('/api', apiRouter);
 
 async function createHttpServer(app: Express, port: number = 8080) {
-    await initialize()
-    http.createServer(app).listen(port, () => console.log(`http server is running on port ${port}`));
+    try {
+        await initialize();
+        http.createServer(app).listen(port, () => console.log(`http server is running on port ${port}`));
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+function createFlags(obj: any) {
+    return JSON.stringify(obj).split('\\').join('\\\\');
 }
 
 app.get('/', async (req, res) => {
-    res.render('index');
+    res.render('index', {
+        flags: createFlags(getDungeons())
+    });
 });
 
 app.get('/:key', async (req, res, next) => {
@@ -29,7 +39,7 @@ app.get('/:key', async (req, res, next) => {
         return res.render('admin', {
             raidName: raid.title,
             date: raid.createdOn,
-            flags: JSON.stringify({
+            flags: createFlags({
                 adminKey: key,
                 userKey: raid.userKey
             })
@@ -40,11 +50,13 @@ app.get('/:key', async (req, res, next) => {
                 let registerFlags = {
                     classDescriptions: characterClasses,
                     lootTable: raid.dungeonKey == null ? null : getLootLocations(raid.dungeonKey),
+                    raidID: key,
+                    comments: raid.comments
                 }
                 return res.render('register', {
                     raidName: raid.title,
                     date: raid.createdOn,
-                    flags: JSON.stringify(registerFlags)
+                    flags: createFlags(registerFlags)
                 });
             case 1:
                 let lootTable = raid.dungeonKey == null ? null : getLootTable(raid.dungeonKey);
@@ -58,7 +70,7 @@ app.get('/:key', async (req, res, next) => {
                 return res.render('tables', {
                     raidName: raid.title,
                     date: raid.createdOn,
-                    flags: JSON.stringify(tableFlags)
+                    flags: createFlags(tableFlags)
                 });
         }
     }

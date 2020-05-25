@@ -23,10 +23,24 @@ app.post('/myData', async (req, res) => {
             return res.json(fail('Nichts gefunden.'));
         if (raid.mode != 0)
             return res.json(fail('Anmeldung ist nicht mehr möglich.'))
-        let userData = getUserData(userKey, userName);
+        let userData = await getUserData(userKey, userName);
         if (userData == null)
             return res.json(fail('Nichts gefunden.'));
         return res.json(succeed(userData));
+    } catch (err) {
+        if (err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        return res.json(fail('Interner Serverfehler.'))
+    }
+});
+
+app.post('/getRaid', async (req, res) => {
+    try {
+        let userKey = parse(UserKeyQueryData, req.body).userKey;
+        let raid = await getRaid(userKey);
+        if (raid == undefined)
+            return res.json(fail('Raid nicht gefunden.'));
+        return res.json(succeed(raid));
     } catch (err) {
         if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
@@ -44,7 +58,7 @@ app.post('/clearMyData', async (req, res) => {
             return res.json(fail('Nichts gefunden.'));
         if (raid.mode != 0)
             return res.json(fail('Stornieren ist nicht mehr möglich.'))
-        await removeUser(userKey, name);
+        await removeUser(userKey, userName);
         session[userKey] = undefined;
         return res.json(succeed());
     } catch (err) {

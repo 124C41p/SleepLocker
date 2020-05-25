@@ -1,5 +1,5 @@
 module Register exposing (main)
-import Html exposing (Html, div, h4, text, label, input, button, span)
+import Html exposing (Html, div, h4, text, label, input, button, span, hr)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
@@ -7,7 +7,10 @@ import Browser
 import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, searchable, nullable, onUpdate)
 import Json.Decode as Decode
 import UserData exposing (UserData, userDataDecoder, userDataEncoder)
-import Helpers exposing (expectResponse, delay)
+import Helpers exposing (expectResponse, delay, userKeyEncoder)
+import Markdown
+import Markdown.Config as MDConfig exposing (defaultOptions)
+import Maybe.Extra as MaybeX
 
 main : Program Flags Model Msg
 main =
@@ -18,7 +21,12 @@ main =
         , subscriptions = subscriptions
     }
 
-type alias Flags = Environment
+type alias Flags = 
+    { lootTable : Maybe (List ItemLocation)
+    , classDescriptions : List ClassDescription
+    , raidID : String
+    , comments : Maybe String
+    }
 
 type alias Model = 
     { state : State
@@ -44,6 +52,8 @@ type InfoMessage
 type alias Environment = 
     { lootTable : Maybe (List ItemLocation)
     , classDescriptions : List ClassDescription
+    , raidID : String
+    , comments : Maybe (Html Msg)
     }
 
 type alias ClassDescription =
@@ -119,21 +129,22 @@ buildState data =
         Nothing -> EditingPartialData data
         Just completeData -> EditingCompleteData { userData = completeData, infoMessage = NoMsg }
 
-loadUserData : InfoMessage -> Cmd Msg
-loadUserData infoMsg =
-    Http.get
+loadUserData : String -> InfoMessage -> Cmd Msg
+loadUserData raidID infoMsg =
+    Http.post
         { url = "/api/myData"
+        , body = Http.jsonBody (userKeyEncoder raidID)
         , expect = expectResponse
             ( Result.map (DisplayLockedData infoMsg) >> Result.withDefault DisplayEmptyData )
             (Just <| WaitAndReload infoMsg )
             userDataDecoder
         }
 
-storeUserData : UserData -> Cmd Msg
-storeUserData data =
+storeUserData : String -> UserData -> Cmd Msg
+storeUserData raidID data =
     Http.post
         { url = "/api/register"
-        , body = Http.jsonBody (userDataEncoder data)
+        , body = Http.jsonBody (userDataEncoder raidID data)
         , expect =
             expectResponse
             ( \res -> case res of
@@ -144,10 +155,11 @@ storeUserData data =
             ( Decode.null () )
         }
 
-clearUserData : UserData -> Cmd Msg
-clearUserData data =
-    Http.get
+clearUserData : String -> UserData -> Cmd Msg
+clearUserData raidID data =
+    Http.post
         { url = "/api/clearMyData"
+        , body = Http.jsonBody (userKeyEncoder raidID)
         , expect =
             expectResponse
                 ( \result ->
@@ -163,9 +175,21 @@ init : Flags -> (Model, Cmd Msg)
 init env =
     (
         { state = Loading
-        , env = env
+        , env =
+            { lootTable = env.lootTable
+            , classDescriptions = env.classDescriptions
+            , raidID = env.raidID
+            , comments =
+                Maybe.map
+                    ( div [] << 
+                        ( Markdown.toHtml <|
+                            Just { defaultOptions | rawHtml = MDConfig.DontParse }
+                        )
+                    )
+                    env.comments
+            }
         }
-    , loadUserData NoMsg
+    , loadUserData env.raidID NoMsg
     )
 
 type Msg
@@ -183,7 +207,7 @@ update msg model =
     case msg of
         Reload infoMsg ->
             ( { model | state = Loading }
-            , loadUserData infoMsg
+            , loadUserData model.env.raidID infoMsg
             )
         WaitAndReload infoMsg ->
             ( { model | state = Loading }
@@ -203,11 +227,11 @@ update msg model =
             )
         RegisterUserData data ->
             ( { model | state = Loading }
-            , storeUserData data
+            , storeUserData model.env.raidID data
             )
         CancelUserData data ->
             ( { model | state = Loading }
-            , clearUserData data
+            , clearUserData model.env.raidID data
             )
         DisplayEditableData infoMsg userData ->
             ( { model | state = EditingCompleteData { userData = userData, infoMessage = infoMsg } }
@@ -219,7 +243,7 @@ subscriptions _ =
     Sub.none
 
 view : Model -> Html Msg
-view model = viewFormBorder <|
+view model = viewFormBorder model.env <|
     case model.state of
         Loading -> viewLoading
         EditingPartialData data -> viewFormPartial model.env data
@@ -235,18 +259,27 @@ viewLoading =
             ]
         ]
 
-viewFormBorder : Html Msg -> Html Msg
-viewFormBorder innerHtml =
+viewFormBorder : Environment -> Html Msg -> Html Msg
+viewFormBorder env innerHtml =
     div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
     [ div [ class "col-md-5" ]
         [ div [ class "card" ]
             [ div [ class "card-body" ]
-                [ h4 [ class "card-title", class "text-center" ] [ text "Softlocks registrieren" ]
+                [ h4 [ class "card-title", class "text-center" ] [ text "Anmeldung" ]
+                , MaybeX.unwrap (div [] []) viewComments env.comments
                 , innerHtml
                 ]
             ]
         ]
     ]
+
+viewComments : Html msg -> Html msg
+viewComments comments =
+    div []
+        [ hr [] []
+        , comments
+        , hr [] []
+        ]
 
 viewFormPartial : Environment -> PartialUserData -> Html Msg
 viewFormPartial env data =

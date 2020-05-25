@@ -17,7 +17,6 @@ export interface UserData {
 }
 
 export interface Raid {
-    id: number;
     title: string;
     userKey: string;
     dungeonKey: string|null;
@@ -46,16 +45,16 @@ const db = new Database('database.sqlite');
 
 export async function initialize() {
     return new Promise((resolve, reject) => {
-        db.parallelize(() => {
+        db.serialize(() => {
             db.exec(`
                 CREATE TABLE IF NOT EXISTS raids(
                     raid_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_key STRING NOT NULL UNIQUE,
                     admin_key STRING NOT NULL UNIQUE,
-                    name STRING NOT NULL,
+                    title STRING NOT NULL,
                     dungeon_key STRING,
                     mode INTEGER NOT NULL DEFAULT 0,
-                    created_on DATETIME NOT NULL DEFAULT NOW(),
+                    created_on TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     comments STRING
                 )
             `, err => {
@@ -69,13 +68,13 @@ export async function initialize() {
                     role STRING NOT NULL,
                     prio1 STRING,
                     prio2 STRING,
-                    registered_on DATETIME NOT NULL DEFAULT NOW(),
+                    registered_on TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY(raid_id, user_name)
                 )
             `, err => {
                 if(err) return reject(err);
+                resolve();
             });
-            resolve();
         });
     });
 }
@@ -106,13 +105,12 @@ export function registerUser(userKey: string, userName: string, userClass: strin
     return new Promise((resolve, reject) => {
         db.get(`
             SELECT
-                raids.raid_id as id
-            FROM users
-                INNER JOIN raids on users.raid_id = raids.raid_id
+                raid_id
+            FROM raids
             WHERE raids.user_key = ?
         `, [userKey], (err, row) => {
-            if(err) return reject(err);
-            let raidId = row.id;
+            if(err || !row) return reject(new RegistrationError());
+            let raidId = row.raid_id;
 
             db.serialize(() => {
                 db.get(`
@@ -142,9 +140,9 @@ export async function getRaid(key: string): Promise<Raid|null> {
             SELECT raid_id, user_key, title, dungeon_key, mode, created_on, comments
             FROM raids WHERE admin_key = ? OR user_key = ?
         `, [key, key], (err, row) => {
-            if(err) return resolve(null);
+            if(err) return reject(err);
+            if(!row) return resolve(null);
             resolve({
-                id: row.raid_id,
                 title: row.title,
                 userKey: row.user_key,
                 dungeonKey: row.dungeon_key,

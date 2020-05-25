@@ -1,3 +1,8 @@
 extends headpart.pug
 block content
-    p.blockquote.text-center.mt-5 Zur Zeit gibt es keinen aktiven Raid.
+    #elm
+    script.
+        Elm.Index.init({
+            node: document.getElementById('elm'),
+            flags: JSON.parse('!{flags}')
+        })

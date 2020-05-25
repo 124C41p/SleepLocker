@@ -1,12 +1,16 @@
 module Index exposing (main)
 
 import Html exposing (Html, div, text, button, span, input, label, h4, textarea)
-import Html.Attributes exposing (class, style, attribute, placeholder, maxlength, value, rows, disabled)
+import Html.Attributes exposing (class, style, attribute, placeholder, maxlength, value, rows, disabled, classList)
 import NiceSelect exposing (niceSelect, option, selectedValue, nullable, onUpdate)
 import Html.Events exposing (onClick, onInput)
-import Helpers exposing (expectResponse)
--- import Maybe.Extra as MaybeX
+import Helpers exposing (expectResponse, userKeyEncoder)
+import Maybe.Extra as MaybeX
 import Browser
+import Browser.Navigation as Navigation
+import Http
+import Json.Decode as Decode
+import Json.Encode as Encode
 
 main : Program Flags Model Msg
 main =
@@ -51,7 +55,7 @@ isLoading state =
 type alias Raid =
     { title : String
     , dungeon : Maybe Dungeon
-    , comments : Maybe String
+    , comments : String
     }
 
 isInvalid : Raid -> Bool
@@ -66,9 +70,58 @@ init lootTables =
 type Msg
     = ToggleCreate
     | ToggleJoin
-    | UpdateCreate Raid
-    | UpdateJoin String
+    | UpdateCreate Raid (Maybe String)
+    | UpdateJoin String (Maybe String)
+    | CheckAndJoin String
+    | DoJoin String
+    | DoCreate Raid
+    | DoAdministrate String
 
+raidEncoder : Raid -> Encode.Value
+raidEncoder raid =
+    Encode.object
+        [ ( "title", Encode.string (String.trim raid.title) )
+        , ( "dungeonKey", MaybeX.unwrap Encode.null (\d -> Encode.string d.dungeonKey) raid.dungeon)
+        ,
+            ( "comments"
+            ,
+                if String.isEmpty (String.trim raid.comments) then
+                    Encode.null
+                else
+                    Encode.string raid.comments
+            )
+        ]
+
+checkRaid : String -> Cmd Msg
+checkRaid raidID =
+    Http.post
+        { url = "/api/getRaid"
+        , body = Http.jsonBody (userKeyEncoder raidID)
+        , expect = expectResponse
+            ( \res -> case res of
+                Err errMsg -> UpdateJoin raidID (Just errMsg)
+                Ok () -> DoJoin raidID
+            )
+            Nothing
+            (Decode.succeed ())
+        }
+        
+createRaid : Raid -> Cmd Msg
+createRaid raid =
+    Http.post
+        { url = "/api/createRaid"
+        , body = Http.jsonBody (raidEncoder raid)
+        , expect = expectResponse
+            ( \res -> case res of
+                Err errMsg -> UpdateCreate raid (Just errMsg)
+                Ok adminKey -> DoAdministrate adminKey
+            )
+            Nothing
+            Decode.string
+        }
+        
+navigateKey : String -> Cmd Msg
+navigateKey key = Navigation.load("/" ++ key)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -80,11 +133,20 @@ update msg model =
         ToggleCreate ->
             case model.state of
                 Create _ _ -> ({ model | state = Empty }, Cmd.none)
-                _ -> ({ model | state = Create (Raid "" Nothing Nothing) Nothing }, Cmd.none)
-        UpdateCreate raid ->
-            ({ model | state = Create raid Nothing }, Cmd.none)
-        UpdateJoin newRaidID ->
-            ({ model | state = Join newRaidID Nothing }, Cmd.none)
+                _ -> ({ model | state = Create (Raid "" Nothing "") Nothing }, Cmd.none)
+        UpdateCreate raid err ->
+            ({ model | state = Create raid err }, Cmd.none)
+        UpdateJoin newRaidID err ->
+            ({ model | state = Join newRaidID err }, Cmd.none)
+        CheckAndJoin raidID ->
+            ({ model | state = Joining raidID }, checkRaid raidID)
+        DoJoin raidID ->
+            (model, navigateKey raidID)
+        DoCreate raid ->
+            ({ model | state = Creating raid }, createRaid raid)
+        DoAdministrate adminKey ->
+            (model, navigateKey adminKey)
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -132,10 +194,24 @@ viewJoin raidID err =
     div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
     [ div [ class "col-md-3", class "d-flex", class "justify-content-center" ]
         [ div [ class "input-group" ]
-            [ input [ placeholder "Raid ID", class "form-control", maxlength 6 ] []
-            , div [ class "input-group-append" ]
-                [ button [ class "btn", class "btn-primary" ] [ text "Beitreten" ]
+            [ input
+                [ placeholder "Raid ID"
+                , class "form-control"
+                , maxlength 6
+                , value raidID
+                , classList [ ("is-invalid", MaybeX.isJust err) ]
+                , onInput (\newRaidID -> UpdateJoin newRaidID Nothing)
                 ]
+                [ ]
+            , div [ class "input-group-append" ]
+                [ button
+                    [ class "btn"
+                    , class "btn-primary"
+                    , onClick <| CheckAndJoin raidID
+                    ]
+                    [ text "Beitreten" ]
+                ]
+            , div [ class "invalid-feedback" ] [ text <| Maybe.withDefault "" err ]
             ]
         ]
     ]
@@ -150,12 +226,13 @@ viewCreate raid dungeonList err =
             [ div [ class "card" ]
                 [ div [ class "card-body" ]
                     [ h4 [ class "card-title", class "text-center" ] [ text "Neuer Raid" ]
+                    , viewError err
                     , div [ class "form-group" ]
                         [ label [] [ text "Titel" ]
                         , input
                             [ class "form-control"
                             , value title
-                            , onInput <| \newTitle -> UpdateCreate { raid | title = newTitle }
+                            , onInput <| \newTitle -> UpdateCreate { raid | title = newTitle } Nothing
                             ]
                             []
                         ]
@@ -167,7 +244,7 @@ viewCreate raid dungeonList err =
                             , onUpdate <| \name ->
                                 let
                                     newDungeon = Maybe.andThen (dungeonFromName dungeonList) name
-                                in  UpdateCreate { raid | dungeon = newDungeon }
+                                in  UpdateCreate { raid | dungeon = newDungeon } Nothing
                             ]
                             (List.map (\d -> option d.dungeonName) dungeonList)
                         ]
@@ -175,15 +252,10 @@ viewCreate raid dungeonList err =
                         [ label [] [ text "Bemerkungen" ]
                         , textarea
                             [ class "form-control"
-                            , value <| Maybe.withDefault "" comments
+                            , value comments
                             , rows 5
                             , onInput <| \newComments ->
-                                UpdateCreate 
-                                    { raid | comments =
-                                        if String.isEmpty newComments then 
-                                            Nothing
-                                        else Just newComments
-                                    }
+                                UpdateCreate { raid | comments = newComments } Nothing
                             ]
                             []
                         ]
@@ -191,6 +263,7 @@ viewCreate raid dungeonList err =
                         [ class "btn"
                         , class "btn-primary"
                         , disabled (isInvalid raid)
+                        , onClick (DoCreate raid)
                         ]
                         [ text "Erstellen" ]
                     ]
@@ -198,8 +271,11 @@ viewCreate raid dungeonList err =
             ]
         ]
 
-viewErrorMsg : String -> Html Msg
-viewErrorMsg err =
-    div [ class "alert", class "alert-danger" ]
-        [ span [] [ text err ]
-        ]
+viewError : Maybe String -> Html Msg
+viewError err =
+    case err of
+        Just errMsg ->
+            div [ class "alert", class "alert-danger" ]
+                [ span [] [ text errMsg ]
+                ]
+        Nothing -> div [] []

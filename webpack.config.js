@@ -55,7 +55,8 @@ const frontConfig = (env = {}) => ({
                 use: {
                     loader: 'elm-webpack-loader',
                     options: {
-                        optimize: env.development ? false : true
+                        optimize: env.development ? false : true,
+                        debug: env.development ? true : false
                     }
                 }
             }
