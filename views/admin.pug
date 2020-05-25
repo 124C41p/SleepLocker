@@ -1,8 +1,9 @@
 extends headpart.pug
 block content
+    p.blockquote.text-center.mt-5= `Adminseite für ${raidName} (${date})`
     #elm
     script.
-        Elm.Index.init({
+        Elm.Admin.init({
             node: document.getElementById('elm'),
             flags: JSON.parse('!{flags}')
         })

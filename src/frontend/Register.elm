@@ -1,14 +1,16 @@
 module Register exposing (main)
-import Html exposing (Html, div, h4, text, label, input, button, span)
+import Html exposing (Html, div, h4, text, label, input, button, span, hr)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
-import Process
-import Task
 import Browser
 import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, searchable, nullable, onUpdate)
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode
 import UserData exposing (UserData, userDataDecoder, userDataEncoder)
+import Helpers exposing (expectResponse, delay, userKeyEncoder)
+import Markdown
+import Markdown.Config as MDConfig exposing (defaultOptions)
+import Maybe.Extra as MaybeX
 
 main : Program Flags Model Msg
 main =
@@ -19,7 +21,12 @@ main =
         , subscriptions = subscriptions
     }
 
-type alias Flags = Environment
+type alias Flags = 
+    { lootTable : Maybe (List ItemLocation)
+    , classDescriptions : List ClassDescription
+    , raidID : String
+    , comments : Maybe String
+    }
 
 type alias Model = 
     { state : State
@@ -45,6 +52,8 @@ type InfoMessage
 type alias Environment = 
     { lootTable : Maybe (List ItemLocation)
     , classDescriptions : List ClassDescription
+    , raidID : String
+    , comments : Maybe (Html Msg)
     }
 
 type alias ClassDescription =
@@ -62,25 +71,6 @@ type alias ItemLocation =
     { locationName : String
     , loot : List String        
     }
-
-responseDecoder : Decoder a -> Decoder (Result String a)
-responseDecoder decoder =
-    Decode.field "success" Decode.bool
-    |> Decode.andThen
-        ( \success -> 
-            if success then
-                Decode.field "result" decoder
-                |> Decode.map Ok
-            else
-                Decode.field "errorMsg" Decode.string
-                |> Decode.map Err
-        )
-            
-expectResponse : (Result String a -> msg) -> Maybe msg -> Decoder a -> Http.Expect msg
-expectResponse converter defaultMsg decoder =
-    Http.expectJson
-        ( Result.map converter >> Result.withDefault (Maybe.withDefault (converter <| Err "Interner Serverfehler.") defaultMsg) )
-        ( responseDecoder decoder )
 
 type alias PartialUserData =
     { userName : String
@@ -139,21 +129,22 @@ buildState data =
         Nothing -> EditingPartialData data
         Just completeData -> EditingCompleteData { userData = completeData, infoMessage = NoMsg }
 
-loadUserData : InfoMessage -> Cmd Msg
-loadUserData infoMsg =
-    Http.get
+loadUserData : String -> InfoMessage -> Cmd Msg
+loadUserData raidID infoMsg =
+    Http.post
         { url = "/api/myData"
+        , body = Http.jsonBody (userKeyEncoder raidID)
         , expect = expectResponse
             ( Result.map (DisplayLockedData infoMsg) >> Result.withDefault DisplayEmptyData )
             (Just <| WaitAndReload infoMsg )
             userDataDecoder
         }
 
-storeUserData : UserData -> Cmd Msg
-storeUserData data =
+storeUserData : String -> UserData -> Cmd Msg
+storeUserData raidID data =
     Http.post
         { url = "/api/register"
-        , body = Http.jsonBody (userDataEncoder data)
+        , body = Http.jsonBody (userDataEncoder raidID data)
         , expect =
             expectResponse
             ( \res -> case res of
@@ -164,10 +155,11 @@ storeUserData data =
             ( Decode.null () )
         }
 
-clearUserData : UserData -> Cmd Msg
-clearUserData data =
-    Http.get
+clearUserData : String -> UserData -> Cmd Msg
+clearUserData raidID data =
+    Http.post
         { url = "/api/clearMyData"
+        , body = Http.jsonBody (userKeyEncoder raidID)
         , expect =
             expectResponse
                 ( \result ->
@@ -183,9 +175,21 @@ init : Flags -> (Model, Cmd Msg)
 init env =
     (
         { state = Loading
-        , env = env
+        , env =
+            { lootTable = env.lootTable
+            , classDescriptions = env.classDescriptions
+            , raidID = env.raidID
+            , comments =
+                Maybe.map
+                    ( div [] << 
+                        ( Markdown.toHtml <|
+                            Just { defaultOptions | rawHtml = MDConfig.DontParse }
+                        )
+                    )
+                    env.comments
+            }
         }
-    , loadUserData NoMsg
+    , loadUserData env.raidID NoMsg
     )
 
 type Msg
@@ -198,17 +202,12 @@ type Msg
     | RegisterUserData UserData
     | CancelUserData UserData
 
-delay : Float -> msg -> Cmd msg
-delay time msg =
-    Process.sleep time
-    |> Task.perform (\() -> msg)
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Reload infoMsg ->
             ( { model | state = Loading }
-            , loadUserData infoMsg
+            , loadUserData model.env.raidID infoMsg
             )
         WaitAndReload infoMsg ->
             ( { model | state = Loading }
@@ -228,11 +227,11 @@ update msg model =
             )
         RegisterUserData data ->
             ( { model | state = Loading }
-            , storeUserData data
+            , storeUserData model.env.raidID data
             )
         CancelUserData data ->
             ( { model | state = Loading }
-            , clearUserData data
+            , clearUserData model.env.raidID data
             )
         DisplayEditableData infoMsg userData ->
             ( { model | state = EditingCompleteData { userData = userData, infoMessage = infoMsg } }
@@ -244,7 +243,7 @@ subscriptions _ =
     Sub.none
 
 view : Model -> Html Msg
-view model = viewFormBorder <|
+view model = viewFormBorder model.env <|
     case model.state of
         Loading -> viewLoading
         EditingPartialData data -> viewFormPartial model.env data
@@ -260,19 +259,29 @@ viewLoading =
             ]
         ]
 
-viewFormBorder : Html Msg -> Html Msg
-viewFormBorder innerHtml =
-    div [ class "row", class "padding", class "d-flex", class "justify-content-center", class "mt-5" ]
-    [ div [ class "col-md-5" ]
-        [ div [ class "card" ]
-            [ div [ class "card-body" ]
-                [ h4 [ class "card-title", class "text-center", class "padding" ] [ text "Softlocks registrieren" ]
-                , div [ class "padding" ] []
-                , innerHtml
+viewFormBorder : Environment -> Html Msg -> Html Msg
+viewFormBorder env innerHtml =
+    div [ class "container" ]
+        [ div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
+            [ div [ class "col-md-8" ]
+                [ div [ class "card" ]
+                    [ div [ class "card-body" ]
+                        [ h4 [ class "card-title", class "text-center" ] [ text "Anmeldung" ]
+                        , MaybeX.unwrap (div [] []) viewComments env.comments
+                        , innerHtml
+                        ]
+                    ]
                 ]
             ]
         ]
-    ]
+
+viewComments : Html msg -> Html msg
+viewComments comments =
+    div []
+        [ hr [] []
+        , comments
+        , hr [] []
+        ]
 
 viewFormPartial : Environment -> PartialUserData -> Html Msg
 viewFormPartial env data =
@@ -329,13 +338,13 @@ viewInputForm : Environment -> PartialUserData -> Bool -> Html Msg
 viewInputForm env data isDisabled =
     div []
         [ div [ class "form-group" ]
-        [ label [ for "userName" ] [ text "Charaktername" ]
-        , input 
-            [ class "form-control", id "userName", value data.userName, disabled isDisabled
-            , onInput ( \newName -> DisplayPartialData { data | userName = newName } )
+            [ label [ for "userName" ] [ text "Charaktername" ]
+            , input 
+                [ class "form-control", id "userName", value data.userName, disabled isDisabled
+                , onInput ( \newName -> DisplayPartialData { data | userName = newName } )
+                ]
+                [ ]
             ]
-            [ ]
-        ]
     , div [ class "form-row" ]
         [ div [ class "form-group", class "col-md-6" ]
             [ label [ ] [ text "Klasse" ]

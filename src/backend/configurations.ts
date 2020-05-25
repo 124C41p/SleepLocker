@@ -13,14 +13,21 @@ export interface CharacterClass {
     roles: string[];
 }
 
+interface DungeonInfo {
+    dungeonKey: string;
+    dungeonName: string;
+}
+
 interface DungeonLoot {
     dungeonKey: string;
+    dungeonName: string;
     locations: string[];
     loot: Item[];
 }
 
 interface DungeonUniqueLoot {
     dungeonKey: string;
+    dungeonName: string;
     loot: LootLocation[];
 }
 
@@ -40,6 +47,7 @@ function getUniqueLoot(dungeon: DungeonLoot): DungeonUniqueLoot {
     let locations: LootLocation[] = _.map(groups, (items, location) => ({ locationName: location, loot: items }))
     return {
         dungeonKey: dungeon.dungeonKey,
+        dungeonName: dungeon.dungeonName,
         loot: _.sortBy(locations, location => dungeon.locations.indexOf(location.locationName)) };
 }
 
@@ -55,4 +63,11 @@ export function getLootLocations(dungeonKey: string): LootLocation[]|null {
     if(dungeon == undefined)
         return null;
     return dungeon.loot;
+}
+
+export function getDungeons(): DungeonInfo[] {
+    return allLoot.map(d => ({
+        dungeonKey: d.dungeonKey,
+        dungeonName: d.dungeonName
+    }))
 }
