@@ -20,7 +20,10 @@ async function createHttpServer(app: Express, port: number = 8080) {
 }
 
 function createFlags(obj: any) {
-    return JSON.stringify(obj).split('\\').join('\\\\');
+    let jsonStr = JSON.stringify(obj);
+    jsonStr = jsonStr.split('\\').join('\\\\');
+    jsonStr = jsonStr.split('\'').join('\\\'');
+    return jsonStr;
 }
 
 app.get('/', async (req, res) => {

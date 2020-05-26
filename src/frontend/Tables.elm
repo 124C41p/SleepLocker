@@ -132,7 +132,7 @@ viewTabBar state =
             ]
         , li [class "nav-item", onClick (ChangeState LocationLists)]
             [ a ([ class "nav-link", href "#" ] ++ (if state == LocationLists then [ class "active" ] else []))
-                [ text "Einzellisten" ]
+                [ text "Bosslisten" ]
             ]
         ]
 

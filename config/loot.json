@@ -999,5 +999,158 @@
                 ]
             }
         ]
+    },
+    {
+        "dungeonKey": "ony",
+        "dungeonName": "Onyxias Hort",
+        "locations": [
+            "Onyxia"
+        ],
+        "loot": [
+            {
+                "itemName": "Heiligenschein der Erhabenheit",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Krone des Netherwinds",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Schädelkappe der Nemesis",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Blutfangkapuze",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Bedeckung des Stormrage",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Helm des Drachenjägers",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Krone des Richturteils",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Helm des Zorns",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Onyxias Kopf",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Schuppe von Onyxia",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Sehne eines ausgewachsenen schwarzen Drachen",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Eskhandars Halsband",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Saphirontuch",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Ring der Bindung",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Splitter der Schuppe",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Zauberfoliant des uralten Grundsteins",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Todesbringer",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Vis'kag der Blutvergießer",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Rucksack aus Onyxias Haut",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Blauer Sack voller Edelsteine",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Grüner Sack voller Edelsteine",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Grauer Sack voller Edelsteine",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Gelber Sack voller Edelsteine",
+                "locations": [
+                    "Onyxia"
+                ]
+            },
+            {
+                "itemName": "Roter Sack voller Edelsteine",
+                "locations": [
+                    "Onyxia"
+                ]
+            }
+        ]
     }
 ]
