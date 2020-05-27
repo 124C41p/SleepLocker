@@ -49,13 +49,13 @@ export async function initialize() {
             db.exec(`
                 CREATE TABLE IF NOT EXISTS raids(
                     raid_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_key STRING NOT NULL UNIQUE,
-                    admin_key STRING NOT NULL UNIQUE,
-                    title STRING NOT NULL,
-                    dungeon_key STRING,
+                    user_key TEXT NOT NULL UNIQUE,
+                    admin_key TEXT NOT NULL UNIQUE,
+                    title TEXT NOT NULL,
+                    dungeon_key TEXT,
                     mode INTEGER NOT NULL DEFAULT 0,
                     created_on TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    comments STRING
+                    comments TEXT
                 )
             `, err => {
                 if(err) return reject(err);
@@ -63,11 +63,11 @@ export async function initialize() {
             db.exec(`
                 CREATE TABLE IF NOT EXISTS users(
                     raid_id INTEGER NOT NULL,
-                    user_name STRING NOT NULL,
-                    class STRING NOT NULL,
-                    role STRING NOT NULL,
-                    prio1 STRING,
-                    prio2 STRING,
+                    user_name TEXT NOT NULL,
+                    class TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    prio1 TEXT,
+                    prio2 TEXT,
                     registered_on TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY(raid_id, user_name)
                 )

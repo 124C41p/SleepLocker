@@ -5,5 +5,5 @@ block content
     script.
         Elm.Tables.init({
             node: document.getElementById('elm'),
-            flags: JSON.parse('!{flags}')
+            flags: !{JSON.stringify(flags)}
         })

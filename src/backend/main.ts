@@ -19,16 +19,9 @@ async function createHttpServer(app: Express, port: number = 8080) {
     }
 }
 
-function createFlags(obj: any) {
-    let jsonStr = JSON.stringify(obj);
-    jsonStr = jsonStr.split('\\').join('\\\\');
-    jsonStr = jsonStr.split('\'').join('\\\'');
-    return jsonStr;
-}
-
 app.get('/', async (req, res) => {
     res.render('index', {
-        flags: createFlags(getDungeons())
+        flags: getDungeons()
     });
 });
 
@@ -42,10 +35,10 @@ app.get('/:key', async (req, res, next) => {
         return res.render('admin', {
             raidName: raid.title,
             date: raid.createdOn.toLocaleDateString(),
-            flags: createFlags({
+            flags: {
                 adminKey: key,
                 userKey: raid.userKey
-            })
+            }
         });
     } else if(key.length == 6) {
         switch(raid.mode) {
@@ -59,7 +52,7 @@ app.get('/:key', async (req, res, next) => {
                 return res.render('register', {
                     raidName: raid.title,
                     date: raid.createdOn.toLocaleDateString(),
-                    flags: createFlags(registerFlags)
+                    flags: registerFlags
                 });
             case 1:
                 let lootTable = raid.dungeonKey == null ? null : getLootTable(raid.dungeonKey);
@@ -73,7 +66,7 @@ app.get('/:key', async (req, res, next) => {
                 return res.render('tables', {
                     raidName: raid.title,
                     date: raid.createdOn.toLocaleDateString(),
-                    flags: createFlags(tableFlags)
+                    flags: tableFlags
                 });
         }
     }
