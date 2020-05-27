@@ -129,7 +129,7 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
-    div [ class "container-fluid" ]
+    div [ class "container-fluid", class "pb-5" ]
         [ div [ class "row" ]
             [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.currentMessage model.isLoading ]
             , div [ class "col-md-10" ] [ viewUserList model.userList ]

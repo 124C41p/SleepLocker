@@ -272,7 +272,7 @@ viewLoading =
 
 viewFormBorder : Environment -> Html Msg -> Html Msg
 viewFormBorder env innerHtml =
-    div [ class "container" ]
+    div [ class "container", class "pb-5" ]
         [ div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
             [ div [ class "col-md-8" ]
                 [ div [ class "card" ]

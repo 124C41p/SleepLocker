@@ -158,7 +158,7 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view { state, lootTables } =
-    div [ class "container" ] <|
+    div [ class "container", class "py-5" ] <|
          if isLoading state then
             [ viewSpinner ]
          else
