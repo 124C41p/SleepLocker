@@ -1,9 +1,12 @@
 extends headpart.pug
 block content
-    p.blockquote.text-center.mt-5= `${raidName} (${date})`
+    p.blockquote.text-center.mt-5= `${raidName} (erstellt ${date})`
     #elm
     script.
         Elm.Register.init({
             node: document.getElementById('elm'),
-            flags: !{JSON.stringify(flags)}
+            flags: {
+                ...!{JSON.stringify(flags)},
+                userID: getUserID()
+            }
         })

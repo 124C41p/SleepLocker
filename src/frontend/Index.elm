@@ -4,7 +4,7 @@ import Html exposing (Html, div, text, button, span, input, label, h4, textarea)
 import Html.Attributes exposing (class, style, attribute, placeholder, maxlength, value, rows, disabled, classList)
 import NiceSelect exposing (niceSelect, option, selectedValue, nullable, onUpdate)
 import Html.Events exposing (onClick, onInput)
-import Helpers exposing (expectResponse, userKeyEncoder)
+import Helpers exposing (expectResponse, raidUserKeyEncoder)
 import Maybe.Extra as MaybeX
 import Browser
 import Browser.Navigation as Navigation
@@ -96,7 +96,7 @@ checkRaid : String -> Cmd Msg
 checkRaid raidID =
     Http.post
         { url = "/api/getRaid"
-        , body = Http.jsonBody (userKeyEncoder raidID)
+        , body = Http.jsonBody (raidUserKeyEncoder raidID)
         , expect = expectResponse
             ( \res -> case res of
                 Err errMsg -> UpdateJoin raidID (Just errMsg)
@@ -114,7 +114,7 @@ createRaid raid =
         , expect = expectResponse
             ( \res -> case res of
                 Err errMsg -> UpdateCreate raid (Just errMsg)
-                Ok adminKey -> DoAdministrate adminKey
+                Ok raidAdminKey -> DoAdministrate raidAdminKey
             )
             Nothing
             Decode.string
@@ -144,8 +144,8 @@ update msg model =
             (model, navigateKey raidID)
         DoCreate raid ->
             ({ model | state = Creating raid }, createRaid raid)
-        DoAdministrate adminKey ->
-            (model, navigateKey adminKey)
+        DoAdministrate raidAdminKey ->
+            (model, navigateKey raidAdminKey)
 
 
 subscriptions : Model -> Sub Msg

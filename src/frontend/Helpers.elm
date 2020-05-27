@@ -1,4 +1,4 @@
-module Helpers exposing (responseDecoder, expectResponse, delay, userKeyEncoder)
+module Helpers exposing (responseDecoder, expectResponse, delay, raidUserKeyEncoder)
 import Http
 import Process
 import Task
@@ -29,6 +29,6 @@ delay time msg =
     Process.sleep time
     |> Task.perform (\() -> msg)
     
-userKeyEncoder : String -> Encode.Value
-userKeyEncoder raidID =
-    Encode.object [ ( "userKey", Encode.string raidID ) ]
+raidUserKeyEncoder : String -> Encode.Value
+raidUserKeyEncoder raidID =
+    Encode.object [ ( "raidUserKey", Encode.string raidID ) ]

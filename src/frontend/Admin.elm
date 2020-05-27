@@ -27,8 +27,8 @@ type InfoMessage
     | ErrorMsg String
 
 type alias Model =
-    { adminKey : String
-    , userKey : String
+    { raidAdminKey : String
+    , raidUserKey : String
     , userList : List UserData
     , currentMessage : InfoMessage
     , isLoading : Bool
@@ -50,8 +50,8 @@ userDataDecoder =
         (Decode.field "registeredOn" Decode.string)
 
 type alias Flags =
-    { adminKey : String
-    , userKey : String
+    { raidAdminKey : String
+    , raidUserKey : String
     }
 
 type Mode
@@ -65,9 +65,9 @@ getModeNumber mode =
         ShowTables -> 1
 
 init : Flags -> (Model, Cmd Msg)
-init { adminKey, userKey } =
-    ( { adminKey = adminKey, userKey = userKey, userList = [], currentMessage = NoMsg, isLoading = False }
-    , loadRegistrations adminKey
+init { raidAdminKey, raidUserKey } =
+    ( { raidAdminKey = raidAdminKey, raidUserKey = raidUserKey, userList = [], currentMessage = NoMsg, isLoading = False }
+    , loadRegistrations raidAdminKey
     )
 
 type Msg
@@ -79,13 +79,13 @@ type Msg
 
 
 loadRegistrations : String -> Cmd Msg
-loadRegistrations adminKey =
+loadRegistrations raidAdminKey =
     Http.post
         { url = "/api/getRegistrations"
         , body =
             Http.jsonBody
             <| Encode.object
-                [ ( "adminKey", Encode.string adminKey )
+                [ ( "raidAdminKey", Encode.string raidAdminKey )
                 ]
         , expect = expectResponse
             ( ResultX.unwrap NoOp Updated )
@@ -94,13 +94,13 @@ loadRegistrations adminKey =
         }
 
 setMode : String -> Mode -> Cmd Msg
-setMode adminKey mode =
+setMode raidAdminKey mode =
     Http.post
         { url = "/api/setMode"
         , body =
             Http.jsonBody
             <| Encode.object
-                [ ( "adminKey", Encode.string adminKey )
+                [ ( "raidAdminKey", Encode.string raidAdminKey )
                 , ( "mode", Encode.int <| getModeNumber mode )
                 ]
         , expect = expectResponse
@@ -116,9 +116,9 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         NoOp -> (model, Cmd.none)
-        DoUpdate -> (model, loadRegistrations model.adminKey)
+        DoUpdate -> (model, loadRegistrations model.raidAdminKey)
         Updated userList -> ({ model | userList = userList }, Cmd.none)
-        DoSetMode mode -> ({ model | currentMessage = NoMsg, isLoading = True }, setMode model.adminKey mode )
+        DoSetMode mode -> ({ model | currentMessage = NoMsg, isLoading = True }, setMode model.raidAdminKey mode )
         ModeSet res -> ({ model | currentMessage = res, isLoading = False }, Cmd.none)
 
 
@@ -131,19 +131,19 @@ view : Model -> Html Msg
 view model =
     div [ class "container-fluid" ]
         [ div [ class "row" ]
-            [ div [ class "col-md-2" ] [ viewControls model.userKey model.currentMessage model.isLoading ]
+            [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.currentMessage model.isLoading ]
             , div [ class "col-md-10" ] [ viewUserList model.userList ]
             ]
         ]
 
 viewControls : String -> InfoMessage -> Bool -> Html Msg
-viewControls userKey message isLoading =
+viewControls raidUserKey message isLoading =
     div [ class "card" ]
         [ div [ class "card-body" ] 
             [ Maybe.withDefault (div [] []) (viewInfoMsg message)
             , div [ class "form-group" ]
                 [ label [] [ text "Raid ID" ]
-                , input [ class "form-control", disabled True, value userKey ] []
+                , input [ class "form-control", disabled True, value raidUserKey ] []
                 ]
             ,
                 if isLoading then

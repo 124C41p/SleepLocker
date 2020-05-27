@@ -10,11 +10,12 @@ type alias UserData =
     , prio2 : Maybe String
     }
 
-userDataEncoder : String -> UserData -> Encode.Value
-userDataEncoder raidID data =
+userDataEncoder : String -> String -> UserData -> Encode.Value
+userDataEncoder raidID userID data =
     Encode.object
         [ ( "userName", Encode.string data.userName )
-        , ( "userKey", Encode.string raidID )
+        , ( "userID", Encode.string userID )
+        , ( "raidUserKey", Encode.string raidID )
         , ( "class", Encode.string data.class )
         , ( "role", Encode.string data.role )
         , ( "prio1", Maybe.withDefault Encode.null <| Maybe.map Encode.string data.prio1 )
