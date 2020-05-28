@@ -1,10 +1,10 @@
 module Index exposing (main)
 
 import Html exposing (Html, div, text, button, span, input, label, h4, textarea)
-import Html.Attributes exposing (class, style, attribute, placeholder, maxlength, value, rows, disabled, classList)
+import Html.Attributes exposing (class, style, attribute, placeholder, maxlength, value, rows, disabled, classList, id)
 import NiceSelect exposing (niceSelect, option, selectedValue, nullable, onUpdate)
 import Html.Events exposing (onClick, onInput)
-import Helpers exposing (expectResponse, userKeyEncoder)
+import Helpers exposing (expectResponse, raidUserKeyEncoder, focus)
 import Maybe.Extra as MaybeX
 import Browser
 import Browser.Navigation as Navigation
@@ -68,7 +68,8 @@ init lootTables =
 
 
 type Msg
-    = ToggleCreate
+    = NoOp
+    | ToggleCreate
     | ToggleJoin
     | UpdateCreate Raid (Maybe String)
     | UpdateJoin String (Maybe String)
@@ -96,7 +97,7 @@ checkRaid : String -> Cmd Msg
 checkRaid raidID =
     Http.post
         { url = "/api/getRaid"
-        , body = Http.jsonBody (userKeyEncoder raidID)
+        , body = Http.jsonBody (raidUserKeyEncoder raidID)
         , expect = expectResponse
             ( \res -> case res of
                 Err errMsg -> UpdateJoin raidID (Just errMsg)
@@ -114,7 +115,7 @@ createRaid raid =
         , expect = expectResponse
             ( \res -> case res of
                 Err errMsg -> UpdateCreate raid (Just errMsg)
-                Ok adminKey -> DoAdministrate adminKey
+                Ok raidAdminKey -> DoAdministrate raidAdminKey
             )
             Nothing
             Decode.string
@@ -126,14 +127,16 @@ navigateKey key = Navigation.load("/" ++ key)
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
+        NoOp ->
+            (model, Cmd.none)
         ToggleJoin ->
             case model.state of
                 Join _ _ -> ({ model | state = Empty }, Cmd.none)
-                _ -> ({ model | state = Join "" Nothing }, Cmd.none)
+                _ -> ({ model | state = Join "" Nothing }, focus "input-join" NoOp)
         ToggleCreate ->
             case model.state of
                 Create _ _ -> ({ model | state = Empty }, Cmd.none)
-                _ -> ({ model | state = Create (Raid "" Nothing "") Nothing }, Cmd.none)
+                _ -> ({ model | state = Create (Raid "" Nothing "") Nothing }, focus "input-raid-title" NoOp)
         UpdateCreate raid err ->
             ({ model | state = Create raid err }, Cmd.none)
         UpdateJoin newRaidID err ->
@@ -144,8 +147,8 @@ update msg model =
             (model, navigateKey raidID)
         DoCreate raid ->
             ({ model | state = Creating raid }, createRaid raid)
-        DoAdministrate adminKey ->
-            (model, navigateKey adminKey)
+        DoAdministrate raidAdminKey ->
+            (model, navigateKey raidAdminKey)
 
 
 subscriptions : Model -> Sub Msg
@@ -155,7 +158,7 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view { state, lootTables } =
-    div [ class "container" ] <|
+    div [ class "container", class "py-5" ] <|
          if isLoading state then
             [ viewSpinner ]
          else
@@ -196,6 +199,7 @@ viewJoin raidID err =
         [ div [ class "input-group" ]
             [ input
                 [ placeholder "Raid ID"
+                , id "input-join"
                 , class "form-control"
                 , maxlength 6
                 , value raidID
@@ -231,6 +235,7 @@ viewCreate raid dungeonList err =
                         [ label [] [ text "Titel" ]
                         , input
                             [ class "form-control"
+                            , id "input-raid-title"
                             , value title
                             , onInput <| \newTitle -> UpdateCreate { raid | title = newTitle } Nothing
                             ]

@@ -10,3 +10,23 @@ window.Elm = {
     Admin: ElmAdmin.Elm.Admin,
     Index: ElmIndex.Elm.Index
 };
+
+const userIDLength = 50;
+
+window.getUserID = () => {
+    let id = localStorage.getItem('user-id')
+    if(!id || id.length != userIDLength) {
+        id = randomString(userIDLength);
+        localStorage.setItem('user-id', id);
+    }
+    return id;
+};
+
+function randomString(length) {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}

@@ -3,8 +3,8 @@ import { Database } from 'sqlite3';
 
 /*
 Modes
-0 - receiving softlocks
-1 - listing softlocks
+0 - registration
+1 - showing tables
 */
 
 export interface UserData {
@@ -18,7 +18,7 @@ export interface UserData {
 
 export interface Raid {
     title: string;
-    userKey: string;
+    raidUserKey: string;
     dungeonKey: string|null;
     mode: number;
     createdOn: Date;
@@ -26,10 +26,6 @@ export interface Raid {
 }
 
 export class RegistrationError extends Error {
-
-}
-
-export class CapacityReachedError extends Error {
 
 }
 
@@ -49,8 +45,8 @@ export async function initialize() {
             db.exec(`
                 CREATE TABLE IF NOT EXISTS raids(
                     raid_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_key TEXT NOT NULL UNIQUE,
-                    admin_key TEXT NOT NULL UNIQUE,
+                    raid_user_key TEXT NOT NULL UNIQUE,
+                    raid_admin_key TEXT NOT NULL UNIQUE,
                     title TEXT NOT NULL,
                     dungeon_key TEXT,
                     mode INTEGER NOT NULL DEFAULT 0,
@@ -64,12 +60,14 @@ export async function initialize() {
                 CREATE TABLE IF NOT EXISTS users(
                     raid_id INTEGER NOT NULL,
                     user_name TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
                     class TEXT NOT NULL,
                     role TEXT NOT NULL,
                     prio1 TEXT,
                     prio2 TEXT,
                     registered_on TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY(raid_id, user_name)
+                    PRIMARY KEY(raid_id, user_id),
+                    UNIQUE(raid_id, user_name)
                 )
             `, err => {
                 if(err) return reject(err);
@@ -79,18 +77,18 @@ export async function initialize() {
     });
 }
 
-export async function getUserData(userKey: string, userName: string): Promise<UserData|null> {
+export async function getUserData(raidUserKey: string, userID: string): Promise<UserData|null> {
     return new Promise((resolve, reject) => {
         db.get(`
-            SELECT class, role, prio1, prio2, registered_on
+            SELECT user_name, class, role, prio1, prio2, registered_on
             FROM users
                 INNER JOIN raids on users.raid_id = raids.raid_id
-            WHERE raids.user_key = ? AND users.user_name = ?
-        `, [userKey, userName], (err, row) => {
+            WHERE raids.raid_user_key = ? AND users.user_id = ?
+        `, [raidUserKey, userID], (err, row) => {
             if(err) return reject(err);
             if(!row) return resolve(null);
             resolve({
-                userName: userName,
+                userName: row.user_name,
                 class: row.class,
                 role: row.role,
                 prio1: row.prio1,
@@ -101,32 +99,36 @@ export async function getUserData(userKey: string, userName: string): Promise<Us
     });
 }
 
-export function registerUser(userKey: string, userName: string, userClass: string, role: string, prio1?: string, prio2?: string) {
+export function registerUser(raidUserKey: string, userName: string, userID: string, userClass: string, role: string, prio1?: string, prio2?: string) {
     return new Promise((resolve, reject) => {
         db.get(`
             SELECT
                 raid_id
             FROM raids
-            WHERE raids.user_key = ?
-        `, [userKey], (err, row) => {
-            if(err || !row) return reject(new RegistrationError());
-            let raidId = row.raid_id;
+            WHERE raids.raid_user_key = ?
+        `, [raidUserKey], (err, row) => {
+            if(err) return reject(err);
+            if(!row) return reject(new RegistrationError());
+            let raidID = row.raid_id;
 
             db.serialize(() => {
                 db.get(`
                     SELECT
-                        COUNT(*) as no
+                        user_id
                     FROM users
-                    WHERE raid_id = ?
-                `, [raidId], (err, row) => {
+                    WHERE raid_id = ? AND (
+                        (user_name = ? AND user_id != ?) OR
+                        (user_name != ? AND user_id = ?))
+                `, [raidID, userName, userID, userName, userID], (err, row) => {
                     if(err) return reject(err);
-                    if(row.no > 80) return reject(new CapacityReachedError());
+                    if(row)
+                        return reject(new RegistrationError());
                 })
 
                 db.run(`
-                    INSERT INTO users(raid_id, user_name, class, role, prio1, prio2)
-                    VALUES(?,?,?,?,?,?)`, [raidId, userName, userClass, role, prio1, prio2], err => {
-                    if(err) return reject(new RegistrationError());
+                    INSERT INTO users(raid_id, user_name, user_id, class, role, prio1, prio2)
+                    VALUES(?,?,?,?,?,?,?)`, [raidID, userName, userID, userClass, role, prio1, prio2], err => {
+                    if(err) return reject(err);
                     resolve();
                 });
             });
@@ -137,14 +139,14 @@ export function registerUser(userKey: string, userName: string, userClass: strin
 export async function getRaid(key: string): Promise<Raid|null> {
     return new Promise((resolve, reject) => {
         db.get(`
-            SELECT raid_id, user_key, title, dungeon_key, mode, created_on, comments
-            FROM raids WHERE admin_key = ? OR user_key = ?
+            SELECT raid_id, raid_user_key, title, dungeon_key, mode, created_on, comments
+            FROM raids WHERE raid_admin_key = ? OR raid_user_key = ?
         `, [key, key], (err, row) => {
             if(err) return reject(err);
             if(!row) return resolve(null);
             resolve({
                 title: row.title,
-                userKey: row.user_key,
+                raidUserKey: row.raid_user_key,
                 dungeonKey: row.dungeon_key,
                 mode: row.mode,
                 createdOn: new Date(row.created_on),
@@ -154,44 +156,44 @@ export async function getRaid(key: string): Promise<Raid|null> {
     });
 }
 
-export async function getUserList(userKey: string): Promise<UserData[]> {
+export async function getUserList(raidUserKey: string): Promise<UserData[]> {
     return new Promise((resolve, reject) => {
         db.all(`
             SELECT user_name as userName, class, role, prio1, prio2
             FROM users
                 INNER JOIN raids on users.raid_id = raids.raid_id
-            WHERE raids.user_key = ?
-        `, [userKey], (err, rows) => {
+            WHERE raids.raid_user_key = ?
+        `, [raidUserKey], (err, rows) => {
             if(err) return reject(err);
             resolve(rows);
         });
     });
 }
 
-export async function getRestrictedUserList(adminKey: string): Promise<UserData[]> {
+export async function getRestrictedUserList(raidAdminKey: string): Promise<UserData[]> {
     return new Promise((resolve, reject) => {
         db.all(`
             SELECT user_name as userName, class, role, registered_on as registeredOn
             FROM users
                 INNER JOIN raids on users.raid_id = raids.raid_id
-            WHERE raids.admin_key = ?
-        `, [adminKey], (err, rows) => {
+            WHERE raids.raid_admin_key = ?
+        `, [raidAdminKey], (err, rows) => {
             if(err) return reject(err);
             resolve(rows);
         });
     });
 }
     
-export async function removeUser(userKey: string, userName: string) {
+export async function removeUser(raidUserKey: string, userID: string) {
     return new Promise((resolve, reject) => {
         db.run(`
             DELETE FROM users
-            WHERE user_name = ? AND raid_id IN (
+            WHERE user_id = ? AND raid_id IN (
                 SELECT raid_id
                 FROM raids
-                WHERE user_key = ?
+                WHERE raid_user_key = ?
             )
-        `, [userName, userKey], err => {
+        `, [userID, raidUserKey], err => {
             if(err) return reject(new CancellationError());
             resolve();
         });
@@ -208,12 +210,12 @@ export async function close() {
     });
 }
 
-async function _createRaid(title: string, userKey: string, adminKey: string, dungeonKey?: string, comments?: string) {
+async function _createRaid(title: string, raidUserKey: string, raidAdminKey: string, dungeonKey?: string, comments?: string) {
     return new Promise((resolve, reject) => {
         db.run(`
-            INSERT INTO raids(title, user_key, admin_key, dungeon_key, comments)
+            INSERT INTO raids(title, raid_user_key, raid_admin_key, dungeon_key, comments)
             VALUES(?,?,?,?,?)
-        `, [title, userKey, adminKey, dungeonKey, comments], err => {
+        `, [title, raidUserKey, raidAdminKey, dungeonKey, comments], err => {
             if(err) return reject(new InternalError());
             resolve();
         });
@@ -223,10 +225,10 @@ async function _createRaid(title: string, userKey: string, adminKey: string, dun
 export async function createRaid(title: string, dungeonKey?: string, comments?: string) {
     while(true) {
         try {
-            let adminKey = randomString(20);
-            let userKey = randomString(6);
-            await _createRaid(title, userKey, adminKey, dungeonKey, comments);
-            return adminKey;
+            let raidAdminKey = randomString(20);
+            let raidUserKey = randomString(6);
+            await _createRaid(title, raidUserKey, raidAdminKey, dungeonKey, comments);
+            return raidAdminKey;
         } catch(err) {
             if(!(err instanceof InternalError))
                 throw err;
@@ -234,9 +236,9 @@ export async function createRaid(title: string, dungeonKey?: string, comments?: 
     }
 }
 
-export async function setRaidMode(adminKey: string, mode: number) {
+export async function setRaidMode(raidAdminKey: string, mode: number) {
     return new Promise((resolve, reject) => {
-        db.run('UPDATE raids SET mode=? WHERE admin_key = ?', [mode, adminKey], err => {
+        db.run('UPDATE raids SET mode=? WHERE raid_admin_key = ?', [mode, raidAdminKey], err => {
             if(err) return reject(new InternalError());
             resolve();
         });

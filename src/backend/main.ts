@@ -36,8 +36,8 @@ app.get('/:key', async (req, res, next) => {
             raidName: raid.title,
             date: raid.createdOn.toLocaleDateString(),
             flags: {
-                adminKey: key,
-                userKey: raid.userKey
+                raidAdminKey: key,
+                raidUserKey: raid.raidUserKey
             }
         });
     } else if(key.length == 6) {

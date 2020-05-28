@@ -1,32 +1,29 @@
 import express from 'express';
-import session from 'express-session';
-import { CapacityReachedError, RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid } from './database';
+import { RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid } from './database';
 import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max } from 'sparkson';
 import _ from 'lodash';
 
 let app = express.Router();
 app.use(express.json());
-app.use(session({ secret: 'sleeplocker', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 86400000, sameSite: true } }))
 
-class UserKeyQueryData {
+class UserQueryData {
     constructor(
-        @Field("userKey") @MinLength(6) @MaxLength(6) public userKey: string,
+        @Field("raidUserKey") @MinLength(6) @MaxLength(6) public raidUserKey: string,
+        @Field("userID") @MinLength(50) @MaxLength(50) public userID: string
     ) { }
 }
 
 app.post('/myData', async (req, res) => {
     try {
-        let userKey = parse(UserKeyQueryData, req.body).userKey;
-        let session = req.session as Express.Session;
-        let userName = session[userKey] as string | undefined;
-        let raid = await getRaid(userKey);
-        if (userName == undefined || raid == undefined)
-            return res.json(fail('Nichts gefunden.'));
+        let data = parse(UserQueryData, req.body);
+        let raid = await getRaid(data.raidUserKey);
+        if (raid == undefined)
+            return res.json(fail('Raid nicht gefunden.'));
         if (raid.mode != 0)
             return res.json(fail('Anmeldung ist nicht mehr möglich.'))
-        let userData = await getUserData(userKey, userName);
+        let userData = await getUserData(data.raidUserKey, data.userID);
         if (userData == null)
-            return res.json(fail('Nichts gefunden.'));
+            return res.json(fail('Keine Anmeldung gefunden.'));
         return res.json(succeed(userData));
     } catch (err) {
         if (err instanceof JsonParseError)
@@ -35,10 +32,16 @@ app.post('/myData', async (req, res) => {
     }
 });
 
+class RaidQueryData {
+    constructor(
+        @Field("raidUserKey") @MinLength(6) @MaxLength(6) public raidUserKey: string,
+    ) { }
+}
+
 app.post('/getRaid', async (req, res) => {
     try {
-        let userKey = parse(UserKeyQueryData, req.body).userKey;
-        let raid = await getRaid(userKey);
+        let raidUserKey = parse(RaidQueryData, req.body).raidUserKey;
+        let raid = await getRaid(raidUserKey);
         if (raid == undefined)
             return res.json(fail('Raid nicht gefunden.'));
         return res.json(succeed(raid));
@@ -51,16 +54,13 @@ app.post('/getRaid', async (req, res) => {
 
 app.post('/clearMyData', async (req, res) => {
     try {
-        let userKey = parse(UserKeyQueryData, req.body).userKey;
-        let session = req.session as Express.Session;
-        let userName = session[userKey] as string | undefined;
-        let raid = await getRaid(userKey);
-        if (userName == undefined || raid == undefined)
-            return res.json(fail('Nichts gefunden.'));
+        let data = parse(UserQueryData, req.body);
+        let raid = await getRaid(data.raidUserKey);
+        if (raid == undefined)
+            return res.json(fail('Raid nicht gefunden.'));
         if (raid.mode != 0)
             return res.json(fail('Stornieren ist nicht mehr möglich.'))
-        await removeUser(userKey, userName);
-        session[userKey] = undefined;
+        await removeUser(data.raidUserKey, data.userID);
         return res.json(succeed());
     } catch (err) {
         if (err instanceof JsonParseError)
@@ -74,7 +74,8 @@ app.post('/clearMyData', async (req, res) => {
 class RegisterData {
     constructor(
         @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
-        @Field("userKey") @MinLength(6) @MaxLength(6) public userKey: string,
+        @Field("userID") @MinLength(50) @MaxLength(50) public userID: string,
+        @Field("raidUserKey") @MinLength(6) @MaxLength(6) public raidUserKey: string,
         @Field("class") @MinLength(1) @MaxLength(50) public characterClass: string,
         @Field("role") @MinLength(1) @MaxLength(50) public role: string,
         @Field("prio1", true) @MinLength(1) @MaxLength(50) public prio1?: string,
@@ -85,21 +86,18 @@ class RegisterData {
 app.post('/register', async (req, res) => {
     try {
         let data = parse(RegisterData, req.body);
-        let raid = await getRaid(data.userKey);
+        let raid = await getRaid(data.raidUserKey);
         if (raid == null)
             return res.json(fail('Raid nicht gedunden.'));
         if (raid.mode != 0)
             return res.json(fail('Anmeldung ist nicht mehr möglich.'))
-        await registerUser(data.userKey, data.userName, data.characterClass, data.role, data.prio1, data.prio2);
-        (req.session as Express.Session)[data.userKey] = data.userName;
+        await registerUser(data.raidUserKey, data.userName, data.userID, data.characterClass, data.role, data.prio1, data.prio2);
         return res.json(succeed());
     } catch (err) {
         if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
-        if (err instanceof CapacityReachedError)
-            return res.json(fail('Die maximale Anzahl an Softlocks wurde erreicht.'));
         else if (err instanceof RegistrationError)
-            return res.json(fail('Softlocks konnten nicht angenommen werden. Bitte wende dich an die Raidleitung.'));
+            return res.json(fail('Anmeldung fehlgeschlagen. Bitte wende dich an die Raidleitung.'));
         return res.json(fail('Interner Serverfehler.'));
     }
 });
@@ -107,7 +105,7 @@ app.post('/register', async (req, res) => {
 
 class RaidModeData {
     constructor(
-        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string,
+        @Field("raidAdminKey") @MinLength(20) @MaxLength(20) public raidAdminKey: string,
         @Field("mode") @Min(0) @Max(1) public mode: number
     ) { }
 }
@@ -115,7 +113,7 @@ class RaidModeData {
 app.post('/setMode', async (req, res) => {
     try {
         let data = parse(RaidModeData, req.body);
-        await setRaidMode(data.adminKey, data.mode);
+        await setRaidMode(data.raidAdminKey, data.mode);
         return res.json(succeed());
     } catch (err) {
         if (err instanceof JsonParseError)
@@ -127,14 +125,14 @@ app.post('/setMode', async (req, res) => {
 
 class RegistrationsQueryData {
     constructor(
-        @Field("adminKey") @MinLength(20) @MaxLength(20) public adminKey: string
+        @Field("raidAdminKey") @MinLength(20) @MaxLength(20) public raidAdminKey: string
     ) { }
 }
 
 app.post('/getRegistrations', async (req, res) => {
     try {
-        let adminKey = parse(RegistrationsQueryData, req.body).adminKey;
-        let userList = await getRestrictedUserList(adminKey);
+        let raidAdminKey = parse(RegistrationsQueryData, req.body).raidAdminKey;
+        let userList = await getRestrictedUserList(raidAdminKey);
         userList = _.sortBy(userList, user => user.registeredOn);
         let projectedList = userList.map(data => ({
             userName: data.userName,
@@ -161,8 +159,8 @@ class NewRaidData {
 app.post('/createRaid', async (req, res) => {
     try {
         let data = parse(NewRaidData, req.body);
-        let adminKey = await createRaid(data.title, data.dungeonKey, data.comments);
-        return res.json(succeed(adminKey));
+        let raidAdminKey = await createRaid(data.title, data.dungeonKey, data.comments);
+        return res.json(succeed(raidAdminKey));
     } catch(err) {
         if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
