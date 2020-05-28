@@ -106,7 +106,7 @@ setMode raidAdminKey mode =
         , expect = expectResponse
             ( \res -> case res of
                 Err errMsg -> ModeSet <| ErrorMsg errMsg
-                Ok () -> ModeSet <| SuccessMsg "Modus erfolgreich gesetzt"
+                Ok () -> ModeSet <| SuccessMsg "Fertig"
             )
             Nothing
             (Decode.null ())

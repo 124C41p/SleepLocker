@@ -1152,5 +1152,818 @@
                 ]
             }
         ]
+    },
+    {
+        "dungeonKey": "zg",
+        "dungeonName": "Zul'Gurub",
+        "locations": [
+            "Hohepriesterin Jeklik",
+            "Hohepriester Venoxis",
+            "Hohepriesterin Mar'li",
+            "Blutfürst Mandokir",
+            "Gri'lek",
+            "Hazza'rah",
+            "Renataki",
+            "Wushoolay",
+            "Gahz'ranka",
+            "Hohepriester Thekal",
+            "Hohepriesterin Arlokk",
+            "Jin'do der Verhexer",
+            "Hakkar",
+            "Trash"
+        ],
+        "loot": [
+            {
+                "itemName": "Siegel des Primalisten",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Verteidiger des Blutfürsten",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Blutdurchnässter Handschutz",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Göttlicher Hakkariumhang",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Schneller Razzashiraptor",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Purpurrotes Band des Oberherren",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Hellebarde der Pein",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Gamaschen des Animisten",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Blutgetränkte Schulterstücke",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Zanzils Siegel",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Blutverschmierter Kilt",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Mandokirs Stachel",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Nat Pagles Fischterminator",
+                "locations": [
+                    "Gahz'ranka"
+                ]
+            },
+            {
+                "itemName": "Gunnis Augenklappe",
+                "locations": [
+                    "Gahz'ranka"
+                ]
+            },
+            {
+                "itemName": "Skippis Harpune",
+                "locations": [
+                    "Gahz'ranka"
+                ]
+            },
+            {
+                "itemName": "Nat Pagles kaputte Spule",
+                "locations": [
+                    "Gahz'ranka"
+                ]
+            },
+            {
+                "itemName": "Foliant der Verwandlung: Schildkröte",
+                "locations": [
+                    "Gahz'ranka"
+                ]
+            },
+            {
+                "itemName": "Gri'leks Blut",
+                "locations": [
+                    "Gri'lek"
+                ]
+            },
+            {
+                "itemName": "Grileks Schleifer",
+                "locations": [
+                    "Gri'lek"
+                ]
+            },
+            {
+                "itemName": "Grileks Schnitzer",
+                "locations": [
+                    "Gri'lek"
+                ]
+            },
+            {
+                "itemName": "Herz von Hakkar",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Uralter Menschentöter der Hakkari",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Zwergenzerstörer der Gurubashi",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Zin'rokh der Weltenzerstörer",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Blutgetränkte Beinplatten",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Das Auge von Hakkar",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Umhang der Verzehrung",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Fangzahn des Gesichtslosen",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Berührung des Chaos",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Aegis des Blutgotts",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Blutrufer",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Kriegsklinge der Hakkari (Waffenhand)",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Halskette des Seelenverderbers",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Meeresfurienstulpen",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Friedensbewahrers",
+                "locations": [
+                    "Hakkar"
+                ]
+            },
+            {
+                "itemName": "Thekals Griff",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Verräters",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Siegel von Jin",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Rituelle Beinschützer",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Zulianischer Schnitzler",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Schneller zulianischer Tiger",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Meeresfuriengamaschen",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Gamaschen des Friedensbewahrers",
+                "locations": [
+                    "Hohepriester Thekal"
+                ]
+            },
+            {
+                "itemName": "Zulianische Steinaxt",
+                "locations": [
+                    "Hohepriester Venoxis"
+                ]
+            },
+            {
+                "itemName": "Fangzahn von Venoxis",
+                "locations": [
+                    "Hohepriester Venoxis"
+                ]
+            },
+            {
+                "itemName": "Blutbefleckte runenverzierte Halsberge",
+                "locations": [
+                    "Hohepriester Venoxis"
+                ]
+            },
+            {
+                "itemName": "Zanzils Band",
+                "locations": [
+                    "Hohepriester Venoxis"
+                ]
+            },
+            {
+                "itemName": "Blutdurchnässte Fußpolster",
+                "locations": [
+                    "Hohepriester Venoxis"
+                ]
+            },
+            {
+                "itemName": "Zulianischer Tigerbalgumhang",
+                "locations": [
+                    "Hohepriester Venoxis"
+                ]
+            },
+            {
+                "itemName": "Wille Arlokks",
+                "locations": [
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Arlokks Griff",
+                "locations": [
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Onyxband des Oberherren",
+                "locations": [
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Blutgetränkte Schienbeinschützer",
+                "locations": [
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Pantherbalgsack",
+                "locations": [
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Arlokks Hoodoostecken",
+                "locations": [
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Zulianischer Verteidiger",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Jekliks Zermalmer",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Band des Primalisten",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Jekliks opaliner Talisman",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Schiftung des Animisten",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Meeresfurienstiefel",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Friedensbewahrers",
+                "locations": [
+                    "Hohepriesterin Jeklik"
+                ]
+            },
+            {
+                "itemName": "Talisman des Schutzes",
+                "locations": [
+                    "Hohepriesterin Mar'li"
+                ]
+            },
+            {
+                "itemName": "Blutbefleckte Schienbeinschützer",
+                "locations": [
+                    "Hohepriesterin Mar'li"
+                ]
+            },
+            {
+                "itemName": "Jins Band",
+                "locations": [
+                    "Hohepriesterin Mar'li"
+                ]
+            },
+            {
+                "itemName": "Mar'lis Berührung",
+                "locations": [
+                    "Hohepriesterin Mar'li"
+                ]
+            },
+            {
+                "itemName": "Mar'lis Auge",
+                "locations": [
+                    "Hohepriesterin Mar'li"
+                ]
+            },
+            {
+                "itemName": "Fließende Ritualroben",
+                "locations": [
+                    "Hohepriesterin Mar'li"
+                ]
+            },
+            {
+                "itemName": "Blutbefleckte Helmkappe",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Jin'dos Richturteil",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Jin'dos Auge des Bösen",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Bedeckung des Verhexers",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Blutbefleckte Beinplatten",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Umarmung des Oberherren",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Blutdurchnässte Gamaschen",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Jin'dos Verhexer",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Jin'dos Beutel der Verdammnis",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Animisten",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Blutgetränkte Stulpen",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Blutverschmierte Handschuhe",
+                "locations": [
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitliche Hakkaribindungen",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitliche Hakkariarmsplinte",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitliche Hakkaristütze",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitlicher Hakkarigurt",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitliche Hakkarischärpe",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitlicher Hakkarischal",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitlicher Hakkariwappenrock",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitlicher Hakkarikosak",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Urzeitliche Aegis der Hakkari",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Blutfürst Mandokir",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Kriegsklinge der Hakkari (Schildhand)",
+                "locations": [
+                    "Blutfürst Mandokir"
+                ]
+            },
+            {
+                "itemName": "Szepter der Pein",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Zulianischer Zerhacker",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Zulianischer Zeremonienstab",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Handschuhe aus Schattenpantherbalg",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gürtel aus Schattenpantherbalg",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Helm der Gurubashi",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Urzeitlicher Hakkarigötze",
+                "locations": [
+                    "Blutfürst Mandokir",
+                    "Jin'do der Verhexer"
+                ]
+            },
+            {
+                "itemName": "Umhang der Hakkarianbeter",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Macht der Stämme",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Zulianisches Szepter der Riten",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Opferungsstulpen",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der Gequälten",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Gürtel der unversehrten Kraft",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Blutdurchnässte Maske",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Zulianischer Kopfputz",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Band der Knechtschaft",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Siegel des Gurubashiberserkers",
+                "locations": [
+                    "Hohepriesterin Jeklik",
+                    "Hohepriester Venoxis",
+                    "Hohepriesterin Mar'li",
+                    "Hohepriester Thekal",
+                    "Hohepriesterin Arlokk"
+                ]
+            },
+            {
+                "itemName": "Hazza'rahs Traumfaden",
+                "locations": [
+                    "Hazza'rah"
+                ]
+            },
+            {
+                "itemName": "Feuriger Heimzahler",
+                "locations": [
+                    "Hazza'rah"
+                ]
+            },
+            {
+                "itemName": "Gedankenvernichter",
+                "locations": [
+                    "Hazza'rah"
+                ]
+            },
+            {
+                "itemName": "Renatakis Zahn",
+                "locations": [
+                    "Renataki"
+                ]
+            },
+            {
+                "itemName": "Heugabel des Wahnsinns",
+                "locations": [
+                    "Renataki"
+                ]
+            },
+            {
+                "itemName": "Renatakis Seelenkanal",
+                "locations": [
+                    "Renataki"
+                ]
+            },
+            {
+                "itemName": "Wushoolays Mähne",
+                "locations": [
+                    "Wushoolay"
+                ]
+            },
+            {
+                "itemName": "Hoodoojagdbogen",
+                "locations": [
+                    "Wushoolay"
+                ]
+            },
+            {
+                "itemName": "Wushoolays Schüreisen",
+                "locations": [
+                    "Wushoolay"
+                ]
+            }
+        ]
     }
 ]
