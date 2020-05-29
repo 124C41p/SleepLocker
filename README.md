@@ -24,6 +24,7 @@ npm run build:prod
 
 The SleepLocker frontend is written in `Elm`. Unfortunately, to the present day there are no official ARM-binaries of the `Elm` compiler available.
 In order to build the project you either have to compile `Elm` yourself (not recommended) or to use [unofficial binaries](https://github.com/dmy/elm-raspberry-pi).
+You also have to remove the line starting with "elm" from the devDependencies in the [package.json](package.json) file.
 
 
 ### Running
