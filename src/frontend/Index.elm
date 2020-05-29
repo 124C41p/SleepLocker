@@ -237,6 +237,7 @@ viewCreate raid dungeonList err =
                             [ class "form-control"
                             , id "input-raid-title"
                             , value title
+                            , maxlength 50
                             , onInput <| \newTitle -> UpdateCreate { raid | title = newTitle } Nothing
                             ]
                             []
@@ -259,6 +260,7 @@ viewCreate raid dungeonList err =
                             [ class "form-control"
                             , value comments
                             , rows 5
+                            , maxlength 1000
                             , onInput <| \newComments ->
                                 UpdateCreate { raid | comments = newComments } Nothing
                             ]
