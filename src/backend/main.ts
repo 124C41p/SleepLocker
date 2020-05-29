@@ -19,6 +19,13 @@ async function createHttpServer(app: Express, port: number = 8080) {
     }
 }
 
+app.get('*', (req, res, next) => {
+    let agent = req.headers['user-agent'];
+    if(agent != null && /MSIE|Trident|Edge/.test(agent))
+        return res.render('ie');
+    next();
+});
+
 app.get('/', async (req, res) => {
     res.render('index', {
         flags: getDungeons()
