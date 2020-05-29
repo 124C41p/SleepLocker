@@ -26,7 +26,7 @@ app.get('*', (req, res, next) => {
     next();
 });
 
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
     res.render('index', {
         flags: getDungeons()
     });
