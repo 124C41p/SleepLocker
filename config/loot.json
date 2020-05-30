@@ -1965,5 +1965,842 @@
                 ]
             }
         ]
+    },
+    {
+        "dungeonKey": "BWL",
+        "dungeonName": "Pechschwingenhort",
+        "locations": [
+            "Razorgore der Ungezähmte",
+            "Vaelastrasz der Verdorbene",
+            "Brutwächter Dreschbringer",
+            "Feuerschwinge",
+            "Schattenschwinge",
+            "Flammenmaul",
+            "Chromaggus",
+            "Nefarian",
+            "Trash"
+        ],
+        "loot": [
+            {
+                "itemName": "Aegis der Bewahrung",
+                "locations": [
+                    "Schattenschwinge"
+                ]
+            },
+            {
+                "itemName": "Angelistas Gespür",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Anhänger des gefallenen Drachen",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Archimtiros' Ring der Abrechnung",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Armreifen des Zorns",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Armschienen der Nemesis",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Armschienen der arkanen Präzision",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Armschienen des Drachenjägers",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Armschienen des Stormrage",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Ashjre'thul, Armbrust der Pein",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Ashkandi, Großschwert der Bruderschaft",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Band aus reinem Elementium",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Band der dunklen Herrschaft",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Band der erzwungenen Konzentration",
+                "locations": [
+                    "Schattenschwinge"
+                ]
+            },
+            {
+                "itemName": "Beinschützer des gefallenen Kreuzfahrers",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Berührung des Drachen",
+                "locations": [
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Bindungen der Erhabenheit",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Bindungen des Netherwinds",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Bindungen des Richturteils",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Blauer Sack voller Edelsteine",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Blutfangarmschienen",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Blutfangbrustharnisch",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Blutfanggürtel",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Blutfanghandschuhe",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Blutfangschiftung",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Blutfangstiefel",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Brustplatte des Drachenjägers",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Brustplatte des Richturteils",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Brustplatte des Zorns",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Brustschutz des Stormrage",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Chromatisch gehärtetes Schwert",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Chromatische Stiefel",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Crul'shorukh, Schneide des Chaos",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Das schwarze Buch",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Die ungezähmte Klinge",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Drachenfangzahn-Talisman",
+                "locations": [
+                    "Schattenschwinge"
+                ]
+            },
+            {
+                "itemName": "Drachenkrallenbeil",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Drachenkrallenschulterstücke",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Drachenodemhandkanone",
+                "locations": [
+                    "Schattenschwinge"
+                ]
+            },
+            {
+                "itemName": "Drachenzahnklinge",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Drachischer Rächer",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Drachischer Schlägel",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Ebenholzfarbene Flammenhandschuhe",
+                "locations": [
+                    "Schattenschwinge"
+                ]
+            },
+            {
+                "itemName": "Edelstein der Verjüngung",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Edelstein der arkanen Kraft",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Edelstein des Gedankensprungs",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Elementiumdurchwirkter Umhang",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Elementiumerz",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Elementiumverstärktes Bollwerk",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Energieerfüllte Gamaschen",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Essenzsammler",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Feuerschwingens Griff",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Feuerschwingens Umhang",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Fokussierstab der Schattenschwingen",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Geflochtener Schattenwams",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gehärtete Drachenlederhandschuhe",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Gehärtete Drachenlederschulterpolster",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Gehärteter Drachenledergürtel",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Gekettelter Beinschützer des Primalisten",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Gekettelter Taillenschutz des Primalisten",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Gelber Sack voller Edelsteine",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Gifttotem",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Grauer Sack voller Edelsteine",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Grüner Sack voller Edelsteine",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Gurt des gefallenen Kreuzfahrers",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Gürtel der Erhabenheit",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Gürtel der Nemesis",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Drachenjägers",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Netherwinds",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Richturteils",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Stormrage",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Gürtelbund des Zorns",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der Nemesis",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der rapiden Evolution",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Netherwinds",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Handschützer der Erhabenheit",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Handschützer des Stormrage",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Helm der unendlichen Rage",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Herold des Leidens",
+                "locations": [
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Herzensbrecher",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Klaue des Schwarzen Drachen",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Klaue von Chromaggus",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Kopf von Nefarian",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Kreis der angewandten Macht",
+                "locations": [
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Lebensspendender Edelstein",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Lok'amir il Romathis",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Maladath, Runenverzierte Klinge des schwarzen Drachenschwarms",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Malfurions gesegnetes Bollwerk",
+                "locations": [
+                    "Schattenschwinge"
+                ]
+            },
+            {
+                "itemName": "Mantel der Pechschwingenkabale",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            },
+            {
+                "itemName": "Mantel des Netherwinds",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Mish'undare, Reif des Gedankenschinders",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Neltharions Träne",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Prestors Talisman der Verschwörung",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Ring des Blackrock",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Ringos Blizzardstiefel",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Roben der Erhabenheit",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Roben der Nemesis",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Roben des Netherwinds",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Rollen des Blendenden Lichts",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Roter Drachenschuppenbeschützer",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Roter Sack voller Edelsteine",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Rune der Metamorphose",
+                "locations": [
+                    "Vaelastrasz der Verdorbene"
+                ]
+            },
+            {
+                "itemName": "Sabatons des Richturteils",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Sabatons des Zorns",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Sandzwirngamaschen",
+                "locations": [
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Schienbeinschützer des Drachenjägers",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Schiftung der Nemesis",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schiftung des Drachenjägers",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schiftung des Richturteils",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schimmerndes Geta",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schleier des reinen Gedankens",
+                "locations": [
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Schneide der Verdammnis",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Schultern der Schwarzen Brut",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Schulterstücke der Erhabenheit",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schulterstücke des Stormrage",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schulterstücke des Zorns",
+                "locations": [
+                    "Chromaggus"
+                ]
+            },
+            {
+                "itemName": "Schwarzaschenrobe",
+                "locations": [
+                    "Feuerschwinge"
+                ]
+            },
+            {
+                "itemName": "Stab der Schattenflamme",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Stiefel der Erhabenheit",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Stiefel der Nemesis",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Stiefel der Schattenflamme",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Netherwinds",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Stormrage",
+                "locations": [
+                    "Brutwächter Dreschbringer"
+                ]
+            },
+            {
+                "itemName": "Stiefel des reinen Gedankens",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Drachenjägers",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Richturteils",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Zorns",
+                "locations": [
+                    "Feuerschwinge",
+                    "Schattenschwinge",
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Styleens verhinderter Skarabäus",
+                "locations": [
+                    "Flammenmaul"
+                ]
+            },
+            {
+                "itemName": "Therazanes Zusammenhalt",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Umhang der drachischen Macht",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Umhang des Brutlords",
+                "locations": [
+                    "Nefarian"
+                ]
+            },
+            {
+                "itemName": "Wirbelsäulenbrecher",
+                "locations": [
+                    "Razorgore der Ungezähmte"
+                ]
+            }
+        ]
     }
 ]

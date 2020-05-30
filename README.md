@@ -44,3 +44,7 @@ Clester / Mogrimm @ Dragon's Call
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Acknowledgments
+
+Thanks to Keduh for providing the BWL loot table!
