@@ -129,9 +129,12 @@ class RegistrationsQueryData {
     ) { }
 }
 
-app.post('/getRegistrations', async (req, res) => {
+app.post('/getRaidStatus', async (req, res) => {
     try {
         let raidAdminKey = parse(RegistrationsQueryData, req.body).raidAdminKey;
+        let raid = await getRaid(raidAdminKey);
+        if(raid == null)
+            return res.json(fail('Raid nicht gefunden.'));
         let userList = await getRestrictedUserList(raidAdminKey);
         userList = _.sortBy(userList, user => user.registeredOn);
         let projectedList = userList.map(data => ({
@@ -140,7 +143,10 @@ app.post('/getRegistrations', async (req, res) => {
             role: data.role,
             registeredOn: data.registeredOn.toLocaleString()
         }));
-        return res.json(succeed(projectedList));
+        return res.json(succeed({
+            registrations: projectedList,
+            raidMode: raid.mode
+        }));
     } catch (err) {
         if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));

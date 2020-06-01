@@ -1,15 +1,16 @@
 module Admin exposing (main)
 
-import Html exposing (Html, div, text, span, button, table, tr, th, thead, tbody, td, input, label)
-import Html.Attributes exposing (class, scope, value, disabled, attribute)
+import Browser
+import Helpers exposing (expectResponse)
+import Html exposing (Html, button, div, input, label, span, table, tbody, td, text, th, thead, tr)
+import Html.Attributes exposing (attribute, class, classList, disabled, scope, value)
 import Html.Events exposing (onClick)
 import Http
-import Browser
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
-import Time
-import Helpers exposing (expectResponse)
+import Maybe.Extra as MaybeX
 import Result.Extra as ResultX
+import Time
 
 
 main : Program Flags Model Msg
@@ -19,20 +20,17 @@ main =
         , view = view
         , update = update
         , subscriptions = subscriptions
-    }
+        }
 
-type InfoMessage
-    = NoMsg
-    | SuccessMsg String
-    | ErrorMsg String
 
 type alias Model =
     { raidAdminKey : String
     , raidUserKey : String
     , userList : List UserData
-    , currentMessage : InfoMessage
-    , isLoading : Bool
+    , errorMessage : Maybe String
+    , raidMode : Maybe RaidMode
     }
+
 
 type alias UserData =
     { userName : String
@@ -40,6 +38,7 @@ type alias UserData =
     , role : String
     , registeredOn : String
     }
+
 
 userDataDecoder : Decoder UserData
 userDataDecoder =
@@ -49,77 +48,131 @@ userDataDecoder =
         (Decode.field "role" Decode.string)
         (Decode.field "registeredOn" Decode.string)
 
+
+type RaidMode
+    = Registration
+    | Released
+
+
+raidModeEncoder : RaidMode -> Encode.Value
+raidModeEncoder mode =
+    case mode of
+        Registration ->
+            Encode.int 0
+
+        Released ->
+            Encode.int 1
+
+
+raidModeDecoder : Decoder RaidMode
+raidModeDecoder =
+    Decode.int
+        |> Decode.andThen
+            (\x ->
+                case x of
+                    0 ->
+                        Decode.succeed Registration
+
+                    1 ->
+                        Decode.succeed Released
+
+                    _ ->
+                        Decode.fail "Ungültiger Raidmodus."
+            )
+
+
+type alias RaidStatus =
+    { registrations : List UserData
+    , raidMode : RaidMode
+    }
+
+
+raidStatusDecoder : Decoder RaidStatus
+raidStatusDecoder =
+    Decode.map2 RaidStatus
+        (Decode.field "registrations" (Decode.list userDataDecoder))
+        (Decode.field "raidMode" raidModeDecoder)
+
+
 type alias Flags =
     { raidAdminKey : String
     , raidUserKey : String
     }
 
-type Mode
-    = Register
-    | ShowTables
 
-getModeNumber : Mode -> Int
-getModeNumber mode =
-    case mode of
-        Register -> 0
-        ShowTables -> 1
-
-init : Flags -> (Model, Cmd Msg)
+init : Flags -> ( Model, Cmd Msg )
 init { raidAdminKey, raidUserKey } =
-    ( { raidAdminKey = raidAdminKey, raidUserKey = raidUserKey, userList = [], currentMessage = NoMsg, isLoading = False }
+    ( { raidAdminKey = raidAdminKey, raidUserKey = raidUserKey, userList = [], errorMessage = Nothing, raidMode = Nothing }
     , loadRegistrations raidAdminKey
     )
 
+
 type Msg
-    = NoOp
-    | DoUpdate
-    | Updated (List UserData)
-    | DoSetMode Mode
-    | ModeSet InfoMessage
+    = DoUpdate
+    | Updated RaidStatus
+    | DoSetMode RaidMode
+    | ConnectionLost
+    | ModeSet RaidMode
 
 
 loadRegistrations : String -> Cmd Msg
 loadRegistrations raidAdminKey =
     Http.post
-        { url = "/api/getRegistrations"
+        { url = "/api/getRaidStatus"
         , body =
-            Http.jsonBody
-            <| Encode.object
-                [ ( "raidAdminKey", Encode.string raidAdminKey )
-                ]
-        , expect = expectResponse
-            ( ResultX.unwrap NoOp Updated )
-            Nothing
-            (Decode.list userDataDecoder)
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "raidAdminKey", Encode.string raidAdminKey )
+                    ]
+        , expect =
+            expectResponse
+                (ResultX.unwrap ConnectionLost Updated)
+                Nothing
+                raidStatusDecoder
         }
 
-setMode : String -> Mode -> Cmd Msg
+
+setMode : String -> RaidMode -> Cmd Msg
 setMode raidAdminKey mode =
     Http.post
         { url = "/api/setMode"
         , body =
-            Http.jsonBody
-            <| Encode.object
-                [ ( "raidAdminKey", Encode.string raidAdminKey )
-                , ( "mode", Encode.int <| getModeNumber mode )
-                ]
-        , expect = expectResponse
-            ( \res -> case res of
-                Err errMsg -> ModeSet <| ErrorMsg errMsg
-                Ok () -> ModeSet <| SuccessMsg "Fertig"
-            )
-            Nothing
-            (Decode.null ())
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "raidAdminKey", Encode.string raidAdminKey )
+                    , ( "mode", raidModeEncoder mode )
+                    ]
+        , expect =
+            expectResponse
+                (\res ->
+                    case res of
+                        Err _ ->
+                            ConnectionLost
+
+                        Ok () ->
+                            ModeSet mode
+                )
+                Nothing
+                (Decode.null ())
         }
 
-update : Msg -> Model -> (Model, Cmd Msg)
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp -> (model, Cmd.none)
-        DoUpdate -> (model, loadRegistrations model.raidAdminKey)
-        Updated userList -> ({ model | userList = userList }, Cmd.none)
-        DoSetMode mode -> ({ model | currentMessage = NoMsg, isLoading = True }, setMode model.raidAdminKey mode )
-        ModeSet res -> ({ model | currentMessage = res, isLoading = False }, Cmd.none)
+        ConnectionLost ->
+            ( { model | raidMode = Nothing, errorMessage = Just "Verbindung zum Server verloren..." }, Cmd.none )
+        DoUpdate ->
+            ( model, loadRegistrations model.raidAdminKey )
+
+        Updated raidStatus ->
+            ( { model | userList = raidStatus.registrations, raidMode = Just raidStatus.raidMode }, Cmd.none )
+
+        DoSetMode mode ->
+            ( { model | errorMessage = Nothing, raidMode = Nothing }, setMode model.raidAdminKey mode )
+
+        ModeSet mode ->
+            ( { model | raidMode = Just mode }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -131,44 +184,50 @@ view : Model -> Html Msg
 view model =
     div [ class "container-fluid", class "pb-5" ]
         [ div [ class "row" ]
-            [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.currentMessage model.isLoading ]
+            [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.errorMessage model.raidMode ]
             , div [ class "col-md-10" ] [ viewUserList model.userList ]
             ]
         ]
 
-viewControls : String -> InfoMessage -> Bool -> Html Msg
-viewControls raidUserKey message isLoading =
+
+viewControls : String -> Maybe String -> Maybe RaidMode -> Html Msg
+viewControls raidUserKey errorMsg mode =
     div [ class "card" ]
-        [ div [ class "card-body" ] 
-            [ Maybe.withDefault (div [] []) (viewInfoMsg message)
+        [ div [ class "card-body" ]
+            [ MaybeX.unwrap (div [] []) viewErrorMsg errorMsg
             , div [ class "form-group" ]
                 [ label [] [ text "Raid ID" ]
                 , input [ class "form-control", disabled True, value raidUserKey ] []
                 ]
-            ,
-                if isLoading then
+            , case mode of
+                Nothing ->
                     viewSpinner
-                else
-                    viewButtons
+
+                Just m ->
+                    viewButtons m
             ]
         ]
 
-viewButtons : Html Msg
-viewButtons = 
-    div [ class "btn-group-vertical", class "d-flex" ]
+
+viewButtons : RaidMode -> Html Msg
+viewButtons mode =
+    div [ class "list-group" ]
         [ button
-            [ class "btn"
-            , class "btn-outline-primary"
-            , onClick (DoSetMode Register)
-            ] 
-            [ text "Registrieren" ]
-        , button
-            [ class "btn"
-            , class "btn-outline-primary"
-            , onClick (DoSetMode ShowTables)
+            [ class "list-group-item"
+            , class "list-group-item-action"
+            , classList [ ( "active", mode == Registration ) ]
+            , onClick (DoSetMode Registration)
             ]
-            [ text "Veröffentlichen" ]
+            [ text "1: Anmeldephase" ]
+        , button
+            [ class "list-group-item"
+            , class "list-group-item-action"
+            , classList [ ( "active", mode == Released ) ]
+            , onClick (DoSetMode Released)
+            ]
+            [ text "2: Veröffentlichungsphase" ]
         ]
+
 
 viewUserList : List UserData -> Html Msg
 viewUserList userList =
@@ -180,31 +239,27 @@ viewUserList userList =
             , th [ scope "col" ] [ text "Rolle" ]
             , th [ scope "col" ] [ text "Anmeldezeitpunkt" ]
             ]
-        , tbody [] ( List.indexedMap viewUserRow userList )
+        , tbody [] (List.indexedMap viewUserRow userList)
         ]
- 
+
+
 viewUserRow : Int -> UserData -> Html Msg
 viewUserRow index userData =
     tr []
-        [ th [ scope "row" ] [ text ( String.fromInt (index + 1) ) ]
+        [ th [ scope "row" ] [ text (String.fromInt (index + 1)) ]
         , td [] [ text userData.userName ]
         , td [] [ text userData.class ]
         , td [] [ text userData.role ]
         , td [] [ text userData.registeredOn ]
         ]
 
-viewInfoMsg : InfoMessage -> Maybe (Html Msg)
-viewInfoMsg infoMsg =
-    case infoMsg of
-        NoMsg -> Nothing
-        ErrorMsg message -> Just <|
-            div [ class "alert", class "alert-danger" ]
-                [ span [] [ text message ]
-                ]
-        SuccessMsg message -> Just <|
-            div [ class "alert", class "alert-success" ]
-                [ span [] [ text message ]
-                ]
+
+viewErrorMsg : String -> Html Msg
+viewErrorMsg errorMsg =
+    div [ class "alert", class "alert-danger" ]
+        [ span [] [ text errorMsg ]
+        ]
+
 
 viewSpinner : Html Msg
 viewSpinner =
