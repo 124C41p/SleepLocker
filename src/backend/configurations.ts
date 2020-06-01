@@ -66,7 +66,7 @@ export function getLootLocations(dungeonKey: string): LootLocation[]|null {
 }
 
 export function getDungeons(): DungeonInfo[] {
-    return allLoot.map(d => ({
+    return _.sortBy(allLoot, d => d.dungeonName).map(d => ({
         dungeonKey: d.dungeonKey,
         dungeonName: d.dungeonName
     }))
