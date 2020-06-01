@@ -166,13 +166,13 @@ update msg model =
             ( model, loadRegistrations model.raidAdminKey )
 
         Updated raidStatus ->
-            ( { model | userList = raidStatus.registrations, raidMode = Just raidStatus.raidMode }, Cmd.none )
+            ( { model | userList = raidStatus.registrations, raidMode = Just raidStatus.raidMode, errorMessage = Nothing }, Cmd.none )
 
         DoSetMode mode ->
             ( { model | errorMessage = Nothing, raidMode = Nothing }, setMode model.raidAdminKey mode )
 
         ModeSet mode ->
-            ( { model | raidMode = Just mode }, Cmd.none )
+            ( { model | raidMode = Just mode, errorMessage = Nothing }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
