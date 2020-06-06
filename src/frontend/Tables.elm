@@ -1,10 +1,15 @@
 module Tables exposing (main)
 
 import Html exposing (Html, div, text, table, thead, tbody, th, tr, td, ul, li, a, h4, del)
-import Html.Attributes exposing (class, scope, href)
+import Html.Attributes exposing (class, scope, href, classList)
 import Html.Events exposing (onClick)
 import Browser
 import UserData exposing (UserData)
+import Time exposing (Posix, Zone, millisToPosix)
+import Iso8601 exposing (toTime)
+import String exposing (String)
+import Helpers exposing (loadTimeZone, viewTitle)
+import Platform.Cmd exposing (Cmd)
 
 
 main : Program Flags Model Msg
@@ -19,12 +24,17 @@ main =
 type alias Flags =
     { userList : List UserData
     , lootInformation: Maybe Environment
+    , title : String
+    , createdOn : String
     }
 
 type alias Model =
     { state : State
     , userList : List UserData
     , locationSoftlocks : List LocationSoftlocks
+    , timeZone : Zone
+    , title : String
+    , createdOn : Posix
     }
 
 type State
@@ -85,23 +95,34 @@ buildSoftlockList userList itemList =
         itemList
 
 init : Flags -> (Model, Cmd Msg)
-init { userList, lootInformation } =
+init { userList, lootInformation, title, createdOn } =
     (
         { state = CompleteList
         , userList = userList
         , locationSoftlocks = Maybe.withDefault [] <| Maybe.map (buildLocationList userList) lootInformation
+        , timeZone = Time.utc
+        , title = title
+        , createdOn =
+            case toTime createdOn of
+                Ok time -> time
+                Err _ -> millisToPosix 0
         }
-    , Cmd.none
+    , loadTimeZone NewTimeZone
     )
 
 type Msg
     = ChangeState State
+    | NewTimeZone Zone
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ChangeState newState ->
             ( { model | state = newState }
+            , Cmd.none
+            )
+        NewTimeZone zone ->
+            ( { model | timeZone = zone }
             , Cmd.none
             )
 
@@ -112,26 +133,36 @@ subscriptions _ =
 
 
 view : Model -> Html Msg
-view { state, userList, locationSoftlocks } =
-    div [] <|
-        List.concat
-            [ if List.isEmpty locationSoftlocks then [] else [ viewTabBar state ]
-            ,
-                [ case state of
-                    CompleteList -> viewUserList userList
-                    LocationLists -> viewLocationLists locationSoftlocks
-                ]
-            ]
+view { state, userList, locationSoftlocks, title, createdOn, timeZone } =
+    div [ class "container-fluid", class "py-5" ]
+        [ viewTitle timeZone  title createdOn
+        ,
+            if List.isEmpty locationSoftlocks then
+                div [] []
+            else
+                viewTabBar state
+        ,
+            case state of
+                CompleteList -> viewUserList userList
+                LocationLists -> viewLocationLists locationSoftlocks
+        ]
 
 viewTabBar : State -> Html Msg
 viewTabBar state =
     ul [ class "nav", class "nav-tabs", class "nav-fill" ]
         [ li [class "nav-item", onClick (ChangeState CompleteList)]
-            [ a ([ class "nav-link", href "#" ] ++ (if state == CompleteList then [ class "active" ] else []))
+            [ a
+                [ class "nav-link", href "#"
+                , classList [ ("active", state == CompleteList) ]
+                ]
                 [ text "Gesamtliste" ]
             ]
         , li [class "nav-item", onClick (ChangeState LocationLists)]
-            [ a ([ class "nav-link", href "#" ] ++ (if state == LocationLists then [ class "active" ] else []))
+            [ a
+                [ class "nav-link"
+                , href "#" 
+                , classList [ ("active", state == LocationLists) ]
+                ]
                 [ text "Bosslisten" ]
             ]
         ]
@@ -139,7 +170,7 @@ viewTabBar state =
 viewUserList : List UserData -> Html Msg
 viewUserList userList =
     div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
-    [ div [ class "col-md-11" ]
+    [ div [ class "col" ]
         [ table [ class "table", class "table-striped", class "table-bordered" ]
             [ thead []
                 [ th [ scope "col" ] [ text "#" ]
@@ -172,7 +203,7 @@ viewLocationLists locationList =
 viewLocationList : LocationSoftlocks -> Html Msg
 viewLocationList location =
     div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
-    [ div [ class "col-md-11" ]
+    [ div [ class "col" ]
         (if List.isEmpty location.softlocks then
             [ h4 [ class "text-center" ] 
                 [ del [] [ text location.locationName ]

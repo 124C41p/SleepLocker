@@ -141,7 +141,7 @@ app.post('/getRaidStatus', async (req, res) => {
             userName: data.userName,
             class: data.class,
             role: data.role,
-            registeredOn: data.registeredOn.toLocaleString()
+            registeredOn: data.registeredOn.toISOString()
         }));
         return res.json(succeed({
             registrations: projectedList,

@@ -1,7 +1,7 @@
 module Admin exposing (main)
 
 import Browser
-import Helpers exposing (expectResponse)
+import Helpers exposing (expectResponse, loadTimeZone, viewTitle, dateString, timeString)
 import Html exposing (Html, button, div, input, label, span, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, class, classList, disabled, scope, value)
 import Html.Events exposing (onClick)
@@ -10,7 +10,8 @@ import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import Maybe.Extra as MaybeX
 import Result.Extra as ResultX
-import Time
+import Time exposing (Posix, Zone, millisToPosix)
+import Iso8601 exposing (toTime)
 
 
 main : Program Flags Model Msg
@@ -29,6 +30,9 @@ type alias Model =
     , userList : List UserData
     , errorMessage : Maybe String
     , raidMode : Maybe RaidMode
+    , timeZone : Zone
+    , title : String
+    , createdOn : Posix
     }
 
 
@@ -36,7 +40,7 @@ type alias UserData =
     { userName : String
     , class : String
     , role : String
-    , registeredOn : String
+    , registeredOn : Posix
     }
 
 
@@ -46,7 +50,7 @@ userDataDecoder =
         (Decode.field "userName" Decode.string)
         (Decode.field "class" Decode.string)
         (Decode.field "role" Decode.string)
-        (Decode.field "registeredOn" Decode.string)
+        (Decode.field "registeredOn" Iso8601.decoder)
 
 
 type RaidMode
@@ -97,13 +101,30 @@ raidStatusDecoder =
 type alias Flags =
     { raidAdminKey : String
     , raidUserKey : String
+    , title : String
+    , createdOn : String
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { raidAdminKey, raidUserKey } =
-    ( { raidAdminKey = raidAdminKey, raidUserKey = raidUserKey, userList = [], errorMessage = Nothing, raidMode = Nothing }
-    , loadRegistrations raidAdminKey
+init { raidAdminKey, raidUserKey, title, createdOn } =
+    (
+        { raidAdminKey = raidAdminKey
+        , raidUserKey = raidUserKey
+        , userList = []
+        , errorMessage = Nothing
+        , raidMode = Nothing
+        , title = title
+        , timeZone = Time.utc
+        , createdOn =
+            case toTime createdOn of
+                Ok time -> time
+                Err _ -> millisToPosix 0
+        }
+    , Cmd.batch
+        [ loadRegistrations raidAdminKey
+        , loadTimeZone NewTimeZone
+        ]
     )
 
 
@@ -113,6 +134,7 @@ type Msg
     | DoSetMode RaidMode
     | ConnectionLost
     | ModeSet RaidMode
+    | NewTimeZone Zone
 
 
 loadRegistrations : String -> Cmd Msg
@@ -173,6 +195,9 @@ update msg model =
 
         ModeSet mode ->
             ( { model | raidMode = Just mode, errorMessage = Nothing }, Cmd.none )
+        
+        NewTimeZone zone ->
+            ( { model | timeZone = zone }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -182,10 +207,15 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
-    div [ class "container-fluid", class "pb-5" ]
+    div [ class "container-fluid", class "py-5" ]
         [ div [ class "row" ]
+            [ div [ class "col" ]
+                [ viewTitle model.timeZone model.title model.createdOn
+                ]
+            ]
+        , div [ class "row" ]
             [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.errorMessage model.raidMode ]
-            , div [ class "col-md-10" ] [ viewUserList model.userList ]
+            , div [ class "col-md-10" ] [ viewUserList model.timeZone model.userList ]
             ]
         ]
 
@@ -229,8 +259,8 @@ viewButtons mode =
         ]
 
 
-viewUserList : List UserData -> Html Msg
-viewUserList userList =
+viewUserList : Zone -> List UserData -> Html Msg
+viewUserList zone userList =
     table [ class "table", class "table-striped", class "table-bordered" ]
         [ thead []
             [ th [ scope "col" ] [ text "#" ]
@@ -239,20 +269,22 @@ viewUserList userList =
             , th [ scope "col" ] [ text "Rolle" ]
             , th [ scope "col" ] [ text "Anmeldezeitpunkt" ]
             ]
-        , tbody [] (List.indexedMap viewUserRow userList)
+        , tbody [] (List.indexedMap (viewUserRow zone) userList)
         ]
 
 
-viewUserRow : Int -> UserData -> Html Msg
-viewUserRow index userData =
+viewUserRow : Zone -> Int -> UserData -> Html Msg
+viewUserRow zone index userData =
     tr []
         [ th [ scope "row" ] [ text (String.fromInt (index + 1)) ]
         , td [] [ text userData.userName ]
         , td [] [ text userData.class ]
         , td [] [ text userData.role ]
-        , td [] [ text userData.registeredOn ]
+        , td [] [ text (registeredOnString zone userData.registeredOn) ]
         ]
 
+registeredOnString : Zone -> Posix -> String
+registeredOnString zone time = dateString zone time ++ " um " ++ timeString zone time
 
 viewErrorMsg : String -> Html Msg
 viewErrorMsg errorMsg =

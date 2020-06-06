@@ -40,11 +40,11 @@ app.get('/:key', async (req, res, next) => {
 
     if(key.length == 20) {
         return res.render('admin', {
-            raidName: raid.title,
-            date: raid.createdOn.toLocaleDateString(),
             flags: {
                 raidAdminKey: key,
-                raidUserKey: raid.raidUserKey
+                raidUserKey: raid.raidUserKey,
+                title: raid.title,
+                createdOn: raid.createdOn.toISOString()
             }
         });
     } else if(key.length == 6) {
@@ -54,11 +54,11 @@ app.get('/:key', async (req, res, next) => {
                     classDescriptions: characterClasses,
                     lootTable: raid.dungeonKey == null ? null : getLootLocations(raid.dungeonKey),
                     raidID: key,
-                    comments: raid.comments
+                    comments: raid.comments,
+                    title: raid.title,
+                    createdOn: raid.createdOn.toISOString()
                 }
                 return res.render('register', {
-                    raidName: raid.title,
-                    date: raid.createdOn.toLocaleDateString(),
                     flags: registerFlags
                 });
             case 1:
@@ -68,11 +68,11 @@ app.get('/:key', async (req, res, next) => {
                     lootInformation: lootTable == null ? null : {
                         locations: lootTable.locations,
                         loot: lootTable.loot
-                    }
+                    },
+                    title: raid.title,
+                    createdOn: raid.createdOn.toISOString()
                 }
                 return res.render('tables', {
-                    raidName: raid.title,
-                    date: raid.createdOn.toLocaleDateString(),
                     flags: tableFlags
                 });
         }

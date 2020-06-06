@@ -1,5 +1,5 @@
 module Register exposing (main)
-import Html exposing (Html, div, h4, text, label, input, button, span, hr)
+import Html exposing (Html, div, h4, text, label, input, button, span, hr, p)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
@@ -8,10 +8,12 @@ import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, sear
 import Json.Decode as Decode
 import Json.Encode as Encode
 import UserData exposing (UserData, userDataDecoder, userDataEncoder)
-import Helpers exposing (expectResponse, delay)
+import Helpers exposing (expectResponse, delay, loadTimeZone, viewTitle)
 import Markdown
 import Markdown.Config as MDConfig exposing (defaultOptions)
 import Maybe.Extra as MaybeX
+import Time exposing (Posix, Zone, millisToPosix)
+import Iso8601 exposing (toTime)
 
 main : Program Flags Model Msg
 main =
@@ -28,11 +30,14 @@ type alias Flags =
     , raidID : String
     , userID : String
     , comments : Maybe String
+    , title : String
+    , createdOn : String
     }
 
 type alias Model = 
     { state : State
     , env : Environment
+    , timeZone : Zone
     }
 type State
     = Loading
@@ -57,6 +62,8 @@ type alias Environment =
     , raidID : String
     , userID : String
     , comments : Maybe (Html Msg)
+    , title : String
+    , createdOn : Posix
     }
 
 type alias ClassDescription =
@@ -185,6 +192,7 @@ init : Flags -> (Model, Cmd Msg)
 init flags =
     (
         { state = Loading
+        , timeZone = Time.utc
         , env =
             { lootTable = flags.lootTable
             , classDescriptions = flags.classDescriptions
@@ -198,9 +206,17 @@ init flags =
                         )
                     )
                     flags.comments
+            , title = flags.title
+            , createdOn =
+                case toTime flags.createdOn of
+                   Ok time -> time
+                   Err _ -> millisToPosix 0
             }
         }
-    , loadUserData flags.raidID flags.userID NoMsg
+    , Cmd.batch
+        [ loadUserData flags.raidID flags.userID NoMsg
+        , loadTimeZone NewTimeZone
+        ]
     )
 
 type Msg
@@ -212,6 +228,7 @@ type Msg
     | DisplayPartialData PartialUserData
     | RegisterUserData UserData
     | CancelUserData UserData
+    | NewTimeZone Zone
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -248,13 +265,17 @@ update msg model =
             ( { model | state = EditingCompleteData { userData = userData, infoMessage = infoMsg } }
             , Cmd.none
             )
+        NewTimeZone zone ->
+            ( { model | timeZone = zone }
+            , Cmd.none
+            )
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.none
 
 view : Model -> Html Msg
-view model = viewFormBorder model.env <|
+view model = viewFormBorder model.env model.timeZone <|
     case model.state of
         Loading -> viewLoading
         EditingPartialData data -> viewFormPartial model.env data
@@ -270,10 +291,15 @@ viewLoading =
             ]
         ]
 
-viewFormBorder : Environment -> Html Msg -> Html Msg
-viewFormBorder env innerHtml =
-    div [ class "container", class "pb-5" ]
-        [ div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
+viewFormBorder : Environment -> Zone -> Html Msg -> Html Msg
+viewFormBorder env zone innerHtml =
+    div [ class "container", class "py-5" ]
+        [ div [ class "row" ]
+            [ div [ class "col" ]
+                [ viewTitle zone env.title env.createdOn
+                ]
+            ]
+        , div [ class "row", class "d-flex", class "justify-content-center", class "mt-2" ]
             [ div [ class "col-md-8" ]
                 [ div [ class "card" ]
                     [ div [ class "card-body" ]

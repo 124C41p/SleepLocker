@@ -93,7 +93,7 @@ export async function getUserData(raidUserKey: string, userID: string): Promise<
                 role: row.role,
                 prio1: row.prio1,
                 prio2: row.prio2,
-                registeredOn: new Date(row.registered_on)
+                registeredOn: new Date(row.registered_on + 'Z')
             });
         });
     });
@@ -149,7 +149,7 @@ export async function getRaid(key: string): Promise<Raid|null> {
                 raidUserKey: row.raid_user_key,
                 dungeonKey: row.dungeon_key,
                 mode: row.mode,
-                createdOn: new Date(row.created_on),
+                createdOn: new Date(row.created_on + 'Z'),
                 comments: row.comments
             });
         });
@@ -179,7 +179,7 @@ export async function getRestrictedUserList(raidAdminKey: string): Promise<UserD
             WHERE raids.raid_admin_key = ?
         `, [raidAdminKey], (err, rows) => {
             if(err) return reject(err);
-            resolve(rows);
+            resolve(rows.map(data => ({ ...data, registeredOn: new Date(data.registeredOn + 'Z') })));
         });
     });
 }
