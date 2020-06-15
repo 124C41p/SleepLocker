@@ -1,6 +1,6 @@
 import express from 'express';
 import { RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid } from './database';
-import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max } from 'sparkson';
+import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max, ArrayField } from 'sparkson';
 import _ from 'lodash';
 
 let app = express.Router();
@@ -42,7 +42,7 @@ app.post('/getRaid', async (req, res) => {
     try {
         let raidUserKey = parse(RaidQueryData, req.body).raidUserKey;
         let raid = await getRaid(raidUserKey);
-        if (raid == undefined)
+        if (raid == null)
             return res.json(fail('Raid nicht gefunden.'));
         return res.json(succeed(raid));
     } catch (err) {
@@ -71,6 +71,12 @@ app.post('/clearMyData', async (req, res) => {
     }
 });
 
+class SoftlockItem {
+    constructor(
+        @Field("itemName", true) @MinLength(1) @MaxLength(50) public itemName: string|null
+    ) { }
+}
+
 class RegisterData {
     constructor(
         @Field("userName") @MinLength(1) @MaxLength(50) public userName: string,
@@ -78,8 +84,7 @@ class RegisterData {
         @Field("raidUserKey") @MinLength(6) @MaxLength(6) public raidUserKey: string,
         @Field("class") @MinLength(1) @MaxLength(50) public characterClass: string,
         @Field("role") @MinLength(1) @MaxLength(50) public role: string,
-        @Field("prio1", true) @MinLength(1) @MaxLength(50) public prio1?: string,
-        @Field("prio2", true) @MinLength(1) @MaxLength(50) public prio2?: string,
+        @ArrayField("softlocks", SoftlockItem) public softlocks: SoftlockItem[]
     ) { }
 }
 
@@ -91,7 +96,7 @@ app.post('/register', async (req, res) => {
             return res.json(fail('Raid nicht gedunden.'));
         if (raid.mode != 0)
             return res.json(fail('Anmeldung ist nicht mehr möglich.'))
-        await registerUser(data.raidUserKey, data.userName, data.userID, data.characterClass, data.role, data.prio1, data.prio2);
+        await registerUser(data.raidUserKey, data.userName, data.userID, data.characterClass, data.role, data.softlocks);
         return res.json(succeed());
     } catch (err) {
         if (err instanceof JsonParseError)
@@ -157,6 +162,7 @@ app.post('/getRaidStatus', async (req, res) => {
 class NewRaidData {
     constructor(
         @Field("title") @MinLength(1) @MaxLength(50) public title: string,
+        @Field("numPriorities") public numPriorities: number,
         @Field("dungeonKey", true) @MinLength(1) @MaxLength(50) public dungeonKey?: string,
         @Field("comments", true) @MinLength(1) @MaxLength(1000) public comments?: string
     ) { }
@@ -165,7 +171,7 @@ class NewRaidData {
 app.post('/createRaid', async (req, res) => {
     try {
         let data = parse(NewRaidData, req.body);
-        let raidAdminKey = await createRaid(data.title, data.dungeonKey, data.comments);
+        let raidAdminKey = await createRaid(data.title, data.numPriorities, data.dungeonKey, data.comments);
         return res.json(succeed(raidAdminKey));
     } catch(err) {
         if (err instanceof JsonParseError)

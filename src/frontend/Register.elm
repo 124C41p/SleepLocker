@@ -1,5 +1,5 @@
 module Register exposing (main)
-import Html exposing (Html, div, h4, text, label, input, button, span, hr, p)
+import Html exposing (Html, div, h4, text, label, input, button, span, hr)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
 import Http
