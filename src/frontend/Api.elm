@@ -9,11 +9,12 @@ module Api exposing
     , UserID
     , userIDDecoder
     , RaidMode(..)
+    , getRaidInfo
+    , setRaidMode
     , loadRegistration
     , storeRegistration
     , deleteRegistration
-    , getRaidInfo
-    , setRaidMode
+    , RaidStatus
     , getRaidStatus
     , createRaid
     , ItemLocation

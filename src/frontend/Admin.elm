@@ -1,18 +1,28 @@
 module Admin exposing (main)
 
 import Browser
-import Helpers exposing (expectResponse, loadTimeZone, viewTitle, dateString, timeString)
+import Helpers exposing (loadTimeZone, viewTitle, dateString, timeString, viewInitError)
 import Html exposing (Html, button, div, input, label, span, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (attribute, class, classList, disabled, scope, value)
 import Html.Events exposing (onClick)
-import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import Maybe.Extra as MaybeX
 import Result.Extra as ResultX
-import Time exposing (Posix, Zone, millisToPosix)
-import Iso8601 exposing (toTime)
-
+import Time exposing (Posix, Zone)
+import Api exposing
+    ( RaidAdminKey
+    , RaidUserKey
+    , User
+    , RaidMode(..)
+    , RaidStatus
+    , getRaidStatus
+    , setRaidMode
+    , showRaidUserKey
+    , raidAdminKeyDecoder
+    , raidUserKeyDecoder
+    , timeStringDecoder
+    )
 
 main : Program Flags Model Msg
 main =
@@ -23,110 +33,46 @@ main =
         , subscriptions = subscriptions
         }
 
+type Model
+    = InvalidModel String
+    | ValidModel ModelData
 
-type alias Model =
-    { raidAdminKey : String
-    , raidUserKey : String
-    , userList : List UserData
+type alias ModelData =
+    { raidAdminKey : RaidAdminKey
+    , raidUserKey : RaidUserKey
+    , title : String
+    , createdOn : Posix
+    , userList : List (User, Posix)
     , errorMessage : Maybe String
     , raidMode : Maybe RaidMode
     , timeZone : Zone
-    , title : String
-    , createdOn : Posix
     }
 
+flagsDecoder : Decoder ModelData
+flagsDecoder = 
+    Decode.map4 ModelData
+        (Decode.field "raidAdminKey" raidAdminKeyDecoder)
+        (Decode.field "raidUserKey" raidUserKeyDecoder)
+        (Decode.field "title" Decode.string)
+        (Decode.field "createdOn" timeStringDecoder)
+    |> Decode.map (\p -> p [] Nothing Nothing Time.utc)
 
-type alias UserData =
-    { userName : String
-    , class : String
-    , role : String
-    , registeredOn : Posix
-    }
-
-
-userDataDecoder : Decoder UserData
-userDataDecoder =
-    Decode.map4 UserData
-        (Decode.field "userName" Decode.string)
-        (Decode.field "class" Decode.string)
-        (Decode.field "role" Decode.string)
-        (Decode.field "registeredOn" Iso8601.decoder)
-
-
-type RaidMode
-    = Registration
-    | Released
-
-
-raidModeEncoder : RaidMode -> Encode.Value
-raidModeEncoder mode =
-    case mode of
-        Registration ->
-            Encode.int 0
-
-        Released ->
-            Encode.int 1
-
-
-raidModeDecoder : Decoder RaidMode
-raidModeDecoder =
-    Decode.int
-        |> Decode.andThen
-            (\x ->
-                case x of
-                    0 ->
-                        Decode.succeed Registration
-
-                    1 ->
-                        Decode.succeed Released
-
-                    _ ->
-                        Decode.fail "Ungültiger Raidmodus."
-            )
-
-
-type alias RaidStatus =
-    { registrations : List UserData
-    , raidMode : RaidMode
-    }
-
-
-raidStatusDecoder : Decoder RaidStatus
-raidStatusDecoder =
-    Decode.map2 RaidStatus
-        (Decode.field "registrations" (Decode.list userDataDecoder))
-        (Decode.field "raidMode" raidModeDecoder)
-
-
-type alias Flags =
-    { raidAdminKey : String
-    , raidUserKey : String
-    , title : String
-    , createdOn : String
-    }
-
+type alias Flags = Encode.Value
 
 init : Flags -> ( Model, Cmd Msg )
-init { raidAdminKey, raidUserKey, title, createdOn } =
-    (
-        { raidAdminKey = raidAdminKey
-        , raidUserKey = raidUserKey
-        , userList = []
-        , errorMessage = Nothing
-        , raidMode = Nothing
-        , title = title
-        , timeZone = Time.utc
-        , createdOn =
-            case toTime createdOn of
-                Ok time -> time
-                Err _ -> millisToPosix 0
-        }
-    , Cmd.batch
-        [ loadRegistrations raidAdminKey
-        , loadTimeZone NewTimeZone
-        ]
-    )
-
+init flags =
+    case Decode.decodeValue flagsDecoder flags of
+        Ok data -> 
+            ( ValidModel data
+            , Cmd.batch
+                [ loadRegistrations data.raidAdminKey
+                , loadTimeZone NewTimeZone
+                ]
+            )
+        Err err ->
+            ( InvalidModel (Decode.errorToString err)
+            , Cmd.none
+            )
 
 type Msg
     = DoUpdate
@@ -136,51 +82,28 @@ type Msg
     | ModeSet RaidMode
     | NewTimeZone Zone
 
-
-loadRegistrations : String -> Cmd Msg
+loadRegistrations : RaidAdminKey -> Cmd Msg
 loadRegistrations raidAdminKey =
-    Http.post
-        { url = "/api/getRaidStatus"
-        , body =
-            Http.jsonBody <|
-                Encode.object
-                    [ ( "raidAdminKey", Encode.string raidAdminKey )
-                    ]
-        , expect =
-            expectResponse
-                (ResultX.unwrap ConnectionLost Updated)
-                Nothing
-                raidStatusDecoder
-        }
+    getRaidStatus raidAdminKey (ResultX.unwrap ConnectionLost Updated)
 
-
-setMode : String -> RaidMode -> Cmd Msg
+setMode : RaidAdminKey -> RaidMode -> Cmd Msg
 setMode raidAdminKey mode =
-    Http.post
-        { url = "/api/setMode"
-        , body =
-            Http.jsonBody <|
-                Encode.object
-                    [ ( "raidAdminKey", Encode.string raidAdminKey )
-                    , ( "mode", raidModeEncoder mode )
-                    ]
-        , expect =
-            expectResponse
-                (\res ->
-                    case res of
-                        Err _ ->
-                            ConnectionLost
-
-                        Ok () ->
-                            ModeSet mode
-                )
-                Nothing
-                (Decode.null ())
-        }
+    setRaidMode raidAdminKey mode
+    <| ResultX.unwrap ConnectionLost (\() -> ModeSet mode)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+    case model of
+        InvalidModel _ -> (model, Cmd.none)
+        ValidModel data ->
+            let
+                (newData, newCmd) = updateValidModel msg data
+            in
+                (ValidModel newData, newCmd)
+
+updateValidModel : Msg -> ModelData -> ( ModelData, Cmd Msg )
+updateValidModel msg model =
     case msg of
         ConnectionLost ->
             ( { model | raidMode = Nothing, errorMessage = Just "Verbindung zum Server verloren..." }, Cmd.none )
@@ -188,7 +111,7 @@ update msg model =
             ( model, loadRegistrations model.raidAdminKey )
 
         Updated raidStatus ->
-            ( { model | userList = raidStatus.registrations, raidMode = Just raidStatus.raidMode, errorMessage = Nothing }, Cmd.none )
+            ( { model | userList = raidStatus.registrations, raidMode = Just raidStatus.mode, errorMessage = Nothing }, Cmd.none )
 
         DoSetMode mode ->
             ( { model | errorMessage = Nothing, raidMode = Nothing }, setMode model.raidAdminKey mode )
@@ -199,7 +122,6 @@ update msg model =
         NewTimeZone zone ->
             ( { model | timeZone = zone }, Cmd.none )
 
-
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Time.every 5000 (\_ -> DoUpdate)
@@ -207,6 +129,12 @@ subscriptions _ =
 
 view : Model -> Html Msg
 view model =
+    case model of
+       InvalidModel err -> viewInitError err
+       ValidModel data -> viewValidModel data
+
+viewValidModel : ModelData -> Html Msg
+viewValidModel model =
     div [ class "container-fluid", class "py-5" ]
         [ div [ class "row" ]
             [ div [ class "col" ]
@@ -219,15 +147,14 @@ view model =
             ]
         ]
 
-
-viewControls : String -> Maybe String -> Maybe RaidMode -> Html Msg
+viewControls : RaidUserKey -> Maybe String -> Maybe RaidMode -> Html Msg
 viewControls raidUserKey errorMsg mode =
     div [ class "card" ]
         [ div [ class "card-body" ]
             [ MaybeX.unwrap (div [] []) viewErrorMsg errorMsg
             , div [ class "form-group" ]
                 [ label [] [ text "Raid ID" ]
-                , input [ class "form-control", disabled True, value raidUserKey ] []
+                , input [ class "form-control", disabled True, value (showRaidUserKey raidUserKey) ] []
                 ]
             , case mode of
                 Nothing ->
@@ -238,28 +165,26 @@ viewControls raidUserKey errorMsg mode =
             ]
         ]
 
-
 viewButtons : RaidMode -> Html Msg
 viewButtons mode =
     div [ class "list-group" ]
         [ button
             [ class "list-group-item"
             , class "list-group-item-action"
-            , classList [ ( "active", mode == Registration ) ]
-            , onClick (DoSetMode Registration)
+            , classList [ ( "active", mode == RegistrationMode ) ]
+            , onClick (DoSetMode RegistrationMode)
             ]
             [ text "1: Anmeldephase" ]
         , button
             [ class "list-group-item"
             , class "list-group-item-action"
-            , classList [ ( "active", mode == Released ) ]
-            , onClick (DoSetMode Released)
+            , classList [ ( "active", mode == TablesMode ) ]
+            , onClick (DoSetMode TablesMode)
             ]
             [ text "2: Veröffentlichungsphase" ]
         ]
 
-
-viewUserList : Zone -> List UserData -> Html Msg
+viewUserList : Zone -> List (User, Posix) -> Html Msg
 viewUserList zone userList =
     table [ class "table", class "table-striped", class "table-bordered" ]
         [ thead []
@@ -269,18 +194,17 @@ viewUserList zone userList =
             , th [ scope "col" ] [ text "Rolle" ]
             , th [ scope "col" ] [ text "Anmeldezeitpunkt" ]
             ]
-        , tbody [] (List.indexedMap (viewUserRow zone) userList)
+        , tbody [] (List.indexedMap (\index (user, time) -> viewUserRow zone index user time) userList)
         ]
 
-
-viewUserRow : Zone -> Int -> UserData -> Html Msg
-viewUserRow zone index userData =
+viewUserRow : Zone -> Int -> User -> Posix -> Html Msg
+viewUserRow zone index user registeredOn =
     tr []
         [ th [ scope "row" ] [ text (String.fromInt (index + 1)) ]
-        , td [] [ text userData.userName ]
-        , td [] [ text userData.class ]
-        , td [] [ text userData.role ]
-        , td [] [ text (registeredOnString zone userData.registeredOn) ]
+        , td [] [ text user.userName ]
+        , td [] [ text user.class ]
+        , td [] [ text user.role ]
+        , td [] [ text (registeredOnString zone registeredOn) ]
         ]
 
 registeredOnString : Zone -> Posix -> String
@@ -291,7 +215,6 @@ viewErrorMsg errorMsg =
     div [ class "alert", class "alert-danger" ]
         [ span [] [ text errorMsg ]
         ]
-
 
 viewSpinner : Html Msg
 viewSpinner =
