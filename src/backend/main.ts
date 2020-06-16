@@ -56,7 +56,8 @@ app.get('/:key', async (req, res, next) => {
                     raidID: key,
                     comments: raid.comments,
                     title: raid.title,
-                    createdOn: raid.createdOn.toISOString()
+                    createdOn: raid.createdOn.toISOString(),
+                    numPriorities: raid.numPriorities
                 }
                 return res.render('register', {
                     flags: registerFlags

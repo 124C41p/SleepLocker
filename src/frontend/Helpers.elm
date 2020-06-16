@@ -1,4 +1,12 @@
-module Helpers exposing (delay, focus, dateString, timeString, loadTimeZone, viewTitle)
+module Helpers exposing
+    ( delay
+    , focus
+    , dateString
+    , timeString
+    , loadTimeZone
+    , viewTitle
+    , viewInitError
+    )
 import Process
 import Task
 import Browser.Dom as Dom
@@ -58,5 +66,14 @@ viewTitle zone title time =
         , p [ class "small" ]
             [ text <|
                 "‒ erstellt am " ++ dateString zone time ++ " ‒"
+            ]
+        ]
+
+viewInitError : String -> Html msg
+viewInitError err =
+    div [ class "text-center" ]
+        [ h4 [ class "mb-0" ] [ text "Fehler" ]
+        , p [ class "small" ]
+            [ text err
             ]
         ]

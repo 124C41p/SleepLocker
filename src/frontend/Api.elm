@@ -1,18 +1,40 @@
 module Api exposing
-    ( RaidUserKey
-    , UserData
-    , UserID(..)
-    , expectResponse
+    ( User
+    , Raid
+    , RaidAdminKey
+    , raidAdminKeyDecoder
+    , RaidUserKey
+    , raidUserKeyDecoder
+    , showRaidUserKey
+    , UserID
+    , userIDDecoder
+    , RaidMode(..)
+    , loadRegistration
+    , storeRegistration
+    , deleteRegistration
+    , getRaidInfo
+    , setRaidMode
+    , getRaidStatus
+    , createRaid
+    , ItemLocation
+    , itemLocationDecoder
+    , ClassDescription
+    , classDescriptionDecoder
+    , timeStringDecoder
+    , SoftlockItem
+    , navigateAdminPage
+    , navigateUserPage
+    , validateRaidUserKey
     )
 
 import Json.Decode as Decode exposing(Decoder)
 import Json.Encode as Encode
 import Http
-import String exposing (String)
 import Time exposing (Posix)
-import Maybe exposing (Maybe)
 import Maybe.Extra as MaybeX
 import Iso8601 exposing (toTime)
+import Array exposing (Array)
+import Browser.Navigation as Navigation
 
 responseDecoder : Decoder a -> Decoder (Result String a)
 responseDecoder decoder =
@@ -36,8 +58,41 @@ expectResponse processFun defaultMsg decoder =
         ( responseDecoder decoder )
 
 type RaidUserKey = RaidUserKey String
+
+raidUserKeyDecoder : Decoder RaidUserKey
+raidUserKeyDecoder = Decode.string
+    |> Decode.andThen
+        ( \str ->
+             if String.length str == 6 then
+                Decode.succeed (RaidUserKey str)
+             else
+                Decode.fail "Ungültiger Raidschlüssel."
+        )
+
 type RaidAdminKey = RaidAdminKey String
+
+raidAdminKeyDecoder : Decoder RaidAdminKey
+raidAdminKeyDecoder = Decode.string
+    |> Decode.andThen
+        ( \str ->
+             if String.length str == 20 then
+                Decode.succeed (RaidAdminKey str)
+             else
+                Decode.fail "Ungültiger Raidschlüssel."
+        )
+
 type UserID = UserID String
+
+userIDDecoder : Decoder UserID
+userIDDecoder = Decode.string
+    |> Decode.andThen
+        ( \str ->
+             if String.length str == 50 then
+                Decode.succeed (UserID str)
+             else
+                Decode.fail "Ungültige User ID."
+        )
+
 type RaidMode
     = RegistrationMode
     | TablesMode
@@ -55,13 +110,13 @@ raidModeDecoder =
         ( \m -> case m of
             0 -> Decode.succeed RegistrationMode
             1 -> Decode.succeed TablesMode
-            _ -> Decode.fail "Invalid raid mode."
+            _ -> Decode.fail "Ungültiger Raid-Modus."
         )
 
 showRaidUserKey : RaidUserKey -> String
 showRaidUserKey (RaidUserKey key) = key
 
-type alias UserData =
+type alias User =
     { userName : String
     , class : String
     , role : String
@@ -79,19 +134,19 @@ softlockItemDecoder : Decoder SoftlockItem
 softlockItemDecoder =
     Decode.field "itemName" (Decode.nullable Decode.string)
 
-userDecoder : Decoder UserData
-userDecoder = Decode.map3 UserData
+userDecoder : Decoder User
+userDecoder = Decode.map3 User
     (Decode.field "userName" Decode.string)
     (Decode.field "class" Decode.string)
     (Decode.field "role" Decode.string)
 
-registrationDecoder : Decoder (UserData, List SoftlockItem)
+registrationDecoder : Decoder (User, Array SoftlockItem)
 registrationDecoder =
     Decode.map2 (\user locks -> (user, locks))
         userDecoder
-        (Decode.field "softlocks" (Decode.list softlockItemDecoder))
+        (Decode.field "softlocks" (Decode.array softlockItemDecoder))
 
-loadRegistration : RaidUserKey -> UserID -> ProcessFun (UserData, List SoftlockItem) msg -> Maybe msg -> Cmd msg
+loadRegistration : RaidUserKey -> UserID -> ProcessFun (User, Array SoftlockItem) msg -> Maybe msg -> Cmd msg
 loadRegistration (RaidUserKey key) (UserID id) processFun defaultMsg =
     Http.post
         { url = "/api/myData"
@@ -106,7 +161,7 @@ loadRegistration (RaidUserKey key) (UserID id) processFun defaultMsg =
             registrationDecoder
         }
 
-storeRegistration : RaidUserKey -> UserID -> UserData -> List SoftlockItem -> ProcessFun () msg -> Cmd msg
+storeRegistration : RaidUserKey -> UserID -> User -> Array SoftlockItem -> ProcessFun () msg -> Cmd msg
 storeRegistration (RaidUserKey key) (UserID id) user items processFun =
     Http.post
         { url = "/api/register"
@@ -117,7 +172,7 @@ storeRegistration (RaidUserKey key) (UserID id) user items processFun =
                 , ( "raidUserKey", Encode.string key )
                 , ( "class", Encode.string user.class )
                 , ( "role", Encode.string user.role )
-                , ( "softlocks", Encode.list softlockItemEncoder items )
+                , ( "softlocks", Encode.array softlockItemEncoder items )
                 ]
         , expect =
             expectResponse
@@ -126,8 +181,8 @@ storeRegistration (RaidUserKey key) (UserID id) user items processFun =
             ( Decode.null () )
         }
         
-clearRegistration : RaidUserKey -> UserID -> ProcessFun () msg -> Cmd msg
-clearRegistration (RaidUserKey key) (UserID id) processFun =
+deleteRegistration : RaidUserKey -> UserID -> ProcessFun () msg -> Cmd msg
+deleteRegistration (RaidUserKey key) (UserID id) processFun =
     Http.post
         { url = "/api/clearMyData"
         , body = Http.jsonBody
@@ -175,6 +230,13 @@ timeStringDecoder =
                 Err _ -> Decode.fail "Invalid time string format."
         )
 
+validateRaidUserKey : String -> ProcessFun RaidUserKey msg -> Cmd msg
+validateRaidUserKey keyStr processFun =
+    let
+        userKey = RaidUserKey keyStr
+    in
+        getRaidInfo userKey (Result.map (\_ -> userKey) >> processFun)
+
 getRaidInfo : RaidUserKey -> ProcessFun (Raid, RaidMode, Posix) msg -> Cmd msg
 getRaidInfo (RaidUserKey key) processFun =
     let
@@ -212,7 +274,7 @@ setRaidMode (RaidAdminKey key) mode processFun =
 
 type alias RaidStatus =
     { mode : RaidMode
-    , registrations : List (UserData, Posix)
+    , registrations : List (User, Posix)
     }
 
 raidStatusDecoder : Decoder RaidStatus
@@ -240,7 +302,7 @@ getRaidStatus (RaidAdminKey key) processFun =
             raidStatusDecoder
         }
 
-createRaid : Raid -> ProcessFun () msg -> Cmd msg
+createRaid : Raid -> ProcessFun RaidAdminKey msg -> Cmd msg
 createRaid raid processFun =
     Http.post
         { url = "/api/createRaid"
@@ -248,5 +310,33 @@ createRaid raid processFun =
         , expect = expectResponse
             processFun
             Nothing
-            ( Decode.null () )
+            raidAdminKeyDecoder
         }
+
+type alias ItemLocation =
+    { locationName : String
+    , loot : List String        
+    }
+
+itemLocationDecoder : Decoder ItemLocation
+itemLocationDecoder =
+    Decode.map2 ItemLocation
+        (Decode.field "locationName" Decode.string)
+        (Decode.field "loot" (Decode.list Decode.string))
+
+type alias ClassDescription =
+    { className : String
+    , roles : List String
+    }
+
+classDescriptionDecoder : Decoder ClassDescription
+classDescriptionDecoder =
+    Decode.map2 ClassDescription
+        (Decode.field "className" Decode.string)
+        (Decode.field "roles" (Decode.list Decode.string))
+        
+navigateAdminPage : RaidAdminKey -> Cmd msg
+navigateAdminPage (RaidAdminKey key) = Navigation.load("/" ++ key)
+
+navigateUserPage : RaidUserKey -> Cmd msg
+navigateUserPage (RaidUserKey key) = Navigation.load("/" ++ key)
