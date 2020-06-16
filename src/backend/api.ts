@@ -162,7 +162,7 @@ app.post('/getRaidStatus', async (req, res) => {
 class NewRaidData {
     constructor(
         @Field("title") @MinLength(1) @MaxLength(50) public title: string,
-        @Field("numPriorities") public numPriorities: number,
+        @Field("numPriorities") @Min(1) @Max(5) public numPriorities: number,
         @Field("dungeonKey", true) @MinLength(1) @MaxLength(50) public dungeonKey?: string,
         @Field("comments", true) @MinLength(1) @MaxLength(1000) public comments?: string
     ) { }

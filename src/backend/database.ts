@@ -120,7 +120,7 @@ export async function initialize() {
                 user_id TEXT NOT NULL,
                 priority INTEGER NOT NULL,
                 item_name TEXT NOT NULL,
-                PRIMARY KEY(raid_id, user_id, priority),
+                PRIMARY KEY(raid_id, user_id, priority)
             )`
     ])
 }
