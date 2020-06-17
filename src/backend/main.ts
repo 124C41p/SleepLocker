@@ -3,6 +3,7 @@ import { characterClasses, getLootLocations, getLootTable, getDungeons } from '.
 import apiRouter from './api';
 import http from 'http';
 import { initialize, getRaid, getCompleteUserList } from './database';
+import _ from 'lodash';
 
 const app = express();
 app.set('views', 'views');
@@ -65,13 +66,14 @@ app.get('/:key', async (req, res, next) => {
             case 1:
                 let lootTable = raid.dungeonKey == null ? null : getLootTable(raid.dungeonKey);
                 let tableFlags = {
-                    userList: await getCompleteUserList(key),
+                    userList: _.sortBy(await getCompleteUserList(key), user => user.userName),
                     lootInformation: lootTable == null ? null : {
                         locations: lootTable.locations,
                         loot: lootTable.loot
                     },
                     title: raid.title,
-                    createdOn: raid.createdOn.toISOString()
+                    createdOn: raid.createdOn.toISOString(),
+                    numPriorities: raid.numPriorities
                 }
                 return res.render('tables', {
                     flags: tableFlags

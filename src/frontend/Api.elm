@@ -8,6 +8,7 @@ module Api exposing
     , showRaidUserKey
     , UserID
     , userIDDecoder
+    , userDecoder
     , RaidMode(..)
     , getRaidInfo
     , setRaidMode
@@ -23,9 +24,13 @@ module Api exposing
     , classDescriptionDecoder
     , timeStringDecoder
     , SoftlockItem
+    , softlockItemDecoder
     , navigateAdminPage
     , navigateUserPage
     , validateRaidUserKey
+    , LootTable
+    , LootTableItem
+    , lootTableDecoder
     )
 
 import Json.Decode as Decode exposing(Decoder)
@@ -341,3 +346,23 @@ navigateAdminPage (RaidAdminKey key) = Navigation.load("/" ++ key)
 
 navigateUserPage : RaidUserKey -> Cmd msg
 navigateUserPage (RaidUserKey key) = Navigation.load("/" ++ key)
+
+type alias LootTableItem =
+    { itemName : String
+    , locations : List String
+    }
+type alias LootTable =
+    { locations : List String
+    , loot : List LootTableItem
+    }
+
+lootTableDecoder : Decoder LootTable
+lootTableDecoder =
+    Decode.map2 LootTable
+        ( Decode.field "locations" (Decode.list Decode.string) )
+        ( Decode.field "loot"
+            <| Decode.list
+            <| Decode.map2 LootTableItem
+                (Decode.field "itemName" Decode.string)
+                (Decode.field "locations" (Decode.list Decode.string))
+        )
