@@ -15,7 +15,7 @@ export interface UserData {
 }
 
 interface SoftlockItem {
-    itemName: string|null
+    itemName?: string
 }
 
 interface SoftlockExtension {
@@ -225,7 +225,7 @@ export async function getCompleteUserList(raidUserKey: string): Promise<(UserDat
 
 export async function getUserData(raidUserKey: string, userID: string): Promise<UserData&SoftlockExtension|null> {
     let row = await get`
-            SELECT user_name, class, role, registered_on, raid_id, num_priorities
+            SELECT user_name, class, role, registered_on, users.raid_id, num_priorities
             FROM users
                 INNER JOIN raids on users.raid_id = raids.raid_id
             WHERE raids.raid_user_key = ${raidUserKey} AND users.user_id = ${userID}
@@ -246,13 +246,13 @@ async function getSoftlocks(raidID: number, userID: string, numPriorities: numbe
         FROM softlocks
         WHERE raid_id = ${raidID} AND user_id = ${userID}
         `;
-    let softlocks = Array(numPriorities).fill({ itemName: null });
+    let softlocks = Array(numPriorities).fill(null);
     for(let row of rows) {
         if(row.priority < 1 || row.priority > numPriorities)
             throw new InternalError();
-        softlocks[row.priority - 1].itemName = row.item_name;
+        softlocks[row.priority - 1] = row.item_name;
     }
-    return softlocks;
+    return softlocks.map(name => ({ itemName: name }));
 }
     
 export async function removeUser(raidUserKey: string, userID: string) {
@@ -265,14 +265,16 @@ export async function removeUser(raidUserKey: string, userID: string) {
         if(!row) throw new Error();
         let raidID = row.raid_id;
 
-        await transaction(() =>
-            run`
+        await transaction(async () => {
+            await run`
                 DELETE FROM users
                 WHERE user_id = ${userID} AND raid_id = ${raidID}
-                ;
+                `;
+            await run`
                 DELETE FROM softlocks
                 WHERE user_id = ${userID} AND raid_id = ${raidID}
-                `
+                `;
+            }
         )
     } catch {
         throw new CancellationError();
