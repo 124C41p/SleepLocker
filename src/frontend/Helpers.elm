@@ -71,8 +71,8 @@ viewTitle zone title time =
 
 viewInitError : String -> Html msg
 viewInitError err =
-    div [ class "text-center" ]
-        [ h4 [ class "mb-0" ] [ text "Fehler" ]
+    div [ class "mt-5", class "p-1" ]
+        [ h4 [] [ text "Interner Fehler" ]
         , p [ class "small" ]
             [ text err
             ]
