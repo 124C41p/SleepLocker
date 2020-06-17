@@ -192,7 +192,7 @@ clearUserData raidID userID user locks =
         userID
         ( \result ->
             case result of
-                Err errorMsg -> Reload (ErrorMsg errorMsg)
+                Err errorMsg -> DisplayLockedData (ErrorMsg errorMsg) user locks
                 Ok () -> DisplayEditableData (SuccessMsg "Deine Anmeldung wurde storniert.") (invalidateUserData user locks)
         )
 
