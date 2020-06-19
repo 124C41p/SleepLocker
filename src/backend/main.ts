@@ -2,7 +2,8 @@ import express, { Express } from 'express';
 import { characterClasses, getLootLocations, getLootTable, getDungeons } from './configurations';
 import apiRouter from './api';
 import http from 'http';
-import { initialize, getRaid, getUserList } from './database';
+import { initialize, getRaid, getCompleteUserList } from './database';
+import _ from 'lodash';
 
 const app = express();
 app.set('views', 'views');
@@ -56,7 +57,8 @@ app.get('/:key', async (req, res, next) => {
                     raidID: key,
                     comments: raid.comments,
                     title: raid.title,
-                    createdOn: raid.createdOn.toISOString()
+                    createdOn: raid.createdOn.toISOString(),
+                    numPriorities: raid.numPriorities
                 }
                 return res.render('register', {
                     flags: registerFlags
@@ -64,13 +66,14 @@ app.get('/:key', async (req, res, next) => {
             case 1:
                 let lootTable = raid.dungeonKey == null ? null : getLootTable(raid.dungeonKey);
                 let tableFlags = {
-                    userList: await getUserList(key),
+                    userList: _.sortBy(await getCompleteUserList(key), user => user.userName),
                     lootInformation: lootTable == null ? null : {
                         locations: lootTable.locations,
                         loot: lootTable.loot
                     },
                     title: raid.title,
-                    createdOn: raid.createdOn.toISOString()
+                    createdOn: raid.createdOn.toISOString(),
+                    numPriorities: raid.numPriorities
                 }
                 return res.render('tables', {
                     flags: tableFlags

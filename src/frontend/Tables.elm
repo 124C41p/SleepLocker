@@ -4,13 +4,13 @@ import Html exposing (Html, div, text, table, thead, tbody, th, tr, td, ul, li, 
 import Html.Attributes exposing (class, scope, href, classList)
 import Html.Events exposing (onClick)
 import Browser
-import UserData exposing (UserData)
-import Time exposing (Posix, Zone, millisToPosix)
-import Iso8601 exposing (toTime)
-import String exposing (String)
-import Helpers exposing (loadTimeZone, viewTitle)
+import Time exposing (Posix, Zone)
+import Helpers exposing (loadTimeZone, viewTitle, viewInitError)
 import Platform.Cmd exposing (Cmd)
-
+import Api exposing (User, SoftlockItem, LootTable, LootTableItem, userDecoder, softlockItemDecoder, timeStringDecoder, lootTableDecoder)
+import Json.Decode as Decode exposing (Decoder)
+import Array exposing (Array)
+import Maybe.Extra as MaybeX
 
 main : Program Flags Model Msg
 main =
@@ -21,94 +21,108 @@ main =
         , subscriptions = subscriptions
     }
 
-type alias Flags =
-    { userList : List UserData
-    , lootInformation: Maybe Environment
-    , title : String
-    , createdOn : String
-    }
+type alias Flags = Decode.Value
 
-type alias Model =
-    { state : State
-    , userList : List UserData
-    , locationSoftlocks : List LocationSoftlocks
-    , timeZone : Zone
+type Model
+    = InvalidModel String
+    | ValidModel ModelData
+
+type alias ModelData =
+    { userList : List (User, Array SoftlockItem)
     , title : String
     , createdOn : Posix
+    , numPriorities : Int
+    , locationSoftlocks : List LocationSoftlocks
+    , timeZone : Zone
+    , state : State
     }
+
+flagsDecoder : Decoder ModelData
+flagsDecoder =
+    Decode.map5
+        ( \users title time numPrios table ->
+            ModelData users title time numPrios (buildLocationList numPrios users table) Time.utc CompleteList
+        )
+        ( Decode.field "userList"
+            <| Decode.list
+            <| Decode.map2 (\user locks -> (user,locks))
+                userDecoder
+                (Decode.field "softlocks" (Decode.array softlockItemDecoder))
+        )
+        ( Decode.field "title" Decode.string )
+        ( Decode.field "createdOn" timeStringDecoder )
+        ( Decode.field "numPriorities" Decode.int )
+        ( Decode.field "lootInformation" lootTableDecoder )
 
 type State
     = CompleteList
     | LocationLists
 
-type alias Environment =
-    { locations : List String
-    , loot : List Item
-    }
-
-type alias Item =
-    { itemName : String
-    , locations : List String
-    }
-
 type alias LocationSoftlocks =
     { locationName : String
-    , softlocks : List Softlock
+    , softlocks : List SoftlockedItem
     }
 
-type alias Softlock =
+type alias SoftlockedItem =
     { itemName : String
-    , prio1 : List String
-    , prio2 : List String
+    , userLocks : Array (List String)
     }
 
-buildLocationList : List UserData -> Environment -> List LocationSoftlocks
-buildLocationList userList env =
+buildLocationList : Int -> List (User, Array SoftlockItem) -> LootTable -> List LocationSoftlocks
+buildLocationList numPriorities userList env =
     List.map
         ( \locationName ->
             { locationName = locationName
             , softlocks =
-                buildSoftlockList userList (locationLoot locationName env.loot)
-                |> List.filter (\l -> not <| List.isEmpty l.prio1 && List.isEmpty l.prio2)
+                buildSoftlockList numPriorities userList (locationLoot locationName env.loot)
+                |> List.filter
+                    (\item ->
+                        item.userLocks
+                        |> Array.toList
+                        |> List.any (not << List.isEmpty)
+                    )
             }
         )
         env.locations
 
-locationLoot : String -> List Item -> List String
+locationLoot : String -> List LootTableItem -> List String
 locationLoot locationName itemList =
     List.filter (\item -> List.member locationName item.locations) itemList
     |> List.map (\item -> item.itemName)
 
-buildSoftlockList : List UserData -> List String -> List Softlock
-buildSoftlockList userList itemList =
+buildSoftlockList : Int -> List (User, Array SoftlockItem) -> List String -> List SoftlockedItem
+buildSoftlockList numPriorities userList itemList =
     List.map
         ( \itemName ->
             { itemName = itemName
-            , prio1 =
-                List.filter (\user -> user.prio1 == Just itemName) userList
-                |> List.map (\user -> user.userName)
-            , prio2 =
-                List.filter (\user -> user.prio2 == Just itemName) userList
-                |> List.map (\user -> user.userName)
+            , userLocks =
+                Array.initialize numPriorities identity
+                |> Array.map 
+                    (\i ->
+                        userList
+                        |> List.filter
+                            (\(_,locks) -> 
+                                Array.get i locks
+                                |> Maybe.andThen identity
+                                |> MaybeX.unwrap False ((==) itemName)
+                            ) 
+                        |> List.map (\(user,_) -> user.userName)
+                    )
             }
         )
         itemList
 
 init : Flags -> (Model, Cmd Msg)
-init { userList, lootInformation, title, createdOn } =
-    (
-        { state = CompleteList
-        , userList = userList
-        , locationSoftlocks = Maybe.withDefault [] <| Maybe.map (buildLocationList userList) lootInformation
-        , timeZone = Time.utc
-        , title = title
-        , createdOn =
-            case toTime createdOn of
-                Ok time -> time
-                Err _ -> millisToPosix 0
-        }
-    , loadTimeZone NewTimeZone
-    )
+init flags =
+    case Decode.decodeValue flagsDecoder flags of
+        Ok data ->
+            ( ValidModel data
+            , loadTimeZone NewTimeZone
+            )
+        Err err -> 
+            ( InvalidModel (Decode.errorToString err)
+            , Cmd.none
+            )
 
 type Msg
     = ChangeState State
@@ -116,6 +130,16 @@ type Msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
+    case model of
+        InvalidModel _ -> (model, Cmd.none)
+        ValidModel data ->
+            let
+                (newData, cmd) = updateValidModel msg data
+            in
+                (ValidModel newData, cmd)
+
+updateValidModel : Msg -> ModelData -> (ModelData, Cmd Msg)
+updateValidModel msg model =
     case msg of
         ChangeState newState ->
             ( { model | state = newState }
@@ -131,20 +155,25 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.none
 
-
 view : Model -> Html Msg
-view { state, userList, locationSoftlocks, title, createdOn, timeZone } =
+view model =
+    case model of
+        InvalidModel err -> viewInitError err
+        ValidModel data -> viewValidModel data
+
+viewValidModel : ModelData -> Html Msg
+viewValidModel data =
     div [ class "container-fluid", class "py-5" ]
-        [ viewTitle timeZone  title createdOn
+        [ viewTitle data.timeZone  data.title data.createdOn
         ,
-            if List.isEmpty locationSoftlocks then
+            if List.isEmpty data.locationSoftlocks then
                 div [] []
             else
-                viewTabBar state
+                viewTabBar data.state
         ,
-            case state of
-                CompleteList -> viewUserList userList
-                LocationLists -> viewLocationLists locationSoftlocks
+            case data.state of
+                CompleteList -> viewUserList data.numPriorities data.userList
+                LocationLists -> viewLocationLists data.numPriorities data.locationSoftlocks
         ]
 
 viewTabBar : State -> Html Msg
@@ -167,41 +196,61 @@ viewTabBar state =
             ]
         ]
 
-viewUserList : List UserData -> Html Msg
-viewUserList userList =
-    div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
-    [ div [ class "col" ]
-        [ table [ class "table", class "table-striped", class "table-bordered" ]
-            [ thead []
-                [ th [ scope "col" ] [ text "#" ]
+viewUserList : Int -> List (User, Array SoftlockItem) -> Html Msg
+viewUserList numPriorities userList =
+    let
+        headStatics =
+            [ th [ scope "col" ] [ text "#" ]
                 , th [ scope "col" ] [ text "Name" ]
                 , th [ scope "col" ] [ text "Klasse" ]
                 , th [ scope "col" ] [ text "Rolle" ]
-                , th [ scope "col" ] [ text "Prio 1" ]
-                , th [ scope "col" ] [ text "Prio 2" ]
+            ]
+        headSoftlocks =
+            List.range 1 numPriorities
+            |> List.map
+                ( String.fromInt
+                >> (++) "Prio "
+                >> text
+                >> List.singleton
+                >> th [ scope "col" ]
+                )
+    in
+        div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
+        [ div [ class "col" ]
+            [ table [ class "table", class "table-striped", class "table-bordered" ]
+                [ thead [] ( headStatics ++  headSoftlocks)
+                , tbody [] ( List.indexedMap viewUserRow userList )
                 ]
-            , tbody [] ( List.indexedMap viewUserRow userList )
             ]
         ]
-    ]
 
-viewUserRow : Int -> UserData -> Html Msg
-viewUserRow index userData =
-    tr []
-        [ th [ scope "row" ] [ text ( String.fromInt (index + 1) ) ]
-        , td [] [ text userData.userName ]
-        , td [] [ text userData.class ]
-        , td [] [ text userData.role ]
-        , td [] [ text ( Maybe.withDefault "" userData.prio1 ) ]
-        , td [] [ text ( Maybe.withDefault "" userData.prio2 ) ]
-        ]
+viewUserRow : Int -> (User, Array SoftlockItem) -> Html Msg
+viewUserRow index (user, locks) =
+    let
+        staticPart = 
+            [ th [ scope "row" ] [ text ( String.fromInt (index + 1) ) ]
+            , td [] [ text user.userName ]
+            , td [] [ text user.class ]
+            , td [] [ text user.role ]
+            ]
+        locksPart =
+            locks
+            |> Array.toList
+            |> List.map
+                ( Maybe.withDefault ""
+                >> text
+                >> List.singleton
+                >> td []
+                )
+    in
+        tr [] ( staticPart ++ locksPart )
 
-viewLocationLists : List LocationSoftlocks -> Html Msg
-viewLocationLists locationList =
-    div [] (List.map viewLocationList locationList)
+viewLocationLists : Int -> List LocationSoftlocks -> Html Msg
+viewLocationLists numPriorities locationList =
+    div [] (List.map (viewLocationList numPriorities) locationList)
 
-viewLocationList : LocationSoftlocks -> Html Msg
-viewLocationList location =
+viewLocationList : Int -> LocationSoftlocks -> Html Msg
+viewLocationList numPriorities location =
     div [ class "row", class "d-flex", class "justify-content-center", class "mt-5" ]
     [ div [ class "col" ]
         (if List.isEmpty location.softlocks then
@@ -210,25 +259,42 @@ viewLocationList location =
                 ]
             ]
          else
-            [ h4 [ class "text-center" ] [ text location.locationName ]
-            , div [ class "card-body" ]
-                [ table [ class "table", class "table-striped", class "table-bordered" ]
-                    [ thead []
-                        [ th [ scope "col" ] [ text "Item" ]
-                        , th [ scope "col" ] [ text "Prio 1" ]
-                        , th [ scope "col" ] [ text "Prio 2" ]
+            let
+                headStatics =
+                    [ th [ scope "col" ] [ text "Item" ]
+                    ]
+                headSoftlocks =
+                    List.range 1 numPriorities
+                    |> List.map
+                        ( String.fromInt
+                        >> (++) "Prio "
+                        >> text
+                        >> List.singleton
+                        >> th [ scope "col" ]
+                        )
+            in
+                [ h4 [ class "text-center" ] [ text location.locationName ]
+                , div [ class "card-body" ]
+                    [ table [ class "table", class "table-striped", class "table-bordered" ]
+                        [ thead [] ( headStatics ++ headSoftlocks )
+                        , tbody [] ( List.map viewSoftlockRow location.softlocks )
                         ]
-                    , tbody [] ( List.map viewSoftlockRow location.softlocks )
                     ]
                 ]
-            ]
         )
     ]
 
-viewSoftlockRow : Softlock -> Html Msg
-viewSoftlockRow { itemName, prio1, prio2 } =
+viewSoftlockRow : SoftlockedItem -> Html Msg
+viewSoftlockRow item =
     tr []
-        [ td [ ] [ text itemName ]
-        , td [ ] [ text <| String.join ", " prio1 ]
-        , td [ ] [ text <| String.join ", " prio2 ]
-        ]
+        ( td [ ] [ text item.itemName ] ::
+            ( item.userLocks
+                |> Array.toList
+                |> List.map
+                    ( String.join ", "
+                    >> text
+                    >> List.singleton
+                    >> td []
+                    )
+            )
+        )

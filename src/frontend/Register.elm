@@ -1,19 +1,33 @@
 module Register exposing (main)
-import Html exposing (Html, div, h4, text, label, input, button, span, hr, p)
+import Html exposing (Html, div, h4, text, label, input, button, span, hr)
 import Html.Attributes exposing (class, for, value, id, attribute, style, disabled)
 import Html.Events exposing (onInput, onClick)
-import Http
 import Browser
 import NiceSelect exposing (niceSelect, option, optionGroup, selectedValue, searchable, nullable, onUpdate)
-import Json.Decode as Decode
-import Json.Encode as Encode
-import UserData exposing (UserData, userDataDecoder, userDataEncoder)
-import Helpers exposing (expectResponse, delay, loadTimeZone, viewTitle)
+import Json.Decode as Decode exposing (Decoder)
+import Helpers exposing (delay, loadTimeZone, viewTitle, viewInitError)
 import Markdown
 import Markdown.Config as MDConfig exposing (defaultOptions)
 import Maybe.Extra as MaybeX
-import Time exposing (Posix, Zone, millisToPosix)
-import Iso8601 exposing (toTime)
+import Result.Extra as ResultX
+import Time exposing (Posix, Zone)
+import Array exposing (Array)
+import Api exposing
+    ( loadRegistration
+    , storeRegistration
+    , RaidUserKey
+    , UserID
+    , ClassDescription
+    , classDescriptionDecoder
+    , ItemLocation
+    , itemLocationDecoder
+    , timeStringDecoder
+    , raidUserKeyDecoder
+    , userIDDecoder
+    , deleteRegistration
+    , SoftlockItem
+    , User
+    )
 
 main : Program Flags Model Msg
 main =
@@ -24,30 +38,27 @@ main =
         , subscriptions = subscriptions
     }
 
-type alias Flags = 
-    { lootTable : Maybe (List ItemLocation)
-    , classDescriptions : List ClassDescription
-    , raidID : String
-    , userID : String
-    , comments : Maybe String
-    , title : String
-    , createdOn : String
-    }
+type alias Flags = Decode.Value
 
-type alias Model = 
+type Model
+    = InvalidModel String
+    | ValidModel ModelData
+
+type alias ModelData = 
     { state : State
     , env : Environment
     , timeZone : Zone
     }
+
 type State
     = Loading
     | DisplayingStoredData
-        { userData : UserData
+        { user : User
+        , softlocks : Array SoftlockItem
         , infoMessage : InfoMessage
         }
-    | EditingPartialData PartialUserData
-    | EditingCompleteData
-        { userData : UserData
+    | EditingForm
+        { formData : FormData
         , infoMessage : InfoMessage
         }
 
@@ -56,20 +67,43 @@ type InfoMessage
     | SuccessMsg String
     | ErrorMsg String
 
-type alias Environment = 
+type alias Environment =
     { lootTable : Maybe (List ItemLocation)
     , classDescriptions : List ClassDescription
-    , raidID : String
-    , userID : String
+    , raidID : RaidUserKey
+    , userID : UserID
     , comments : Maybe (Html Msg)
     , title : String
     , createdOn : Posix
+    , numPriorities : Int
     }
 
-type alias ClassDescription =
-    { className : String
-    , roles : List String
-    }
+markdownDecoder : Decoder (Html msg)
+markdownDecoder =
+    Decode.string
+    |> Decode.map
+        ( Markdown.toHtml
+            ( Just { defaultOptions | rawHtml = MDConfig.DontParse } )
+        >> div []
+        )
+
+environmentDecoder : Decoder Environment
+environmentDecoder =
+    Decode.map8 Environment
+        ( Decode.field "lootTable" 
+            <| Decode.nullable
+            <| Decode.list
+            <| itemLocationDecoder
+        )
+        ( Decode.field "classDescriptions"
+            <| Decode.list classDescriptionDecoder
+        )
+        ( Decode.field "raidID" raidUserKeyDecoder )
+        ( Decode.field "userID" userIDDecoder )
+        ( Decode.field "comments" <| Decode.nullable markdownDecoder )
+        ( Decode.field "title" Decode.string )
+        ( Decode.field "createdOn" timeStringDecoder )
+        ( Decode.field "numPriorities" Decode.int )
     
 getRoles : String -> List ClassDescription -> Maybe (List String)
 getRoles className =
@@ -77,16 +111,10 @@ getRoles className =
         >> List.head
         >> Maybe.map (\d -> d.roles)
 
-type alias ItemLocation =
-    { locationName : String
-    , loot : List String        
-    }
-
-type alias PartialUserData =
+type alias FormData =
     { userName : String
     , class : Maybe PartialClass
-    , prio1 : Maybe String
-    , prio2 : Maybe String
+    , softlocks : Array SoftlockItem
     }
 
 type alias PartialClass =
@@ -94,10 +122,10 @@ type alias PartialClass =
     , role : Maybe String
     }
 
-emptyUserData : PartialUserData
-emptyUserData = PartialUserData "" Nothing Nothing Nothing
+emptyFormData : Int -> FormData
+emptyFormData numPriorities = FormData "" Nothing (Array.initialize numPriorities (always Nothing))
 
-updateClass : (PartialClass -> Maybe PartialClass) -> PartialUserData -> PartialUserData
+updateClass : (PartialClass -> Maybe PartialClass) -> FormData -> FormData
 updateClass fun data = { data | class = Maybe.andThen fun data.class }
 
 partialClass : List ClassDescription -> String -> PartialClass
@@ -114,124 +142,101 @@ partialClass classes newName =
                 )
     in PartialClass newName newRole   
 
-validateUserData : PartialUserData -> Maybe UserData
-validateUserData data =
-    Maybe.map3 UserData
+validateItem : SoftlockItem -> SoftlockItem
+validateItem = Maybe.andThen (\name -> if String.isEmpty (String.trim name) then Nothing else Just name)
+
+validateFormData : FormData -> Maybe (User, Array SoftlockItem)
+validateFormData data =
+    Maybe.map3 User
         (let
-            len = String.length data.userName
+            trimmedName = String.trim data.userName
+            len = String.length trimmedName
         in
-            if len == 0 || len > 50 then Nothing else Just data.userName)
+            if len == 0 || len > 50 then Nothing else Just trimmedName)
         (Maybe.map (\class -> class.className) data.class)
         (Maybe.andThen (\class -> class.role) data.class)
-    |> Maybe.map (\partialData -> partialData data.prio1 data.prio2)
+    |> Maybe.map (\user -> (user, Array.map validateItem data.softlocks))
 
-invalidateUserData : UserData -> PartialUserData
-invalidateUserData data =
-    PartialUserData
-        data.userName
-        (Just <| PartialClass data.class (Just data.role))
-        data.prio1
-        data.prio2
+invalidateUserData : User -> Array SoftlockItem -> FormData
+invalidateUserData user locks =
+    FormData
+        user.userName
+        (Just <| PartialClass user.class (Just user.role))
+        locks
 
-buildState : PartialUserData -> State
-buildState data =
-    case validateUserData data of
-        Nothing -> EditingPartialData data
-        Just completeData -> EditingCompleteData { userData = completeData, infoMessage = NoMsg }
-
-userQueryEncoder : String -> String -> Encode.Value
-userQueryEncoder raidID userID =
-    Encode.object
-        [ ( "raidUserKey", Encode.string raidID )
-        , ( "userID", Encode.string userID )
-        ]
-
-loadUserData : String -> String -> InfoMessage -> Cmd Msg
+loadUserData : RaidUserKey -> UserID -> InfoMessage -> Cmd Msg
 loadUserData raidID userID infoMsg =
-    Http.post
-        { url = "/api/myData"
-        , body = Http.jsonBody (userQueryEncoder raidID userID)
-        , expect = expectResponse
-            ( Result.map (DisplayLockedData infoMsg) >> Result.withDefault DisplayEmptyData )
-            (Just <| WaitAndReload infoMsg )
-            userDataDecoder
-        }
-
-storeUserData : String -> String -> UserData -> Cmd Msg
-storeUserData raidID userID data =
-    Http.post
-        { url = "/api/register"
-        , body = Http.jsonBody (userDataEncoder raidID userID data)
-        , expect =
-            expectResponse
-            ( \res -> case res of
-                Err message -> DisplayEditableData (ErrorMsg message) data
-                Ok () -> Reload (SuccessMsg "Du bist jetzt angemeldet.")
+    loadRegistration
+        raidID
+        userID
+        ( ResultX.unwrap
+            DisplayEmptyData
+            ( \(user, softlocks) ->
+                DisplayLockedData infoMsg user softlocks
             )
-            Nothing
-            ( Decode.null () )
-        }
+        )
+        ( Just <| WaitAndReload infoMsg )
 
-clearUserData : String -> String -> UserData -> Cmd Msg
-clearUserData raidID userID data =
-    Http.post
-        { url = "/api/clearMyData"
-        , body = Http.jsonBody (userQueryEncoder raidID userID)
-        , expect =
-            expectResponse
-                ( \result ->
-                    case result of
-                        Err errorMsg -> Reload (ErrorMsg errorMsg)
-                        Ok () -> DisplayEditableData (SuccessMsg "Deine Anmeldung wurde storniert.") data
-                )
-                Nothing
-                ( Decode.null () )
-        }
+storeUserData : RaidUserKey -> UserID -> User -> Array SoftlockItem -> Cmd Msg
+storeUserData raidID userID user locks =
+    storeRegistration raidID userID user locks
+        ( \res -> case res of
+            Err message -> DisplayEditableData (ErrorMsg message) (invalidateUserData user locks)
+            Ok () -> Reload (SuccessMsg "Du bist jetzt angemeldet.")
+        )
+
+clearUserData : RaidUserKey -> UserID -> User -> Array SoftlockItem -> Cmd Msg
+clearUserData raidID userID user locks =
+    deleteRegistration
+        raidID
+        userID
+        ( \result ->
+            case result of
+                Err errorMsg -> DisplayLockedData (ErrorMsg errorMsg) user locks
+                Ok () -> DisplayEditableData (SuccessMsg "Deine Anmeldung wurde storniert.") (invalidateUserData user locks)
+        )
 
 init : Flags -> (Model, Cmd Msg)
 init flags =
-    (
-        { state = Loading
-        , timeZone = Time.utc
-        , env =
-            { lootTable = flags.lootTable
-            , classDescriptions = flags.classDescriptions
-            , raidID = flags.raidID
-            , userID = flags.userID
-            , comments =
-                Maybe.map
-                    ( div [] << 
-                        ( Markdown.toHtml <|
-                            Just { defaultOptions | rawHtml = MDConfig.DontParse }
-                        )
-                    )
-                    flags.comments
-            , title = flags.title
-            , createdOn =
-                case toTime flags.createdOn of
-                   Ok time -> time
-                   Err _ -> millisToPosix 0
-            }
-        }
-    , Cmd.batch
-        [ loadUserData flags.raidID flags.userID NoMsg
-        , loadTimeZone NewTimeZone
-        ]
-    )
+    case Decode.decodeValue environmentDecoder flags of
+        Ok env -> 
+            ( ValidModel
+                { state = Loading
+                , timeZone = Time.utc
+                , env = env
+                }
+            , Cmd.batch
+                [ loadUserData env.raidID env.userID NoMsg
+                , loadTimeZone NewTimeZone
+                ]
+            )
+        Err err ->
+            ( InvalidModel (Decode.errorToString err)
+            , Cmd.none
+            )
 
 type Msg
     = Reload InfoMessage
     | WaitAndReload InfoMessage
     | DisplayEmptyData
-    | DisplayEditableData InfoMessage UserData
-    | DisplayLockedData InfoMessage UserData
-    | DisplayPartialData PartialUserData
-    | RegisterUserData UserData
-    | CancelUserData UserData
+    | DisplayEditableData InfoMessage FormData
+    | DisplayLockedData InfoMessage User (Array SoftlockItem)
+    | RegisterUserData User (Array SoftlockItem)
+    | CancelUserData User (Array SoftlockItem)
     | NewTimeZone Zone
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
+    case model of
+        InvalidModel _ -> (model, Cmd.none)
+        ValidModel data ->
+            let
+                (newData, cmd) = updateValidModel msg data
+            in
+                (ValidModel newData, cmd)
+
+updateValidModel : Msg -> ModelData -> (ModelData, Cmd Msg)
+updateValidModel msg model =
     case msg of
         Reload infoMsg ->
             ( { model | state = Loading }
@@ -242,27 +247,23 @@ update msg model =
             , delay 1000 (Reload infoMsg)
             )
         DisplayEmptyData ->
-            ( { model | state = EditingPartialData emptyUserData }
+            ( { model | state = EditingForm { formData = emptyFormData model.env.numPriorities, infoMessage = NoMsg} }
             , Cmd.none
             )
-        DisplayLockedData infoMsg userData ->
-            ( { model | state = DisplayingStoredData { userData = userData, infoMessage = infoMsg } }
+        DisplayLockedData infoMsg user locks ->
+            ( { model | state = DisplayingStoredData { user = user, softlocks = locks, infoMessage = infoMsg } }
             , Cmd.none
             )
-        DisplayPartialData newData ->
-            ( { model | state = buildState newData }
-            , Cmd.none
-            )
-        RegisterUserData data ->
+        RegisterUserData user locks ->
             ( { model | state = Loading }
-            , storeUserData model.env.raidID model.env.userID data
+            , storeUserData model.env.raidID model.env.userID user locks
             )
-        CancelUserData data ->
+        CancelUserData user locks ->
             ( { model | state = Loading }
-            , clearUserData model.env.raidID model.env.userID data
+            , clearUserData model.env.raidID model.env.userID user locks
             )
-        DisplayEditableData infoMsg userData ->
-            ( { model | state = EditingCompleteData { userData = userData, infoMessage = infoMsg } }
+        DisplayEditableData infoMsg formData ->
+            ( { model | state = EditingForm { formData = formData, infoMessage = infoMsg } }
             , Cmd.none
             )
         NewTimeZone zone ->
@@ -275,12 +276,18 @@ subscriptions _ =
     Sub.none
 
 view : Model -> Html Msg
-view model = viewFormBorder model.env model.timeZone <|
-    case model.state of
-        Loading -> viewLoading
-        EditingPartialData data -> viewFormPartial model.env data
-        DisplayingStoredData { userData, infoMessage } -> viewFormLocked model.env userData infoMessage
-        EditingCompleteData { userData, infoMessage } -> viewFormComplete model.env userData infoMessage
+view model =
+    case model of
+        InvalidModel err -> viewInitError err
+        ValidModel data -> viewValidModel data
+
+viewValidModel : ModelData -> Html Msg
+viewValidModel data =
+    viewFormBorder data.env data.timeZone <|
+        case data.state of
+            Loading -> viewLoading
+            EditingForm { formData, infoMessage } -> viewFormEditable data.env formData infoMessage
+            DisplayingStoredData { user, softlocks, infoMessage } -> viewFormLocked data.env user softlocks infoMessage
 
 viewLoading : Html Msg
 viewLoading =
@@ -320,113 +327,119 @@ viewComments comments =
         , hr [] []
         ]
 
-viewFormPartial : Environment -> PartialUserData -> Html Msg
-viewFormPartial env data =
+viewFormEditable : Environment -> FormData -> InfoMessage -> Html Msg
+viewFormEditable env data infoMsg =
     div []
-        [ viewInputForm env data False
-        , div [ class "btn-group" ]
-            [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
-            , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
-            ]
-        ]
-        
-viewFormComplete : Environment -> UserData -> InfoMessage -> Html Msg
-viewFormComplete env data infoMsg =
-    div [] <|
-        List.concat
-            [ Maybe.withDefault [] (Maybe.map List.singleton <| viewInfoMsg infoMsg)
-            ,
-                [ viewInputForm env (invalidateUserData data) False
-                , div [ class "btn-group" ]
-                    [ button [ class "btn", class "btn-primary", onClick (RegisterUserData data) ] [ text "Abschicken" ]
+        [ viewInfoMsg infoMsg
+        , viewInputForm env data False
+        , case validateFormData data of
+            Nothing ->
+                div [ class "btn-group" ]
+                    [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
                     , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
                     ]
-                ]
+            Just (user, locks) ->
+                div [ class "btn-group" ]
+                    [ button [ class "btn", class "btn-primary", onClick (RegisterUserData user locks) ] [ text "Abschicken" ]
+                    , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
+                    ]
+        ]
+       
+viewFormLocked : Environment -> User -> Array SoftlockItem -> InfoMessage -> Html Msg
+viewFormLocked env user locks infoMsg =
+    div []
+        [ viewInfoMsg infoMsg
+        , viewInputForm env (invalidateUserData user locks) True
+        , div [ class "btn-group" ]
+            [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
+            , button [ class "btn", class "btn-primary", onClick (CancelUserData user locks) ] [ text "Stornieren" ]
             ]
+        ]
 
-viewInfoMsg : InfoMessage -> Maybe (Html Msg)
+viewInfoMsg : InfoMessage -> Html Msg
 viewInfoMsg infoMsg =
     case infoMsg of
-        NoMsg -> Nothing
-        ErrorMsg message -> Just <|
+        NoMsg -> div [] []
+        ErrorMsg message ->
             div [ class "alert", class "alert-danger" ]
                 [ span [] [ text message ]
                 ]
-        SuccessMsg message -> Just <|
+        SuccessMsg message ->
             div [ class "alert", class "alert-success" ]
                 [ span [] [ text message ]
                 ]
 
-viewFormLocked : Environment -> UserData -> InfoMessage -> Html Msg
-viewFormLocked env data infoMsg =
-    div [] <|
-        List.concat
-            [ Maybe.withDefault [] (Maybe.map List.singleton <| viewInfoMsg infoMsg)
-            ,
-                [ viewInputForm env (invalidateUserData data) True
-                , div [ class "btn-group" ]
-                    [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
-                    , button [ class "btn", class "btn-primary", onClick (CancelUserData data) ] [ text "Stornieren" ]
+viewInputForm : Environment -> FormData -> Bool -> Html Msg
+viewInputForm env data isDisabled =
+    let
+        userParts =
+            [ div [ class "form-group" ]
+                [ label [ for "userName" ] [ text "Charaktername" ]
+                , input 
+                    [ class "form-control", id "userName", value data.userName, disabled isDisabled
+                    , onInput ( \newName -> DisplayEditableData NoMsg { data | userName = newName } )
+                    ]
+                    [ ]
+                ]
+            , div [ class "form-row" ]
+                [ div [ class "form-group", class "col-md-6" ]
+                    [ label [ ] [ text "Klasse" ]
+                    , niceSelect 
+                        [ selectedValue ( Maybe.map (\c -> c.className) data.class )
+                        , disabled isDisabled
+                        , onUpdate 
+                            ( \newClass -> 
+                                DisplayEditableData NoMsg { data | class = Maybe.map (\newName -> partialClass env.classDescriptions newName) newClass }
+                            )
+                        ]
+                        <| List.map (\d -> option d.className) env.classDescriptions
+                    ]
+                , div [ class "form-group", class "col-md-6" ]
+                    [ label [ ] [ text "Rolle" ]
+                    , niceSelect 
+                        [ selectedValue ( Maybe.andThen (\cls -> cls.role) data.class )
+                        , disabled (isDisabled || data.class == Nothing)
+                        , onUpdate (\newSpec -> DisplayEditableData NoMsg <| updateClass (\cls -> Just { cls | role = newSpec }) data )
+                        ]
+                        ( Maybe.andThen ( \cls -> getRoles cls.className env.classDescriptions ) data.class
+                            |> Maybe.withDefault []
+                            |> List.map option
+                        )
                     ]
                 ]
             ]
-
-viewInputForm : Environment -> PartialUserData -> Bool -> Html Msg
-viewInputForm env data isDisabled =
-    div []
-        [ div [ class "form-group" ]
-            [ label [ for "userName" ] [ text "Charaktername" ]
-            , input 
-                [ class "form-control", id "userName", value data.userName, disabled isDisabled
-                , onInput ( \newName -> DisplayPartialData { data | userName = newName } )
-                ]
-                [ ]
-            ]
-    , div [ class "form-row" ]
-        [ div [ class "form-group", class "col-md-6" ]
-            [ label [ ] [ text "Klasse" ]
-            , niceSelect 
-                [ selectedValue ( Maybe.map (\c -> c.className) data.class )
-                , disabled isDisabled
-                , onUpdate 
-                    ( \newClass -> 
-                        DisplayPartialData { data | class = Maybe.map (\newName -> partialClass env.classDescriptions newName) newClass }
-                    )
-                ]
-                <| List.map (\d -> option d.className) env.classDescriptions
-            ]
-        , div [ class "form-group", class "col-md-6" ]
-            [ label [ ] [ text "Rolle" ]
-            , niceSelect 
-                [ selectedValue ( Maybe.andThen (\cls -> cls.role) data.class )
-                , disabled (isDisabled || data.class == Nothing)
-                , onUpdate (\newSpec -> DisplayPartialData <| updateClass (\cls -> Just { cls | role = newSpec }) data )
-                ]
-                ( Maybe.andThen ( \cls -> getRoles cls.className env.classDescriptions ) data.class
-                    |> Maybe.withDefault []
-                    |> List.map option
+        softlockParts = 
+            List.indexedMap 
+                ( \index item ->
+                    viewInputFormSoftlock 
+                        env.lootTable
+                        isDisabled
+                        (\newItem ->
+                            { data | softlocks = Array.set index newItem data.softlocks }
+                        )
+                        index
+                        item
                 )
-            ]
-        ]
-    , viewInputFormSoftlock env.lootTable "Prio 1" data.prio1 (\newValue -> { data | prio1 = newValue }) isDisabled
-    , viewInputFormSoftlock env.lootTable "Prio 2" data.prio2 (\newValue -> { data | prio2 = newValue }) isDisabled
-    ]
+                (Array.toList data.softlocks)
+    in
+        div [] (userParts ++ softlockParts)
 
-viewInputFormSoftlock : Maybe (List ItemLocation) -> String -> Maybe String -> (Maybe String -> PartialUserData) -> Bool -> Html Msg
-viewInputFormSoftlock loot labelStr itemName updateFun isDisabled =
+viewInputFormSoftlock : Maybe (List ItemLocation) -> Bool -> (SoftlockItem -> FormData) -> Int -> SoftlockItem -> Html Msg
+viewInputFormSoftlock loot isDisabled updateFun index item  =
     div [ class "form-group" ]
-            [ label [ ] [ text labelStr ]
+            [ label [ ] [ text ("Prio " ++ String.fromInt (index + 1)) ]
             , case loot of
                 Nothing ->
                     input 
-                        [ class "form-control", id "userName", value (Maybe.withDefault "" itemName), disabled isDisabled
-                        , onInput (Just >> updateFun >> DisplayPartialData)
+                        [ class "form-control", id "userName", value (Maybe.withDefault "" item)
+                        , disabled isDisabled
+                        , onInput (Just >> updateFun >> DisplayEditableData NoMsg)
                         ]
                         [ ]
                 Just lootLocations ->
                     niceSelect
-                        [ selectedValue itemName, searchable, nullable, disabled isDisabled
-                        , onUpdate (updateFun >> DisplayPartialData)
+                        [ selectedValue item, searchable, nullable, disabled isDisabled
+                        , onUpdate (updateFun >> DisplayEditableData NoMsg)
                         ]
                         <| List.map (\l -> optionGroup l.locationName l.loot ) lootLocations
             ]
