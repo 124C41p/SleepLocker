@@ -1,7 +1,7 @@
 module Admin exposing (main)
 
 import Browser
-import Helpers exposing (loadTimeZone, viewTitle, dateString, timeString, viewInitError, viewQuestionModal, viewModalBackdrop)
+import Helpers exposing (loadTimeZone, viewTitle, dateString, timeString, viewInitError, viewQuestionModal)
 import Html exposing (Html, button, div, input, label, span, table, tbody, td, text, th, thead, tr, p, b)
 import Html.Attributes exposing (attribute, class, classList, disabled, scope, value)
 import Html.Events exposing (onClick)
@@ -169,7 +169,6 @@ viewValidModel model =
                 Nothing -> []
                 Just userName ->
                     [ viewDeletionModal userName
-                    , viewModalBackdrop
                     ]
     in
         div [ class "container-fluid", class "py-5" ]

@@ -7,7 +7,6 @@ module Helpers exposing
     , viewTitle
     , viewInitError
     , viewQuestionModal
-    , viewModalBackdrop
     )
 import Process
 import Task
@@ -83,26 +82,25 @@ viewInitError err =
 
 viewQuestionModal : String -> List (Html msg) -> msg -> msg -> Html msg
 viewQuestionModal title innerHtml proceed cancel =
-    div [ class "modal", tabindex -1, style "display" "block" ]
-        [ div [class "modal-dialog", class "modal-dialog-centered" ]
-            [ div [ class "modal-content" ]
-                [ div [ class "modal-header" ]
-                    [ h5 [ class "modal-title" ] [ text title ]
-                    , button [ class "close", onClick cancel ]
-                        [ span [] [ text "×" ]
+    div []
+        [ div [ class "modal", tabindex -1, style "display" "block" ]
+            [ div [class "modal-dialog", class "modal-dialog-centered" ]
+                [ div [ class "modal-content" ]
+                    [ div [ class "modal-header" ]
+                        [ h5 [ class "modal-title" ] [ text title ]
+                        , button [ class "close", onClick cancel ]
+                            [ span [] [ text "×" ]
+                            ]
                         ]
-                    ]
-                , div [ class "modal-body" ] innerHtml
-                , div [ class "modal-footer" ]
-                    [ div [ class "btn-group" ]
-                        [ button [ class "btn", class "btn-primary", onClick proceed ] [ text "Ja" ]
-                        , button [ class "btn", class "btn-secondary", onClick cancel ] [ text "Nein" ]
+                    , div [ class "modal-body" ] innerHtml
+                    , div [ class "modal-footer" ]
+                        [ div [ class "btn-group" ]
+                            [ button [ class "btn", class "btn-primary", onClick proceed ] [ text "Ja" ]
+                            , button [ class "btn", class "btn-secondary", onClick cancel ] [ text "Nein" ]
+                            ]
                         ]
                     ]
                 ]
             ]
+        , div [ class "modal-backdrop", class "show" ] []
         ]
-
-viewModalBackdrop : Html msg
-viewModalBackdrop =
-    div [ class "modal-backdrop", class "show" ] []
