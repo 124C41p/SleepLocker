@@ -6,14 +6,17 @@ module Helpers exposing
     , loadTimeZone
     , viewTitle
     , viewInitError
+    , viewQuestionModal
+    , viewModalBackdrop
     )
 import Process
 import Task
 import Browser.Dom as Dom
 import Time exposing (Posix, Zone, Month, toHour, toMinute, toSecond, toYear, toMonth, toDay)
 import String exposing (String)
-import Html exposing (Html, text, div, p, h4)
-import Html.Attributes exposing (class)
+import Html exposing (Html, text, div, p, h4, h5, button, span)
+import Html.Attributes exposing (class, tabindex, style)
+import Html.Events exposing (onClick)
 
 delay : Float -> msg -> Cmd msg
 delay time msg =
@@ -77,3 +80,29 @@ viewInitError err =
             [ text err
             ]
         ]
+
+viewQuestionModal : String -> List (Html msg) -> msg -> msg -> Html msg
+viewQuestionModal title innerHtml proceed cancel =
+    div [ class "modal", tabindex -1, style "display" "block" ]
+        [ div [class "modal-dialog", class "modal-dialog-centered" ]
+            [ div [ class "modal-content" ]
+                [ div [ class "modal-header" ]
+                    [ h5 [ class "modal-title" ] [ text title ]
+                    , button [ class "close", onClick cancel ]
+                        [ span [] [ text "×" ]
+                        ]
+                    ]
+                , div [ class "modal-body" ] innerHtml
+                , div [ class "modal-footer" ]
+                    [ div [ class "btn-group" ]
+                        [ button [ class "btn", class "btn-primary", onClick proceed ] [ text "Ja" ]
+                        , button [ class "btn", class "btn-secondary", onClick cancel ] [ text "Nein" ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+viewModalBackdrop : Html msg
+viewModalBackdrop =
+    div [ class "modal-backdrop", class "show" ] []

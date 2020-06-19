@@ -1,5 +1,5 @@
 import express from 'express';
-import { RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid } from './database';
+import { RegistrationError, CancellationError, getUserData, getRaid, removeUser, registerUser, setRaidMode, getRestrictedUserList, createRaid, adminRemoveUser } from './database';
 import { Field, parse, MaxLength, MinLength, JsonParseError, Min, Max, ArrayField } from 'sparkson';
 import _ from 'lodash';
 
@@ -176,6 +176,27 @@ app.post('/createRaid', async (req, res) => {
     } catch(err) {
         if (err instanceof JsonParseError)
             return res.json(fail('Ungültige Eingabe.'));
+        return res.json(fail('Interner Serverfehler.'));
+    }
+});
+
+class AdminRemoveData {
+    constructor(
+        @Field("raidAdminKey") @MinLength(20) @MaxLength(20) public raidAdminKey: string,
+        @Field("userName") @MinLength(1) @MaxLength(50) public userName: string
+    ) { }
+}
+
+app.post('/adminRemoveUser', async (req, res) => {
+    try {
+        let data = parse(AdminRemoveData, req.body);
+        await adminRemoveUser(data.raidAdminKey, data.userName);
+        return res.json(succeed());
+    } catch(err) {
+        if (err instanceof JsonParseError)
+            return res.json(fail('Ungültige Eingabe.'));
+        if (err instanceof CancellationError)
+            return res.json(fail('Löschen fehlgeschlagen.'));
         return res.json(fail('Interner Serverfehler.'));
     }
 });

@@ -1,8 +1,8 @@
 module Admin exposing (main)
 
 import Browser
-import Helpers exposing (loadTimeZone, viewTitle, dateString, timeString, viewInitError)
-import Html exposing (Html, button, div, input, label, span, table, tbody, td, text, th, thead, tr)
+import Helpers exposing (loadTimeZone, viewTitle, dateString, timeString, viewInitError, viewQuestionModal, viewModalBackdrop)
+import Html exposing (Html, button, div, input, label, span, table, tbody, td, text, th, thead, tr, p, b)
 import Html.Attributes exposing (attribute, class, classList, disabled, scope, value)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode exposing (Decoder)
@@ -22,6 +22,7 @@ import Api exposing
     , raidAdminKeyDecoder
     , raidUserKeyDecoder
     , timeStringDecoder
+    , adminRemoveUser
     )
 
 main : Program Flags Model Msg
@@ -46,6 +47,7 @@ type alias ModelData =
     , errorMessage : Maybe String
     , raidMode : Maybe RaidMode
     , timeZone : Zone
+    , askDelete : Maybe String
     }
 
 flagsDecoder : Decoder ModelData
@@ -55,7 +57,7 @@ flagsDecoder =
         (Decode.field "raidUserKey" raidUserKeyDecoder)
         (Decode.field "title" Decode.string)
         (Decode.field "createdOn" timeStringDecoder)
-    |> Decode.map (\p -> p [] Nothing Nothing Time.utc)
+    |> Decode.map (\p -> p [] Nothing Nothing Time.utc Nothing)
 
 type alias Flags = Encode.Value
 
@@ -81,6 +83,9 @@ type Msg
     | ConnectionLost
     | ModeSet RaidMode
     | NewTimeZone Zone
+    | AskDelete String
+    | DoDelete String
+    | DontDelete
 
 loadRegistrations : RaidAdminKey -> Cmd Msg
 loadRegistrations raidAdminKey =
@@ -89,8 +94,11 @@ loadRegistrations raidAdminKey =
 setMode : RaidAdminKey -> RaidMode -> Cmd Msg
 setMode raidAdminKey mode =
     setRaidMode raidAdminKey mode
-    <| ResultX.unwrap ConnectionLost (\() -> ModeSet mode)
+    <| ResultX.unwrap ConnectionLost
+    <| always (ModeSet mode)
 
+delete : RaidAdminKey -> String -> Cmd Msg
+delete key userName = adminRemoveUser key userName (ResultX.unwrap ConnectionLost (always DoUpdate))
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -121,10 +129,16 @@ updateValidModel msg model =
         
         NewTimeZone zone ->
             ( { model | timeZone = zone }, Cmd.none )
+        AskDelete userName ->
+            ( { model | askDelete = Just userName }, Cmd.none )
+        DoDelete userName ->
+            ( { model | askDelete = Nothing }, delete model.raidAdminKey userName )
+        DontDelete ->
+            ( { model | askDelete = Nothing }, Cmd.none )
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Time.every 5000 (\_ -> DoUpdate)
+    Time.every 5000 (always DoUpdate)
 
 
 view : Model -> Html Msg
@@ -135,17 +149,43 @@ view model =
 
 viewValidModel : ModelData -> Html Msg
 viewValidModel model =
-    div [ class "container-fluid", class "py-5" ]
-        [ div [ class "row" ]
-            [ div [ class "col" ]
-                [ viewTitle model.timeZone model.title model.createdOn
+    let
+        staticPart =
+            [ div [ class "row" ]
+                [ div [ class "col" ]
+                    [ viewTitle model.timeZone model.title model.createdOn
+                    ]
                 ]
+            , div [ class "row" ]
+                [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.errorMessage model.raidMode ]
+                , div [ class "col-md-10" ] [ viewUserList model.timeZone model.userList ]
+                ]
+            , case model.askDelete of
+                Nothing -> div [] []
+                Just userName -> viewDeletionModal userName
             ]
-        , div [ class "row" ]
-            [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.errorMessage model.raidMode ]
-            , div [ class "col-md-10" ] [ viewUserList model.timeZone model.userList ]
+        modalPart =
+            case model.askDelete of
+                Nothing -> []
+                Just userName ->
+                    [ viewDeletionModal userName
+                    , viewModalBackdrop
+                    ]
+    in
+        div [ class "container-fluid", class "py-5" ]
+            ( staticPart ++ modalPart )
+        
+
+viewDeletionModal : String -> Html Msg
+viewDeletionModal userName =
+    viewQuestionModal "Löschen"
+        [ p []
+            [ text "Soll "
+            , b [] [ text userName ]
+            , text " wirklich aus der Anmeldeliste gelöscht werden?"
             ]
         ]
+        (DoDelete userName) DontDelete
 
 viewControls : RaidUserKey -> Maybe String -> Maybe RaidMode -> Html Msg
 viewControls raidUserKey errorMsg mode =
@@ -193,6 +233,7 @@ viewUserList zone userList =
             , th [ scope "col" ] [ text "Klasse" ]
             , th [ scope "col" ] [ text "Rolle" ]
             , th [ scope "col" ] [ text "Anmeldezeitpunkt" ]
+            , th [ scope "col" ] [ text "Löschen" ]
             ]
         , tbody [] (List.indexedMap (\index (user, time) -> viewUserRow zone index user time) userList)
         ]
@@ -205,6 +246,11 @@ viewUserRow zone index user registeredOn =
         , td [] [ text user.class ]
         , td [] [ text user.role ]
         , td [] [ text (registeredOnString zone registeredOn) ]
+        , td []
+            [ button [ class "btn", onClick (AskDelete user.userName) ]
+                [ span [] [ text "❌" ]
+                ]
+            ]
         ]
 
 registeredOnString : Zone -> Posix -> String

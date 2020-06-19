@@ -263,22 +263,39 @@ export async function removeUser(raidUserKey: string, userID: string) {
             WHERE raid_user_key = ${raidUserKey}
             `;
         if(!row) throw new Error();
-        let raidID = row.raid_id;
-
-        await transaction(async () => {
-            await run`
-                DELETE FROM users
-                WHERE user_id = ${userID} AND raid_id = ${raidID}
-                `;
-            await run`
-                DELETE FROM softlocks
-                WHERE user_id = ${userID} AND raid_id = ${raidID}
-                `;
-            }
-        )
+        await _removeUser(row.raid_id, userID);
     } catch {
         throw new CancellationError();
     }
+}
+    
+export async function adminRemoveUser(raidAdminKey: string, userName: string) {
+    try {
+        let row = await get`
+            SELECT raids.raid_id, user_id
+            FROM raids
+                INNER JOIN users ON raids.raid_id = users.raid_id
+            WHERE raid_admin_key = ${raidAdminKey} AND user_name = ${userName}
+            `;
+        if(!row) return;
+        await _removeUser(row.raid_id, row.user_id);
+    } catch {
+        throw new CancellationError();
+    }
+}
+
+async function _removeUser(raidID: number, userID: string) {
+    await transaction(async () => {
+        await run`
+            DELETE FROM users
+            WHERE user_id = ${userID} AND raid_id = ${raidID}
+            `;
+        await run`
+            DELETE FROM softlocks
+            WHERE user_id = ${userID} AND raid_id = ${raidID}
+            `;
+        }
+    )
 }
 
 export async function close() {

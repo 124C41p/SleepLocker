@@ -335,9 +335,9 @@ viewFormEditable env data infoMsg =
         , case validateFormData data of
             Nothing ->
                 div [ class "btn-group" ]
-                    [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
-                    , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
-                    ]
+                        [ button [ class "btn", class "btn-secondary", disabled True ] [ text "Abschicken" ]
+                        , button [ class "btn", class "btn-secondary", disabled True ] [ text "Stornieren" ]
+                        ]
             Just (user, locks) ->
                 div [ class "btn-group" ]
                     [ button [ class "btn", class "btn-primary", onClick (RegisterUserData user locks) ] [ text "Abschicken" ]

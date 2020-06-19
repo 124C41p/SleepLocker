@@ -31,6 +31,7 @@ module Api exposing
     , LootTable
     , LootTableItem
     , lootTableDecoder
+    , adminRemoveUser
     )
 
 import Json.Decode as Decode exposing(Decoder)
@@ -366,3 +367,18 @@ lootTableDecoder =
                 (Decode.field "itemName" Decode.string)
                 (Decode.field "locations" (Decode.list Decode.string))
         )
+
+adminRemoveUser : RaidAdminKey -> String -> ProcessFun () msg -> Cmd msg
+adminRemoveUser (RaidAdminKey key) username processFun =
+    Http.post
+        { url = "/api/adminRemoveUser"
+        , body = Http.jsonBody
+            <| Encode.object
+                [ ( "raidAdminKey", Encode.string key )
+                , ( "userName", Encode.string username )
+                ]
+        , expect = expectResponse
+            processFun
+            Nothing
+            ( Decode.null () )
+        }
