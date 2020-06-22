@@ -43,12 +43,62 @@ type alias ModelData =
     , raidUserKey : RaidUserKey
     , title : String
     , createdOn : Posix
-    , userList : List (User, Posix)
+    , userList : List UserData
     , errorMessage : Maybe String
     , raidMode : Maybe RaidMode
     , timeZone : Zone
     , askDelete : Maybe String
+    , sorting : Sorting
     }
+
+type alias UserData =
+    { user : User
+    , registeredOn : Posix
+    , index : Int
+    }
+
+type Sorting
+    = DateASC
+    | DateDSC
+    | NameASC
+    | NameDSC
+    | ClassASC
+    | ClassDSC
+    | RoleASC
+    | RoleDSC
+
+ascSuffix : String
+ascSuffix = " ⏶"
+
+dscSuffix : String
+dscSuffix = " ⏷"
+
+sortUsers : Sorting -> List UserData -> List UserData
+sortUsers sorting userList =
+    let
+        flipped cmp =
+            case cmp of
+            LT -> GT
+            EQ -> EQ
+            GT -> LT
+        compareStr str1 str2 =
+            compare (String.toLower str1) (String.toLower str2)
+        secondComparator cmp user1 user2 =
+            case cmp user1 user2 of
+                EQ -> compareStr user1.user.userName user2.user.userName
+                other -> other
+        basicComparator user1 user2 =
+            case sorting of
+                DateASC -> compare user1.index user2.index
+                DateDSC -> flipped <| compare user1.index user2.index
+                NameASC -> compareStr user1.user.userName user2.user.userName
+                NameDSC -> flipped <| compareStr user1.user.userName user2.user.userName
+                ClassASC -> compare user1.user.class user2.user.class
+                ClassDSC -> flipped <| compare user1.user.class user2.user.class
+                RoleASC -> compare user1.user.role user2.user.role
+                RoleDSC -> flipped <| compare user1.user.role user2.user.role
+    in
+        List.sortWith (secondComparator basicComparator) userList
 
 flagsDecoder : Decoder ModelData
 flagsDecoder = 
@@ -57,7 +107,7 @@ flagsDecoder =
         (Decode.field "raidUserKey" raidUserKeyDecoder)
         (Decode.field "title" Decode.string)
         (Decode.field "createdOn" timeStringDecoder)
-    |> Decode.map (\p -> p [] Nothing Nothing Time.utc Nothing)
+    |> Decode.map (\p -> p [] Nothing Nothing Time.utc Nothing DateASC)
 
 type alias Flags = Encode.Value
 
@@ -86,6 +136,7 @@ type Msg
     | AskDelete String
     | DoDelete String
     | DontDelete
+    | SetSorting Sorting
 
 loadRegistrations : RaidAdminKey -> Cmd Msg
 loadRegistrations raidAdminKey =
@@ -119,7 +170,19 @@ updateValidModel msg model =
             ( model, loadRegistrations model.raidAdminKey )
 
         Updated raidStatus ->
-            ( { model | userList = raidStatus.registrations, raidMode = Just raidStatus.mode, errorMessage = Nothing }, Cmd.none )
+            (   { model 
+                | userList =
+                    raidStatus.registrations
+                    |> List.indexedMap
+                        (\index (user, time) ->
+                            UserData user time index
+                        )
+                    |> sortUsers model.sorting
+                , raidMode = Just raidStatus.mode
+                , errorMessage = Nothing
+                }
+            , Cmd.none
+            )
 
         DoSetMode mode ->
             ( { model | errorMessage = Nothing, raidMode = Nothing }, setMode model.raidAdminKey mode )
@@ -135,6 +198,13 @@ updateValidModel msg model =
             ( { model | askDelete = Nothing }, delete model.raidAdminKey userName )
         DontDelete ->
             ( { model | askDelete = Nothing }, Cmd.none )
+        SetSorting sorting ->
+            (   { model
+                | sorting = sorting
+                , userList = sortUsers sorting model.userList
+                }
+            , Cmd.none
+            )
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -158,7 +228,7 @@ viewValidModel model =
                 ]
             , div [ class "row" ]
                 [ div [ class "col-md-2" ] [ viewControls model.raidUserKey model.errorMessage model.raidMode ]
-                , div [ class "col-md-10" ] [ viewUserList model.timeZone model.userList ]
+                , div [ class "col-md-10" ] [ viewUserList model.timeZone model.sorting model.userList ]
                 ]
             , case model.askDelete of
                 Nothing -> div [] []
@@ -223,30 +293,73 @@ viewButtons mode =
             [ text "2: Veröffentlichungsphase" ]
         ]
 
-viewUserList : Zone -> List (User, Posix) -> Html Msg
-viewUserList zone userList =
+dateSortingSuffix : Sorting -> String
+dateSortingSuffix sorting =
+    case sorting of
+        DateASC -> ascSuffix
+        DateDSC -> dscSuffix
+        _ -> ""
+
+nameSortingSuffix : Sorting -> String
+nameSortingSuffix sorting =
+    case sorting of
+        NameASC -> ascSuffix
+        NameDSC -> dscSuffix
+        _ -> ""
+
+classSortingSuffix : Sorting -> String
+classSortingSuffix sorting =
+    case sorting of
+        ClassASC -> ascSuffix
+        ClassDSC -> dscSuffix
+        _ -> ""
+
+roleSortingSuffix : Sorting -> String
+roleSortingSuffix sorting =
+    case sorting of
+        RoleASC -> ascSuffix
+        RoleDSC -> dscSuffix
+        _ -> ""
+
+viewUserList : Zone -> Sorting -> List UserData -> Html Msg
+viewUserList zone sorting userList =
     table [ class "table", class "table-striped", class "table-bordered" ]
         [ thead []
-            [ th [ scope "col" ] [ text "#" ]
-            , th [ scope "col" ] [ text "Name" ]
-            , th [ scope "col" ] [ text "Klasse" ]
-            , th [ scope "col" ] [ text "Rolle" ]
-            , th [ scope "col" ] [ text "Anmeldezeitpunkt" ]
-            , th [ scope "col" ] [ text "Löschen" ]
+            [ th [ scope "col", class "align-middle" ]
+                [ button [ class "btn", class "btn-link", onClick (SetSorting <| if sorting == DateASC then DateDSC else DateASC) ]
+                    [ text <| "#" ++ dateSortingSuffix sorting ]
+                ]
+            , th [ scope "col", class "align-middle" ]
+                [ button [ class "btn", class "btn-link", onClick (SetSorting <| if sorting == NameASC then NameDSC else NameASC) ]
+                    [ text <| "Name" ++ nameSortingSuffix sorting ]
+                ]
+            , th [ scope "col", class "align-middle" ]
+                [ button [ class "btn", class "btn-link", onClick (SetSorting <| if sorting == ClassASC then ClassDSC else ClassASC) ]
+                    [ text <| "Klasse" ++ classSortingSuffix sorting ]
+                ]
+            , th [ scope "col", class "align-middle" ]
+                [ button [ class "btn", class "btn-link", onClick (SetSorting <| if sorting == RoleASC then RoleDSC else RoleASC) ]
+                    [ text <| "Rolle" ++ roleSortingSuffix sorting ]
+                ]
+            , th [ scope "col", class "align-middle" ]
+                [ button [ class "btn", class "btn-link", onClick (SetSorting <| if sorting == DateASC then DateDSC else DateASC) ]
+                    [ text <| "Anmeldezeitpunkt" ++ dateSortingSuffix sorting ]
+                ]
+            , th [ scope "col", class "align-middle" ] [ text "Löschen" ]
             ]
-        , tbody [] (List.indexedMap (\index (user, time) -> viewUserRow zone index user time) userList)
+        , tbody [] (List.map (\data -> viewUserRow zone data) userList)
         ]
 
-viewUserRow : Zone -> Int -> User -> Posix -> Html Msg
-viewUserRow zone index user registeredOn =
+viewUserRow : Zone -> UserData -> Html Msg
+viewUserRow zone data =
     tr []
-        [ th [ scope "row" ] [ text (String.fromInt (index + 1)) ]
-        , td [] [ text user.userName ]
-        , td [] [ text user.class ]
-        , td [] [ text user.role ]
-        , td [] [ text (registeredOnString zone registeredOn) ]
+        [ th [ scope "row" ] [ text (String.fromInt (data.index + 1)) ]
+        , td [] [ text data.user.userName ]
+        , td [] [ text data.user.class ]
+        , td [] [ text data.user.role ]
+        , td [] [ text (registeredOnString zone data.registeredOn) ]
         , td []
-            [ button [ class "btn", onClick (AskDelete user.userName) ]
+            [ button [ class "btn", onClick (AskDelete data.user.userName) ]
                 [ span [] [ text "❌" ]
                 ]
             ]
