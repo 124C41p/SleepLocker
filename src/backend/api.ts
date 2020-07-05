@@ -73,7 +73,7 @@ app.post('/clearMyData', async (req, res) => {
 
 class SoftlockItem {
     constructor(
-        @Field("itemName", true) @MinLength(1) @MaxLength(50) public itemName?: string
+        @Field("itemName", true) @MinLength(1) @MaxLength(100) public itemName?: string
     ) { }
 }
 
