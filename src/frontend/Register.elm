@@ -206,7 +206,7 @@ init flags =
                 , env = env
                 }
             , Cmd.batch
-                [ loadUserData env.raidID env.userID NoMsg
+                [ loadUserData env.raidID env.userID (SuccessMsg "Du bist bereits angemeldet.")
                 , loadTimeZone NewTimeZone
                 ]
             )
