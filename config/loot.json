@@ -1170,7 +1170,8 @@
             "Hohepriesterin Arlokk",
             "Jin'do der Verhexer",
             "Hakkar",
-            "Trash"
+            "Trash",
+            "Verwunschener Hoodoohaufen"
         ],
         "loot": [
             {
@@ -1962,6 +1963,54 @@
                 "itemName": "Wushoolays Schüreisen",
                 "locations": [
                     "Wushoolay"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Schurke)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Druide)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Magier)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Hexenmeister)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Priester)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Paladin)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Krieger)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Durchstochene Voodoopuppe (Jäger)",
+                "locations": [
+                    "Verwunschener Hoodoohaufen"
                 ]
             }
         ]
