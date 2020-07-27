@@ -2851,5 +2851,1545 @@
                 ]
             }
         ]
+    },
+    {
+        "dungeonKey": "AQ20",
+        "dungeonName": "Ruinen von Ahn'Qiraj",
+        "locations": [
+            "Kurinnaxx",
+            "General Rajaxx",
+            "Moam",
+            "Buru der Verschlinger",
+            "Ayamiss der Jäger",
+            "Ossirian der Narbenlose",
+            "Klassenbücher",
+            "Trash"
+        ],
+        "loot": [
+            {
+                "itemName": "Zorn des vergessenen Schwarms",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Treter des wandernden Nomaden",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Hammer der Qirajigewalt",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Fühler der Kräftigung",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Helm des heiligen Rächers",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Silithidhülsenzünder",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Der verlorene Kris von Zedd",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Helmkappe des Elementarfurors",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Alabastergötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Azurgötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Bernsteingötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Jaspisgötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Obsidiangötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Onyxgötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Zinnobergötze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Züngelnder Götze",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Frostmacht",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Heilkraft",
+                "locations": [
+                    "Moam",
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Überragende Beweglichkeit",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Formel: Umhang - Verstohlenheit",
+                "locations": [
+                    "General Rajaxx",
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Handschuhe aus gekräftigter Silithidenhaut",
+                "locations": [
+                    "Kurinnaxx"
+                ]
+            },
+            {
+                "itemName": "Gürtel der Inquisition",
+                "locations": [
+                    "Kurinnaxx"
+                ]
+            },
+            {
+                "itemName": "Handgelenkschutz des Sandhäschers",
+                "locations": [
+                    "Kurinnaxx"
+                ]
+            },
+            {
+                "itemName": "Gürtel des Sandhäschers",
+                "locations": [
+                    "Kurinnaxx"
+                ]
+            },
+            {
+                "itemName": "Opferdolch der Qiraji",
+                "locations": [
+                    "Kurinnaxx"
+                ]
+            },
+            {
+                "itemName": "Gewänder der Sandstürme",
+                "locations": [
+                    "Kurinnaxx"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Qirajigenerals",
+                "locations": [
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Armschienen des Qirajikommandos",
+                "locations": [
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Beinplatten des Qirajikommandos",
+                "locations": [
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Südwinds Griff",
+                "locations": [
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Menschentöter der Qiraji",
+                "locations": [
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Vorposten",
+                "locations": [
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Pläne: Dunkler Griff des Zerstörers",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Helm des Südwinds",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Ring des Zorns",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Obsidianschuppengamaschen",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Mantel von Maz'Nadir",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Beinplatten des Zerstörers",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Südwinds",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Auge von Moam",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Umhang des Retters",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Chitinschulterschutz",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Dicker Silithidenbrustschutz",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Kralle der gewaltigen Konzentration",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Unbeweglichen",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Turban der staubigen Winde",
+                "locations": [
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Treibsandwandler",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Schuppenarmschienen des Verschlingers",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Schleimkicker",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Chitinstachelfetisch",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Schleimige Schuppenstulpen",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Schwarms",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Burus Schädelfragment",
+                "locations": [
+                    "Buru der Verschlinger"
+                ]
+            },
+            {
+                "itemName": "Stulpen aus Silithidenschuppen",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Ring der Wüstenwinde",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Helm des Nachwachsens",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Wüstenbeschützers",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Stachel von Ayamiss",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Stulpen des Unbeweglichen",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Bogen der straffen Sehne",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Stab der Ruinen",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Fesseln des Narbenlosen",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Sandpolierter Hammer",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Sandsturmumhang",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Schultern mit runenverzierten Steinen ",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Ossirians Bindung",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Mantel von Horusath",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Gamaschen des schwarzen Sturms",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Helm der Herrschaft",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der düsteren Weisheit",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Stulpen des neuen Lebens",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Armbrust der bevorstehenden Verdammnis",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Armschienen der Unbarmherzigkeit ",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Kopf von Ossirian dem Narbenlosen",
+                "locations": [
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Verschnörkelter Griff der Qiraji",
+                "locations": [
+                    "Ossirian der Narbenlose",
+                    "Ayamiss der Jäger",
+                    "Buru der Verschlinger",
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Stachelgriff der Qiraji",
+                "locations": [
+                    "Ossirian der Narbenlose",
+                    "Ayamiss der Jäger",
+                    "Buru der Verschlinger",
+                    "Moam"
+                ]
+            },
+            {
+                "itemName": "Zeremonienring der Qiraji",
+                "locations": [
+                    "Ossirian der Narbenlose",
+                    "Ayamiss der Jäger",
+                    "Buru der Verschlinger",
+                    "Moam",
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Gebieterring der Qiraji",
+                "locations": [
+                    "Ossirian der Narbenlose",
+                    "Ayamiss der Jäger",
+                    "Buru der Verschlinger",
+                    "Moam",
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Kampftuch der Qiraji",
+                "locations": [
+                    "Ayamiss der Jäger",
+                    "Buru der Verschlinger",
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Hoheitstuch der Qiraji",
+                "locations": [
+                    "Ayamiss der Jäger",
+                    "Buru der Verschlinger",
+                    "General Rajaxx"
+                ]
+            },
+            {
+                "itemName": "Buch der heilenden Berührung XI",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Buch der Verjüngung XI",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Buch des Sternenfeuers VII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Lehrbuch: Aspekt des Falken VII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Lehrbuch: Mehrfachschuss V",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Lehrbuch: Schlangenbiss IX",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Foliant der arkanen Geschosse VIII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Foliant des Feuerballs XII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Foliant des Frostblitzes XI",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Buchband: Segen der Macht VII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Buchband: Segen der Weisheit VI",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Buchband: Heiliges Licht IX",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Kodex der großen Heilung V",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Kodex des Gebets der Heilung V",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Kodex der Erneuerung X",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Leitfaden des Meuchelns IX",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Leitfaden des tödlichen Gifts V",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Leitfaden der Finte V",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Zauberfoliant der Verderbnis VII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Zauberfoliant des Feuerbrandes VIII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Zauberfoliant des Schattenblitzes X",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Handbuch des Schlachtrufs VII",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Handbuch des heldenhaften Stoßes IX",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            },
+            {
+                "itemName": "Handbuch der Rache VI",
+                "locations": [
+                    "Klassenbücher"
+                ]
+            }
+        ]
+    },
+    {
+        "dungeonKey": "AQ40",
+        "dungeonName": "Tempel von Ahn'Qiraj",
+        "locations": [
+            "Der Prophet Skeram",
+            "Käfertrio",
+            "Käfertrio (Vem)",
+            "Käfertrio (Kri)",
+            "Käfertrio (Yauj)",
+            "Schlachtwache Sartura",
+            "Fankriss der Unnachgiebige",
+            "Viscidus",
+            "Prinzessin Huhuran",
+            "Zwillingsimperatoren",
+            "Ouro",
+            "C'Thun",
+            "Trash"
+        ],
+        "loot": [
+            {
+                "itemName": "Imperiale Qirajiwaffe",
+                "locations": [
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
+                    "Zwillingsimperatoren",
+                    "Ouro",
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Imperiale Qirajiinsignie",
+                "locations": [
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
+                    "Zwillingsimperatoren",
+                    "Ouro",
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Amulett des faulen Zauberschutzes",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Sperrfeuerschultern",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Handgelenksschutz aus Käferschuppen",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Stiefel des gefallenen Propheten",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Stiefel der widerrufenen Prophezeiung",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Stiefel des standhaften Willens",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Brustplatte der Vernichtung",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Umhang des geballten Hasses",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Hammer von Ji'zhi",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Gamaschen der bodenlosen Tiefe",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Anhänger des Qirajiwächters",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Ring des wirren Gedankens",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            { 
+                "itemName": "Stab der Qirajipropheten",
+                "locations": [
+                    "Der Prophet Skeram"
+                ]
+            },
+            {
+                "itemName": "Cape der Dreifaltigkeit",
+                "locations": [
+                    "Käfertrio"
+                ]
+            },
+            {
+                "itemName": "Roben des Dreigestirns",
+                "locations": [
+                    "Käfertrio"
+                ]
+            },
+            {
+                "itemName": "Dreistoffmantel",
+                "locations": [
+                    "Käfertrio"
+                ]
+            },
+            {
+                "itemName": "Erscheinung des Verschlingers",
+                "locations": [
+                    "Käfertrio"
+                ]
+            },
+            {
+                "itemName": "Triadengurt",
+                "locations": [
+                    "Käfertrio"
+                ]
+            },
+            {
+                "itemName": "Angelistas Berührung",
+                "locations": [
+                    "Käfertrio"
+                ]
+            },
+            {
+                "itemName": "Handschuhe von Ebru",
+                "locations": [
+                    "Käfertrio (Vem)"
+                ]
+            },
+            {
+                "itemName": "Brühschlammige Stulpen",
+                "locations": [
+                    "Käfertrio (Vem)"
+                ]
+            },
+            {
+                "itemName": "Stiefel des gefallenen Helden",
+                "locations": [
+                    "Käfertrio (Vem)"
+                ]
+            },
+            {
+                "itemName": "Angelistas Glücksbringer",
+                "locations": [
+                    "Käfertrio (Vem)"
+                ]
+            },
+            {
+                "itemName": "Weste der zügigen Vollstreckung",
+                "locations": [
+                    "Käfertrio (Kri)"
+                ]
+            },
+            {
+                "itemName": "Ring des Verschlungenen",
+                "locations": [
+                    "Käfertrio (Kri)"
+                ]
+            },
+            {
+                "itemName": "Versteinerter Skarabäus",
+                "locations": [
+                    "Käfertrio (Kri)"
+                ]
+            },
+            {
+                "itemName": "Zauberstab des Qiajiadels",
+                "locations": [
+                    "Käfertrio (Kri)"
+                ]
+            },
+            {
+                "itemName": "Gallenbespritzte Stulpen",
+                "locations": [
+                    "Käfertrio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Mantel des Wüstenfeldzugs",
+                "locations": [
+                    "Käfertrio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Mantel des Wüstenzorns",
+                "locations": [
+                    "Käfertrio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Mantel der inneren Kraft",
+                "locations": [
+                    "Käfertrio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Ukkos Ring der Dunkelheit",
+                "locations": [
+                    "Käfertrio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Zusammengesetzte Stiefel",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Sarturas Macht",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Beinplatten des flammenden Lichts",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Schuppengamaschen des Qirajizorns",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Kriecherrankenhelm",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Abzeichen der Schwarmwache",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Roben der Schlachtwache",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der Vollstreckung",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Silithidenklaue",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Stulpen der festen Entschlossenheit",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Dicker Qirahihautgürtel",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Gamaschen des faulenden Schwarms",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Halskette der Reinheit",
+                "locations": [
+                    "Schlachtwache Sartura"
+                ]
+            },
+            {
+                "itemName": "Totem des Lebens",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Buchband der Anmut",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Umhang der ungelüfteten Geheimnisse",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Widerhaken des Sandhäschers",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Schulterstücke des Unerbittlichen",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Stiefel des Schwarmbaugräbers",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Fetisch des Sandhäschers",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Uralter Qirajizerfetzer",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Schuppengamaschen des Sandhäschers",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Brustschutz aus Silithidenknochenpanzer",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Roben des Schutzheiligen",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Stachelhalsschmuck",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Mantel der boshaften Rache",
+                "locations": [
+                    "Fankriss der Unnachgiebige"
+                ]
+            },
+            {
+                "itemName": "Geschärfter Silithidenknochen",
+                "locations": [
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Stulpen von Kalimdor",
+                "locations": [
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Skarabäusbrosche",
+                "locations": [
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Schleimbeschichtete Gamaschen",
+                "locations": [
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Ring des Qirajizorns",
+                "locations": [
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Görte der Gesundheit",
+                "locations": [
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Huhurans Stachel",
+                "locations": [
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Wespenhautstulpen",
+                "locations": [
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Handgelenksschutz des Schwarmbauentweihers",
+                "locations": [
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Hanschuhe des Messias",
+                "locations": [
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Ring des Märtyrers",
+                "locations": [
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Umhang des goldenen Schwarms",
+                "locations": [
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Befehlsbindungen der Qiraji (T2.5 Füße/Schultern)",
+                "locations": [
+                    "Prinzessin Huhuran",
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Dominanzbindungen der Qiraji (T2.5 Füße/Schultern)",
+                "locations": [
+                    "Prinzessin Huhuran",
+                    "Viscidus"
+                ]
+            },
+            {
+                "itemName": "Königliches Szepter von Vek'lor",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Königlicher Qirajigürtel",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Vek'lors Handschuhe der Verwüstung",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Stiefel der göttlichen Erscheinung",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Ring des Imperators Vek'lor",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Vollstrechungsarmschienen der Qiraji",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Vek'lors Diadem (T2.5 Kopf)",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Armreifen der königlichen Erlösung",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des verborgenen Tempels",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Gürtel des gefallenen Imperators",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Griff des gefallenen Imperators",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Amulett von Vek'nilash",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Vek'nilashs Gürtel der Regeneration",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Kalimdors Rache",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Vek'nilashs Reif (T2.5 Kopf)",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Wurmschuppenblocker",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Armschienen des Wühlers",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Don Rigobertos verlorener Hut",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Larve des großen Wurms",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Panzer des Wühlers",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Jom Gabbar",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Ouros intakte Haut (T2.5 Beine)",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Haut des großen Sandwurms (T2.5 Beine)",
+                "locations": [
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Stich des Todes",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Dunkle Schneide des Irrsinns",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Gürtel der endlosen Pain",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Bezwungene Tentakel von C'Thun",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Griff des alten Gottes",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Umhang der Klarsicht",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Stulpen der dunklen Stürme",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Mal von C'Thun",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Umhang des Verschlungenen",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Szepter des falschen Propheten",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Stulpen der Vernichtung",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Augenstrangkordel",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Ring des Göttertöters",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Knochenpanzer des alten Gottes (T2.5 Brust)",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Hülle des alten Gottes (T2.5 Brust)",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Auge von C'Thun",
+                "locations": [
+                    "C'Thun"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Schattenmacht",
+                "locations": [
+                    "Prinzessin Huhuran",
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Frostmacht",
+                "locations": [
+                    "Bug Trio (Yauj)",
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Feuermacht",
+                "locations": [
+                    "Viscidus",
+                    "Ouro",
+                    "Bug Trio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Heilkraft",
+                "locations": [
+                    "Ouro",
+                    "Bug Trio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Überragende Beweglichkeit",
+                "locations": [
+                    "Bug Trio (Yauj)",
+                    "Bug Trio (Kri)",
+                    "Prinzessin Huhuran"
+                ]
+            },
+            {
+                "itemName": "Formel: Umhang - Ausweichen",
+                "locations": [
+                    "Ouro",
+                    "Bug Trio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Formel: Umhang - Verstohlenheit",
+                "locations": [
+                    "Ouro",
+                    "Bug Trio (Yauj)"
+                ]
+            },
+            {
+                "itemName": "Gewand des königlichen Aufstiegs",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Handschuhe des Unsterblichen",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Handschuhe der widerrufenen Prophezeiung",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Neretzek der Bluttrinker",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Kriegshammer des Anubisath",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Ritssyns Ring des Chaos",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Splitter des gefallenen Sterns",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze der Nacht",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze des Todes",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze der Sonne",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze des Krieges",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze der Weisen",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze des Lebens",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze des Kampfes",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Götze der Wiedergeburt",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Blauer Qirajiresonanzkristall",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Gelber Qirajiresonanzkristall",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Grüner Qirajiresonanzkristall",
+                "locations": [
+                    "Trash"
+                ]
+            },
+            {
+                "itemName": "Roter Qirajiresonanzkristall",
+                "locations": [
+                    "Trash"
+                ]
+            }
+        ]
     }
 ]
