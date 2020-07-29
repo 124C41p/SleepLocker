@@ -47,4 +47,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-Thanks to Keduh for providing the BWL loot table!
+* Thanks to Keduh for providing the BWL loot table!
+* Thanks to Kreide for providing AQ20 and AQ40 loot tables!
