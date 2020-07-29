@@ -1171,7 +1171,8 @@
             "Jin'do der Verhexer",
             "Hakkar",
             "Trash",
-            "Verwunschener Hoodoohaufen"
+            "Verwunschener Hoodoohaufen",
+            "Sonstiges"
         ],
         "loot": [
             {
@@ -2011,6 +2012,30 @@
                 "itemName": "Durchstochene Voodoopuppe (Jäger)",
                 "locations": [
                     "Verwunschener Hoodoohaufen"
+                ]
+            },
+            {
+                "itemName": "Arkankristall",
+                "locations": [
+                    "Sonstiges"
+                ]
+            },
+            {
+                "itemName": "Blutrebe",
+                "locations": [
+                    "Sonstiges"
+                ]
+            },
+            {
+                "itemName": "Schmuckstück der Hakkari",
+                "locations": [
+                    "Sonstiges"
+                ]
+            },
+            {
+                "itemName": "Soldarit",
+                "locations": [
+                    "Sonstiges"
                 ]
             }
         ]
