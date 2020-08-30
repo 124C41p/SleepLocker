@@ -2990,27 +2990,78 @@
             {
                 "itemName": "Formel: Handschuhe - Frostmacht",
                 "locations": [
-                    "Buru der Verschlinger"
+                    "Kurinnaxx",
+                    "General Rajaxx",
+                    "Moam",
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Feuermacht",
+                "locations": [
+                    "Kurinnaxx",
+                    "General Rajaxx",
+                    "Moam",
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Formel: Handschuhe - Schattenmacht",
+                "locations": [
+                    "Kurinnaxx",
+                    "General Rajaxx",
+                    "Moam",
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
                 ]
             },
             {
                 "itemName": "Formel: Handschuhe - Heilkraft",
                 "locations": [
+                    "Kurinnaxx",
+                    "General Rajaxx",
                     "Moam",
-                    "Ayamiss der Jäger"
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
                 ]
             },
             {
                 "itemName": "Formel: Handschuhe - Überragende Beweglichkeit",
                 "locations": [
-                    "Moam"
+                    "Kurinnaxx",
+                    "General Rajaxx",
+                    "Moam",
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
                 ]
             },
             {
                 "itemName": "Formel: Umhang - Verstohlenheit",
                 "locations": [
+                    "Kurinnaxx",
                     "General Rajaxx",
-                    "Ayamiss der Jäger"
+                    "Moam",
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
+                ]
+            },
+            {
+                "itemName": "Formel: Umhang - Ausweichen",
+                "locations": [
+                    "Kurinnaxx",
+                    "General Rajaxx",
+                    "Moam",
+                    "Buru der Verschlinger",
+                    "Ayamiss der Jäger",
+                    "Ossirian der Narbenlose"
                 ]
             },
             {
@@ -3194,12 +3245,6 @@
                 ]
             },
             {
-                "itemName": "Schleimige Schuppenstulpen",
-                "locations": [
-                    "Buru der Verschlinger"
-                ]
-            },
-            {
                 "itemName": "Handschuhe des Schwarms",
                 "locations": [
                     "Buru der Verschlinger"
@@ -3219,6 +3264,12 @@
             },
             {
                 "itemName": "Ring der Wüstenwinde",
+                "locations": [
+                    "Ayamiss der Jäger"
+                ]
+            },
+            {
+                "itemName": "Stiefel der feurigen Sande",
                 "locations": [
                     "Ayamiss der Jäger"
                 ]
@@ -3278,12 +3329,6 @@
                 ]
             },
             {
-                "itemName": "Schultern mit runenverzierten Steinen ",
-                "locations": [
-                    "Ossirian der Narbenlose"
-                ]
-            },
-            {
                 "itemName": "Ossirians Bindung",
                 "locations": [
                     "Ossirian der Narbenlose"
@@ -3326,7 +3371,7 @@
                 ]
             },
             {
-                "itemName": "Armschienen der Unbarmherzigkeit ",
+                "itemName": "Armschienen der Unbarmherzigkeit",
                 "locations": [
                     "Ossirian der Narbenlose"
                 ]
@@ -3358,6 +3403,7 @@
             {
                 "itemName": "Zeremonienring der Qiraji",
                 "locations": [
+                    "Kurinnaxx",
                     "Ossirian der Narbenlose",
                     "Ayamiss der Jäger",
                     "Buru der Verschlinger",
@@ -3368,6 +3414,7 @@
             {
                 "itemName": "Gebieterring der Qiraji",
                 "locations": [
+                    "Kurinnaxx",
                     "Ossirian der Narbenlose",
                     "Ayamiss der Jäger",
                     "Buru der Verschlinger",
@@ -3378,6 +3425,7 @@
             {
                 "itemName": "Kampftuch der Qiraji",
                 "locations": [
+                    "Kurinnaxx",
                     "Ayamiss der Jäger",
                     "Buru der Verschlinger",
                     "General Rajaxx"
@@ -3386,6 +3434,7 @@
             {
                 "itemName": "Hoheitstuch der Qiraji",
                 "locations": [
+                    "Kurinnaxx",
                     "Ayamiss der Jäger",
                     "Buru der Verschlinger",
                     "General Rajaxx"
@@ -3961,7 +4010,7 @@
                 ]
             },
             {
-                "itemName": "Görte der Gesundheit",
+                "itemName": "Götze der Gesundheit",
                 "locations": [
                     "Viscidus"
                 ]
@@ -4253,6 +4302,11 @@
             {
                 "itemName": "Formel: Handschuhe - Schattenmacht",
                 "locations": [
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
                     "Prinzessin Huhuran",
                     "Ouro"
                 ]
@@ -4260,45 +4314,85 @@
             {
                 "itemName": "Formel: Handschuhe - Frostmacht",
                 "locations": [
-                    "Bug Trio (Yauj)",
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
                     "Ouro"
                 ]
             },
             {
                 "itemName": "Formel: Handschuhe - Feuermacht",
                 "locations": [
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
                     "Viscidus",
-                    "Ouro",
-                    "Bug Trio (Yauj)"
+                    "Prinzessin Huhuran",
+                    "Ouro"
                 ]
             },
             {
                 "itemName": "Formel: Handschuhe - Heilkraft",
                 "locations": [
-                    "Ouro",
-                    "Bug Trio (Yauj)"
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
+                    "Ouro"
                 ]
             },
             {
                 "itemName": "Formel: Handschuhe - Überragende Beweglichkeit",
                 "locations": [
-                    "Bug Trio (Yauj)",
-                    "Bug Trio (Kri)",
-                    "Prinzessin Huhuran"
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
+                    "Ouro"
                 ]
             },
             {
                 "itemName": "Formel: Umhang - Ausweichen",
                 "locations": [
-                    "Ouro",
-                    "Bug Trio (Yauj)"
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
+                    "Ouro"
                 ]
             },
             {
                 "itemName": "Formel: Umhang - Verstohlenheit",
                 "locations": [
-                    "Ouro",
-                    "Bug Trio (Yauj)"
+                    "Der Prophet Skeram",
+                    "Käfertrio",
+                    "Schlachtwache Sartura",
+                    "Fankriss der Unnachgiebige",
+                    "Viscidus",
+                    "Prinzessin Huhuran",
+                    "Ouro"
+                ]
+            },
+            {
+                "itemName": "Formel: Umhang - Feingefühl",
+                "locations": [
+                    "Zwillingsimperatoren"
+                ]
+            },
+            {
+                "itemName": "Formel: Umhang - Bedrohung",
+                "locations": [
+                    "Zwillingsimperatoren"
                 ]
             },
             {
